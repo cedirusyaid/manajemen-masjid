@@ -1,0 +1,12 @@
+# 🕌 Root Rewrite Rule for CodeIgniter 4 - Standar v2.5
+# Mengarahkan semua request dari folder root ke subfolder /public secara internal
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Cegah loop jika request sudah masuk ke folder public
+    RewriteCond %{REQUEST_URI} !^/public/
+    
+    # Tulis ulang request ke folder public secara transparan
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
