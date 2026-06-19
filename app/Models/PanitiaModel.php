@@ -12,7 +12,7 @@ class PanitiaModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id', 'kegiatan_id', 'personil_id', 'parent_id', 'jabatan', 'tugas', 'urutan'];
+    protected $allowedFields    = ['id', 'jabatan_kegiatan_id', 'personil_id'];
 
     // Dates
     protected $useTimestamps = true;
@@ -26,12 +26,8 @@ class PanitiaModel extends Model
 
     // Validation Rules
     protected $validationRules = [
-        'kegiatan_id' => 'required',
-        'personil_id' => 'required',
-        'parent_id'   => 'permit_empty',
-        'jabatan'     => 'required|min_length[2]|max_length[100]',
-        'tugas'       => 'permit_empty',
-        'urutan'      => 'permit_empty|integer'
+        'jabatan_kegiatan_id' => 'required',
+        'personil_id'         => 'required'
     ];
 
     /**
@@ -56,17 +52,18 @@ class PanitiaModel extends Model
     {
         return $this->select('
                         trn_panitia.*, 
-                        mst_kegiatan.nama_kegiatan, 
+                        trn_jabatan_kegiatan.nama_jabatan, trn_jabatan_kegiatan.tugas, trn_jabatan_kegiatan.urutan, trn_jabatan_kegiatan.parent_id,
+                        mst_kegiatan.nama_kegiatan, mst_kegiatan.id as kegiatan_id,
                         mst_personil.nama, mst_personil.no_hp, mst_personil.email,
-                        parent_p.nama as nama_atasan, parent_panitia.jabatan as jabatan_atasan
+                        parent_jabatan.nama_jabatan as jabatan_atasan
                     ')
-                    ->join('mst_kegiatan', 'mst_kegiatan.id = trn_panitia.kegiatan_id')
+                    ->join('trn_jabatan_kegiatan', 'trn_jabatan_kegiatan.id = trn_panitia.jabatan_kegiatan_id')
+                    ->join('mst_kegiatan', 'mst_kegiatan.id = trn_jabatan_kegiatan.kegiatan_id')
                     ->join('mst_personil', 'mst_personil.id = trn_panitia.personil_id')
-                    ->join('trn_panitia as parent_panitia', 'parent_panitia.id = trn_panitia.parent_id', 'left')
-                    ->join('mst_personil as parent_p', 'parent_p.id = parent_panitia.personil_id', 'left')
+                    ->join('trn_jabatan_kegiatan as parent_jabatan', 'parent_jabatan.id = trn_jabatan_kegiatan.parent_id', 'left')
                     ->where('trn_panitia.deleted_at', null)
                     ->orderBy('mst_kegiatan.tanggal_mulai', 'DESC')
-                    ->orderBy('trn_panitia.urutan', 'ASC')
+                    ->orderBy('trn_jabatan_kegiatan.urutan', 'ASC')
                     ->findAll();
     }
 
@@ -74,17 +71,18 @@ class PanitiaModel extends Model
     {
         return $this->select('
                         trn_panitia.*, 
-                        mst_kegiatan.nama_kegiatan, 
+                        trn_jabatan_kegiatan.nama_jabatan, trn_jabatan_kegiatan.tugas, trn_jabatan_kegiatan.urutan, trn_jabatan_kegiatan.parent_id,
+                        mst_kegiatan.nama_kegiatan, mst_kegiatan.id as kegiatan_id,
                         mst_personil.nama, mst_personil.no_hp, mst_personil.email,
-                        parent_p.nama as nama_atasan, parent_panitia.jabatan as jabatan_atasan
+                        parent_jabatan.nama_jabatan as jabatan_atasan
                     ')
-                    ->join('mst_kegiatan', 'mst_kegiatan.id = trn_panitia.kegiatan_id')
+                    ->join('trn_jabatan_kegiatan', 'trn_jabatan_kegiatan.id = trn_panitia.jabatan_kegiatan_id')
+                    ->join('mst_kegiatan', 'mst_kegiatan.id = trn_jabatan_kegiatan.kegiatan_id')
                     ->join('mst_personil', 'mst_personil.id = trn_panitia.personil_id')
-                    ->join('trn_panitia as parent_panitia', 'parent_panitia.id = trn_panitia.parent_id', 'left')
-                    ->join('mst_personil as parent_p', 'parent_p.id = parent_panitia.personil_id', 'left')
-                    ->where('trn_panitia.kegiatan_id', $kegiatanId)
+                    ->join('trn_jabatan_kegiatan as parent_jabatan', 'parent_jabatan.id = trn_jabatan_kegiatan.parent_id', 'left')
+                    ->where('trn_jabatan_kegiatan.kegiatan_id', $kegiatanId)
                     ->where('trn_panitia.deleted_at', null)
-                    ->orderBy('trn_panitia.urutan', 'ASC')
+                    ->orderBy('trn_jabatan_kegiatan.urutan', 'ASC')
                     ->findAll();
     }
 }

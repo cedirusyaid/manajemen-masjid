@@ -55,6 +55,13 @@ $routes->group('dashboard/kepengurusan', ['namespace' => 'App\Controllers'], fun
     $routes->post('periode/update/(:segment)', 'KepengurusanController::updatePeriode/$1');
     $routes->get('periode/delete/(:segment)', 'KepengurusanController::deletePeriode/$1');
     
+    // Jabatan Routes
+    $routes->get('jabatan/create', 'KepengurusanController::createJabatan');
+    $routes->post('jabatan/store', 'KepengurusanController::storeJabatan');
+    $routes->get('jabatan/edit/(:segment)', 'KepengurusanController::editJabatan/$1');
+    $routes->post('jabatan/update/(:segment)', 'KepengurusanController::updateJabatan/$1');
+    $routes->get('jabatan/delete/(:segment)', 'KepengurusanController::deleteJabatan/$1');
+    
     // Pengurus Routes
     $routes->get('pengurus/create', 'KepengurusanController::createPengurus');
     $routes->post('pengurus/store', 'KepengurusanController::storePengurus');
@@ -73,6 +80,13 @@ $routes->group('dashboard/kepanitiaan', ['namespace' => 'App\Controllers'], func
     $routes->get('kegiatan/edit/(:segment)', 'KepanitiaanController::editKegiatan/$1');
     $routes->post('kegiatan/update/(:segment)', 'KepanitiaanController::updateKegiatan/$1');
     $routes->get('kegiatan/delete/(:segment)', 'KepanitiaanController::deleteKegiatan/$1');
+    
+    // Jabatan Routes
+    $routes->get('jabatan/create', 'KepanitiaanController::createJabatan');
+    $routes->post('jabatan/store', 'KepanitiaanController::storeJabatan');
+    $routes->get('jabatan/edit/(:segment)', 'KepanitiaanController::editJabatan/$1');
+    $routes->post('jabatan/update/(:segment)', 'KepanitiaanController::updateJabatan/$1');
+    $routes->get('jabatan/delete/(:segment)', 'KepanitiaanController::deleteJabatan/$1');
     
     // Panitia Routes
     $routes->get('panitia/create', 'KepanitiaanController::createPanitia');

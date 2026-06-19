@@ -346,6 +346,18 @@
 
                 <div class="row">
                     <div class="col-md-6 mb-4">
+                        <label for="periode_id" class="form-label">Periode Masa Bakti</label>
+                        <select class="form-select" id="periode_id" name="periode_id" required>
+                            <option value="">-- Pilih Periode --</option>
+                            <?php foreach ($periode_list as $periode) : ?>
+                                <option value="<?= esc($periode['id']) ?>" <?= old('periode_id') == $periode['id'] || (isset($selected_periode) && $selected_periode == $periode['id']) || (empty(old('periode_id')) && !isset($selected_periode) && $periode['status'] == 'aktif') ? 'selected' : '' ?>>
+                                    <?= esc($periode['nama_periode']) ?> <?= $periode['status'] == 'aktif' ? '(Aktif)' : '' ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
                         <label for="personil_id" class="form-label">Nama Personel Pengurus</label>
                         <div class="input-group">
                             <select class="form-select" id="personil_id" name="personil_id" required>
@@ -362,41 +374,15 @@
                         </div>
                         <small class="text-muted mt-1 d-block">Jika personel belum terdaftar, klik tombol hijau di samping kanan untuk menambahkan secara instan.</small>
                     </div>
-
-                    <div class="col-md-6 mb-4">
-                        <label for="jabatan" class="form-label">Jabatan Kepengurusan</label>
-                        <input type="text" class="form-control" id="jabatan" name="jabatan" placeholder="Contoh: Ketua Umum / Bendahara" value="<?= old('jabatan') ?>" required>
-                    </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="periode_id" class="form-label">Periode Masa Bakti</label>
-                        <select class="form-select" id="periode_id" name="periode_id" required>
-                            <option value="">-- Pilih Periode --</option>
-                            <?php foreach ($periode_list as $periode) : ?>
-                                <option value="<?= esc($periode['id']) ?>" <?= old('periode_id') == $periode['id'] || (isset($selected_periode) && $selected_periode == $periode['id']) || (empty(old('periode_id')) && !isset($selected_periode) && $periode['status'] == 'aktif') ? 'selected' : '' ?>>
-                                    <?= esc($periode['nama_periode']) ?> <?= $periode['status'] == 'aktif' ? '(Aktif)' : '' ?>
-                                </option>
-                            <?php endforeach; ?>
+                    <div class="col-md-12 mb-4">
+                        <label for="jabatan_periode_id" class="form-label">Jabatan Kepengurusan</label>
+                        <select class="form-select" id="jabatan_periode_id" name="jabatan_periode_id" required>
+                            <option value="">-- Pilih Jabatan (Pilih Periode terlebih dahulu) --</option>
                         </select>
-                    </div>
-
-                    <div class="col-md-3 mb-4">
-                        <label for="urutan" class="form-label">Urutan Tampilan Visual</label>
-                        <input type="number" class="form-control" id="urutan" name="urutan" placeholder="Contoh: 1" value="<?= old('urutan', 1) ?>">
-                    </div>
-
-                    <div class="col-md-3 mb-4">
-                        <label for="parent_id" class="form-label">Jabatan Atasan (Parent)</label>
-                        <select class="form-select" id="parent_id" name="parent_id">
-                            <option value="">-- Tanpa Atasan (Puncak Pimpinan) --</option>
-                            <?php foreach ($pengurus_list as $p_parent) : ?>
-                                <option value="<?= esc($p_parent['id']) ?>" <?= old('parent_id') == $p_parent['id'] ? 'selected' : '' ?>>
-                                    <?= esc($p_parent['nama']) ?> (<?= esc($p_parent['jabatan']) ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <small class="text-muted mt-1 d-block">Jabatan disaring berdasarkan periode terpilih. Jika jabatan belum ada, silakan tambahkan di menu Kelola Struktur Jabatan.</small>
                     </div>
                 </div>
 
@@ -532,6 +518,33 @@
             });
         });
 
+        const jabatanRawList = <?= json_encode($jabatan_list) ?>;
+
+        function updateJabatanDropdown() {
+            const periodeId = $('#periode_id').val();
+            const jabatanSelect = $('#jabatan_periode_id');
+            const selectedVal = "<?= old('jabatan_periode_id') ?>";
+            
+            jabatanSelect.empty();
+            jabatanSelect.append('<option value="">-- Pilih Jabatan --</option>');
+            
+            if (periodeId) {
+                const filtered = jabatanRawList.filter(item => item.periode_id == periodeId);
+                if (filtered.length === 0) {
+                    jabatanSelect.append('<option value="" disabled>-- Tidak ada jabatan terdaftar di periode ini --</option>');
+                } else {
+                    filtered.forEach(item => {
+                        const isSelected = item.id == selectedVal ? 'selected' : '';
+                        jabatanSelect.append(`<option value="${item.id}" ${isSelected}>${item.nama_jabatan}</option>`);
+                    });
+                }
+            } else {
+                jabatanSelect.append('<option value="">-- Pilih Periode terlebih dahulu --</option>');
+            }
+            
+            jabatanSelect.trigger('change');
+        }
+
         // Inisialisasi Select2 Searchable Dropdown
         $(document).ready(function() {
             $('#personil_id').select2({
@@ -539,16 +552,21 @@
                 placeholder: '-- Pilih Personel --',
                 width: '100%'
             });
-            $('#parent_id').select2({
-                theme: 'bootstrap-5',
-                placeholder: '-- Pilih Atasan (Jika Ada) --',
-                allowClear: true,
-                width: '100%'
-            });
             $('#periode_id').select2({
                 theme: 'bootstrap-5',
                 placeholder: '-- Pilih Periode --',
                 width: '100%'
+            });
+            $('#jabatan_periode_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- Pilih Jabatan --',
+                width: '100%'
+            });
+
+            // Jalankan filter saat halaman dimuat & saat periode berganti
+            updateJabatanDropdown();
+            $('#periode_id').on('change', function() {
+                updateJabatanDropdown();
             });
         });
     </script>

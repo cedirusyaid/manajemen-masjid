@@ -346,6 +346,18 @@
 
                 <div class="row">
                     <div class="col-md-6 mb-4">
+                        <label for="kegiatan_id" class="form-label">Kegiatan Pelaksanaan</label>
+                        <select class="form-select" id="kegiatan_id" name="kegiatan_id" required>
+                            <option value="">-- Pilih Kegiatan --</option>
+                            <?php foreach ($kegiatan_list as $kegiatan) : ?>
+                                <option value="<?= esc($kegiatan['id']) ?>" <?= old('kegiatan_id') == $kegiatan['id'] || (isset($selected_kegiatan) && $selected_kegiatan == $kegiatan['id']) ? 'selected' : '' ?>>
+                                    <?= esc($kegiatan['nama_kegiatan']) ?> (<?= date('Y', strtotime($kegiatan['tanggal_mulai'])) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
                         <label for="personil_id" class="form-label">Nama Personel Panitia</label>
                         <div class="input-group">
                             <select class="form-select" id="personil_id" name="personil_id" required>
@@ -362,47 +374,16 @@
                         </div>
                         <small class="text-muted mt-1 d-block">Jika personel belum terdaftar, klik tombol hijau di samping kanan untuk menambahkan secara instan.</small>
                     </div>
-
-                    <div class="col-md-6 mb-4">
-                        <label for="jabatan" class="form-label">Jabatan Kepanitiaan</label>
-                        <input type="text" class="form-control" id="jabatan" name="jabatan" placeholder="Contoh: Ketua Panitia / Sekertaris / Anggota Acara" value="<?= old('jabatan') ?>" required>
-                    </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="kegiatan_id" class="form-label">Kegiatan Pelaksanaan</label>
-                        <select class="form-select" id="kegiatan_id" name="kegiatan_id" required>
-                            <option value="">-- Pilih Kegiatan --</option>
-                            <?php foreach ($kegiatan_list as $kegiatan) : ?>
-                                <option value="<?= esc($kegiatan['id']) ?>" <?= old('kegiatan_id') == $kegiatan['id'] || (isset($selected_kegiatan) && $selected_kegiatan == $kegiatan['id']) ? 'selected' : '' ?>>
-                                    <?= esc($kegiatan['nama_kegiatan']) ?> (<?= date('Y', strtotime($kegiatan['tanggal_mulai'])) ?>)
-                                </option>
-                            <?php endforeach; ?>
+                    <div class="col-md-12 mb-4">
+                        <label for="jabatan_kegiatan_id" class="form-label">Jabatan Kepanitiaan</label>
+                        <select class="form-select" id="jabatan_kegiatan_id" name="jabatan_kegiatan_id" required>
+                            <option value="">-- Pilih Jabatan (Pilih Kegiatan terlebih dahulu) --</option>
                         </select>
+                        <small class="text-muted mt-1 d-block">Jabatan disaring berdasarkan kegiatan terpilih. Jika jabatan belum ada, silakan tambahkan di menu Kelola Struktur Jabatan.</small>
                     </div>
-
-                    <div class="col-md-3 mb-4">
-                        <label for="urutan" class="form-label">Urutan Tampilan Visual</label>
-                        <input type="number" class="form-control" id="urutan" name="urutan" placeholder="Contoh: 1" value="<?= old('urutan', 1) ?>">
-                    </div>
-
-                    <div class="col-md-3 mb-4">
-                        <label for="parent_id" class="form-label">Koordinator / Atasan</label>
-                        <select class="form-select" id="parent_id" name="parent_id">
-                            <option value="">-- Tanpa Atasan (Pimpinan Kegiatan) --</option>
-                            <?php foreach ($panitia_list as $p_parent) : ?>
-                                <option value="<?= esc($p_parent['id']) ?>" <?= old('parent_id') == $p_parent['id'] ? 'selected' : '' ?>>
-                                    <?= esc($p_parent['nama']) ?> (<?= esc($p_parent['jabatan']) ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="tugas" class="form-label">Tugas Khusus / Detail Jobdesk</label>
-                    <textarea class="form-control" id="tugas" name="tugas" rows="4" placeholder="Tuliskan detail tanggung jawab atau tugas khusus panitia (opsional)"><?= old('tugas') ?></textarea>
                 </div>
 
                 <div class="d-flex gap-3 justify-content-end mt-4">
@@ -537,6 +518,33 @@
             });
         });
 
+        const jabatanRawList = <?= json_encode($jabatan_list) ?>;
+
+        function updateJabatanDropdown() {
+            const kegiatanId = $('#kegiatan_id').val();
+            const jabatanSelect = $('#jabatan_kegiatan_id');
+            const selectedVal = "<?= old('jabatan_kegiatan_id') ?>";
+            
+            jabatanSelect.empty();
+            jabatanSelect.append('<option value="">-- Pilih Jabatan --</option>');
+            
+            if (kegiatanId) {
+                const filtered = jabatanRawList.filter(item => item.kegiatan_id == kegiatanId);
+                if (filtered.length === 0) {
+                    jabatanSelect.append('<option value="" disabled>-- Tidak ada jabatan terdaftar di kegiatan ini --</option>');
+                } else {
+                    filtered.forEach(item => {
+                        const isSelected = item.id == selectedVal ? 'selected' : '';
+                        jabatanSelect.append(`<option value="${item.id}" ${isSelected}>${item.nama_jabatan}</option>`);
+                    });
+                }
+            } else {
+                jabatanSelect.append('<option value="">-- Pilih Kegiatan terlebih dahulu --</option>');
+            }
+            
+            jabatanSelect.trigger('change');
+        }
+
         // Inisialisasi Select2 Searchable Dropdown
         $(document).ready(function() {
             $('#personil_id').select2({
@@ -544,16 +552,21 @@
                 placeholder: '-- Pilih Personel --',
                 width: '100%'
             });
-            $('#parent_id').select2({
-                theme: 'bootstrap-5',
-                placeholder: '-- Pilih Koordinator (Jika Ada) --',
-                allowClear: true,
-                width: '100%'
-            });
             $('#kegiatan_id').select2({
                 theme: 'bootstrap-5',
                 placeholder: '-- Pilih Kegiatan --',
                 width: '100%'
+            });
+            $('#jabatan_kegiatan_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- Pilih Jabatan --',
+                width: '100%'
+            });
+
+            // Jalankan filter saat halaman dimuat & saat kegiatan berganti
+            updateJabatanDropdown();
+            $('#kegiatan_id').on('change', function() {
+                updateJabatanDropdown();
             });
         });
     </script>

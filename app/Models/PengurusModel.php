@@ -12,7 +12,7 @@ class PengurusModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id', 'periode_id', 'personil_id', 'parent_id', 'jabatan', 'urutan'];
+    protected $allowedFields    = ['id', 'jabatan_periode_id', 'personil_id'];
 
     // Dates
     protected $useTimestamps = true;
@@ -26,11 +26,8 @@ class PengurusModel extends Model
 
     // Validation Rules
     protected $validationRules = [
-        'periode_id'  => 'required',
-        'personil_id' => 'required',
-        'parent_id'   => 'permit_empty',
-        'jabatan'     => 'required|min_length[2]|max_length[100]',
-        'urutan'      => 'permit_empty|integer'
+        'jabatan_periode_id' => 'required',
+        'personil_id'        => 'required'
     ];
 
     /**
@@ -55,17 +52,18 @@ class PengurusModel extends Model
     {
         return $this->select('
                         trn_pengurus.*, 
-                        mst_periode_pengurus.nama_periode, 
+                        trn_jabatan_periode.nama_jabatan, trn_jabatan_periode.urutan, trn_jabatan_periode.parent_id,
+                        mst_periode_pengurus.nama_periode, mst_periode_pengurus.id as periode_id,
                         mst_personil.nama, mst_personil.no_hp, mst_personil.email, mst_personil.foto,
-                        parent_p.nama as nama_atasan, parent_pengurus.jabatan as jabatan_atasan
+                        parent_jabatan.nama_jabatan as jabatan_atasan
                     ')
-                    ->join('mst_periode_pengurus', 'mst_periode_pengurus.id = trn_pengurus.periode_id')
+                    ->join('trn_jabatan_periode', 'trn_jabatan_periode.id = trn_pengurus.jabatan_periode_id')
+                    ->join('mst_periode_pengurus', 'mst_periode_pengurus.id = trn_jabatan_periode.periode_id')
                     ->join('mst_personil', 'mst_personil.id = trn_pengurus.personil_id')
-                    ->join('trn_pengurus as parent_pengurus', 'parent_pengurus.id = trn_pengurus.parent_id', 'left')
-                    ->join('mst_personil as parent_p', 'parent_p.id = parent_pengurus.personil_id', 'left')
+                    ->join('trn_jabatan_periode as parent_jabatan', 'parent_jabatan.id = trn_jabatan_periode.parent_id', 'left')
                     ->where('trn_pengurus.deleted_at', null)
                     ->orderBy('mst_periode_pengurus.tahun_mulai', 'DESC')
-                    ->orderBy('trn_pengurus.urutan', 'ASC')
+                    ->orderBy('trn_jabatan_periode.urutan', 'ASC')
                     ->findAll();
     }
 
@@ -73,17 +71,18 @@ class PengurusModel extends Model
     {
         return $this->select('
                         trn_pengurus.*, 
-                        mst_periode_pengurus.nama_periode, 
+                        trn_jabatan_periode.nama_jabatan, trn_jabatan_periode.urutan, trn_jabatan_periode.parent_id,
+                        mst_periode_pengurus.nama_periode, mst_periode_pengurus.id as periode_id,
                         mst_personil.nama, mst_personil.no_hp, mst_personil.email, mst_personil.foto,
-                        parent_p.nama as nama_atasan, parent_pengurus.jabatan as jabatan_atasan
+                        parent_jabatan.nama_jabatan as jabatan_atasan
                     ')
-                    ->join('mst_periode_pengurus', 'mst_periode_pengurus.id = trn_pengurus.periode_id')
+                    ->join('trn_jabatan_periode', 'trn_jabatan_periode.id = trn_pengurus.jabatan_periode_id')
+                    ->join('mst_periode_pengurus', 'mst_periode_pengurus.id = trn_jabatan_periode.periode_id')
                     ->join('mst_personil', 'mst_personil.id = trn_pengurus.personil_id')
-                    ->join('trn_pengurus as parent_pengurus', 'parent_pengurus.id = trn_pengurus.parent_id', 'left')
-                    ->join('mst_personil as parent_p', 'parent_p.id = parent_pengurus.personil_id', 'left')
-                    ->where('trn_pengurus.periode_id', $periodeId)
+                    ->join('trn_jabatan_periode as parent_jabatan', 'parent_jabatan.id = trn_jabatan_periode.parent_id', 'left')
+                    ->where('trn_jabatan_periode.periode_id', $periodeId)
                     ->where('trn_pengurus.deleted_at', null)
-                    ->orderBy('trn_pengurus.urutan', 'ASC')
+                    ->orderBy('trn_jabatan_periode.urutan', 'ASC')
                     ->findAll();
     }
 }

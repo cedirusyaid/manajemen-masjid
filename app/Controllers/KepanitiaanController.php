@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\KegiatanModel;
 use App\Models\PanitiaModel;
 use App\Models\PersonilModel;
+use App\Models\JabatanKegiatanModel;
 use Exception;
 
 class KepanitiaanController extends BaseController
@@ -12,14 +13,16 @@ class KepanitiaanController extends BaseController
     protected $kegiatanModel;
     protected $panitiaModel;
     protected $personilModel;
+    protected $jabatanKegiatanModel;
     protected $session;
 
     public function __construct()
     {
-        $this->kegiatanModel = new KegiatanModel();
-        $this->panitiaModel  = new PanitiaModel();
-        $this->personilModel = new PersonilModel();
-        $this->session       = \Config\Services::session();
+        $this->kegiatanModel        = new KegiatanModel();
+        $this->panitiaModel         = new PanitiaModel();
+        $this->personilModel        = new PersonilModel();
+        $this->jabatanKegiatanModel = new JabatanKegiatanModel();
+        $this->session              = \Config\Services::session();
         helper(['url', 'form', 'audit_helper', 'telegram_helper']);
     }
 
@@ -38,8 +41,10 @@ class KepanitiaanController extends BaseController
         $selectedKegiatan = $this->request->getVar('kegiatan_id');
 
         $panitiaList = [];
+        $jabatanList = [];
         if (!empty($selectedKegiatan)) {
             $panitiaList = $this->panitiaModel->getPanitiaByKegiatan($selectedKegiatan);
+            $jabatanList = $this->jabatanKegiatanModel->getJabatanByKegiatan($selectedKegiatan);
         }
 
         return view('dashboard/kepanitiaan/index', [
@@ -48,6 +53,7 @@ class KepanitiaanController extends BaseController
             'avatar'            => $this->session->get('avatar'),
             'kegiatan_list'     => $kegiatanList,
             'panitia_list'      => $panitiaList,
+            'jabatan_list'      => $jabatanList,
             'selected_kegiatan' => $selectedKegiatan
         ]);
     }
@@ -208,10 +214,7 @@ class KepanitiaanController extends BaseController
 
         $kegiatanList = $this->kegiatanModel->where('deleted_at', null)->orderBy('tanggal_mulai', 'DESC')->findAll();
         $personilList = $this->personilModel->where('deleted_at', null)->orderBy('nama', 'ASC')->findAll();
-        $panitiaList  = $this->panitiaModel->select('trn_panitia.*, mst_personil.nama')
-                            ->join('mst_personil', 'mst_personil.id = trn_panitia.personil_id')
-                            ->where('trn_panitia.deleted_at', null)
-                            ->findAll();
+        $jabatanList  = $this->jabatanKegiatanModel->where('deleted_at', null)->orderBy('urutan', 'ASC')->findAll();
 
         $selectedKegiatan = $this->request->getVar('kegiatan_id');
 
@@ -221,7 +224,7 @@ class KepanitiaanController extends BaseController
             'avatar'            => $this->session->get('avatar'),
             'kegiatan_list'     => $kegiatanList,
             'personil_list'     => $personilList,
-            'panitia_list'      => $panitiaList,
+            'jabatan_list'      => $jabatanList,
             'selected_kegiatan' => $selectedKegiatan,
             'validation'        => \Config\Services::validation()
         ]);
@@ -234,12 +237,8 @@ class KepanitiaanController extends BaseController
         }
 
         $rules = [
-            'kegiatan_id' => 'required',
-            'personil_id' => 'required',
-            'parent_id'   => 'permit_empty',
-            'jabatan'     => 'required|min_length[2]|max_length[100]',
-            'tugas'       => 'permit_empty',
-            'urutan'      => 'permit_empty|integer'
+            'jabatan_kegiatan_id' => 'required',
+            'personil_id'         => 'required'
         ];
 
         if (!$this->validate($rules)) {
@@ -247,12 +246,8 @@ class KepanitiaanController extends BaseController
         }
 
         $data = [
-            'kegiatan_id' => $this->request->getPost('kegiatan_id'),
-            'personil_id' => $this->request->getPost('personil_id'),
-            'parent_id'   => $this->request->getPost('parent_id') ?: null,
-            'jabatan'     => $this->request->getPost('jabatan'),
-            'tugas'       => $this->request->getPost('tugas'),
-            'urutan'      => (int)$this->request->getPost('urutan') ?: 0
+            'jabatan_kegiatan_id' => $this->request->getPost('jabatan_kegiatan_id'),
+            'personil_id'         => $this->request->getPost('personil_id')
         ];
 
         try {
@@ -262,7 +257,10 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('INSERT', 'trn_panitia', $newId, null, $data);
 
-            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $data['kegiatan_id'])->with('success', 'Anggota panitia baru berhasil ditambahkan.');
+            $jabatanInfo = $this->jabatanKegiatanModel->find($data['jabatan_kegiatan_id']);
+            $kegiatanId = $jabatanInfo ? $jabatanInfo['kegiatan_id'] : '';
+
+            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $kegiatanId)->with('success', 'Anggota panitia baru berhasil ditambahkan.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal menambahkan anggota panitia: ' . $e->getMessage());
@@ -280,15 +278,14 @@ class KepanitiaanController extends BaseController
             return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data panitia tidak ditemukan.');
         }
 
+        $currentJabatan = $this->jabatanKegiatanModel->find($panitia['jabatan_kegiatan_id']);
+        $currentKegiatanId = $currentJabatan ? $currentJabatan['kegiatan_id'] : '';
+
         $kegiatanList = $this->kegiatanModel->where('deleted_at', null)->orderBy('tanggal_mulai', 'DESC')->findAll();
         $personilList = $this->personilModel->where('deleted_at', null)->orderBy('nama', 'ASC')->findAll();
-        $panitiaList  = $this->panitiaModel->select('trn_panitia.*, mst_personil.nama')
-                            ->join('mst_personil', 'mst_personil.id = trn_panitia.personil_id')
-                            ->where('trn_panitia.id !=', $id)
-                            ->where('trn_panitia.deleted_at', null)
-                            ->findAll();
+        $jabatanList  = $this->jabatanKegiatanModel->where('deleted_at', null)->orderBy('urutan', 'ASC')->findAll();
 
-        $selectedKegiatan = $this->request->getVar('kegiatan_id');
+        $selectedKegiatan = $this->request->getVar('kegiatan_id') ?: $currentKegiatanId;
 
         return view('dashboard/kepanitiaan/panitia_edit', [
             'username'          => $this->session->get('username'),
@@ -297,7 +294,8 @@ class KepanitiaanController extends BaseController
             'panitia'           => $panitia,
             'kegiatan_list'     => $kegiatanList,
             'personil_list'     => $personilList,
-            'panitia_list'      => $panitiaList,
+            'jabatan_list'      => $jabatanList,
+            'current_kegiatan_id'=> $currentKegiatanId,
             'selected_kegiatan' => $selectedKegiatan,
             'validation'        => \Config\Services::validation()
         ]);
@@ -315,12 +313,8 @@ class KepanitiaanController extends BaseController
         }
 
         $rules = [
-            'kegiatan_id' => 'required',
-            'personil_id' => 'required',
-            'parent_id'   => 'permit_empty',
-            'jabatan'     => 'required|min_length[2]|max_length[100]',
-            'tugas'       => 'permit_empty',
-            'urutan'      => 'permit_empty|integer'
+            'jabatan_kegiatan_id' => 'required',
+            'personil_id'         => 'required'
         ];
 
         if (!$this->validate($rules)) {
@@ -328,12 +322,8 @@ class KepanitiaanController extends BaseController
         }
 
         $data = [
-            'kegiatan_id' => $this->request->getPost('kegiatan_id'),
-            'personil_id' => $this->request->getPost('personil_id'),
-            'parent_id'   => $this->request->getPost('parent_id') ?: null,
-            'jabatan'     => $this->request->getPost('jabatan'),
-            'tugas'       => $this->request->getPost('tugas'),
-            'urutan'      => (int)$this->request->getPost('urutan') ?: 0
+            'jabatan_kegiatan_id' => $this->request->getPost('jabatan_kegiatan_id'),
+            'personil_id'         => $this->request->getPost('personil_id')
         ];
 
         try {
@@ -342,7 +332,10 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('UPDATE', 'trn_panitia', $id, $panitiaBefore, $data);
 
-            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $data['kegiatan_id'])->with('success', 'Data panitia berhasil diperbarui.');
+            $jabatanInfo = $this->jabatanKegiatanModel->find($data['jabatan_kegiatan_id']);
+            $kegiatanId = $jabatanInfo ? $jabatanInfo['kegiatan_id'] : '';
+
+            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $kegiatanId)->with('success', 'Data panitia berhasil diperbarui.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data panitia: ' . $e->getMessage());
@@ -366,11 +359,181 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('DELETE', 'trn_panitia', $id, $panitiaBefore, null);
 
-            $kegiatanId = $panitiaBefore['kegiatan_id'];
+            $jabatanInfo = $this->jabatanKegiatanModel->find($panitiaBefore['jabatan_kegiatan_id']);
+            $kegiatanId = $jabatanInfo ? $jabatanInfo['kegiatan_id'] : '';
+
             return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $kegiatanId)->with('success', 'Anggota panitia berhasil dihapus.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus data panitia: ' . $e->getMessage());
+        }
+    }
+
+    // ==========================================
+    // JABATAN KEGIATAN CRUD
+    // ==========================================
+
+    public function createJabatan()
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kegiatanList = $this->kegiatanModel->where('deleted_at', null)->orderBy('tanggal_mulai', 'DESC')->findAll();
+        $selectedKegiatan = $this->request->getVar('kegiatan_id');
+        
+        $jabatanList = [];
+        if (!empty($selectedKegiatan)) {
+            $jabatanList = $this->jabatanKegiatanModel->where('kegiatan_id', $selectedKegiatan)->where('deleted_at', null)->findAll();
+        }
+
+        return view('dashboard/kepanitiaan/jabatan_create', [
+            'username'          => $this->session->get('username'),
+            'role_name'         => $this->session->get('role_name'),
+            'avatar'            => $this->session->get('avatar'),
+            'kegiatan_list'     => $kegiatanList,
+            'jabatan_list'      => $jabatanList,
+            'selected_kegiatan' => $selectedKegiatan,
+            'validation'        => \Config\Services::validation()
+        ]);
+    }
+
+    public function storeJabatan()
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $rules = [
+            'kegiatan_id'  => 'required',
+            'nama_jabatan' => 'required|min_length[2]|max_length[100]',
+            'parent_id'    => 'permit_empty',
+            'tugas'        => 'permit_empty',
+            'urutan'       => 'permit_empty|integer'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+        }
+
+        $data = [
+            'kegiatan_id'  => $this->request->getPost('kegiatan_id'),
+            'nama_jabatan' => $this->request->getPost('nama_jabatan'),
+            'parent_id'    => $this->request->getPost('parent_id') ?: null,
+            'tugas'        => $this->request->getPost('tugas'),
+            'urutan'       => (int)$this->request->getPost('urutan') ?: 0
+        ];
+
+        try {
+            $this->jabatanKegiatanModel->insert($data);
+            $newId = $this->jabatanKegiatanModel->getInsertID() ?: $this->jabatanKegiatanModel->db->insertID();
+
+            // Log Activity
+            log_activity('INSERT', 'trn_jabatan_kegiatan', $newId, null, $data);
+
+            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $data['kegiatan_id'])->with('success', 'Jabatan baru berhasil ditambahkan.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan jabatan: ' . $e->getMessage());
+        }
+    }
+
+    public function editJabatan($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $jabatan = $this->jabatanKegiatanModel->find($id);
+        if (!$jabatan) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data jabatan tidak ditemukan.');
+        }
+
+        $kegiatanList = $this->kegiatanModel->where('deleted_at', null)->orderBy('tanggal_mulai', 'DESC')->findAll();
+        $jabatanList = $this->jabatanKegiatanModel->where('kegiatan_id', $jabatan['kegiatan_id'])
+                                                 ->where('id !=', $id)
+                                                 ->where('deleted_at', null)
+                                                 ->findAll();
+
+        $selectedKegiatan = $this->request->getVar('kegiatan_id') ?: $jabatan['kegiatan_id'];
+
+        return view('dashboard/kepanitiaan/jabatan_edit', [
+            'username'          => $this->session->get('username'),
+            'role_name'         => $this->session->get('role_name'),
+            'avatar'            => $this->session->get('avatar'),
+            'jabatan'           => $jabatan,
+            'kegiatan_list'     => $kegiatanList,
+            'jabatan_list'      => $jabatanList,
+            'selected_kegiatan' => $selectedKegiatan,
+            'validation'        => \Config\Services::validation()
+        ]);
+    }
+
+    public function updateJabatan($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $jabatanBefore = $this->jabatanKegiatanModel->find($id);
+        if (!$jabatanBefore) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data jabatan tidak ditemukan.');
+        }
+
+        $rules = [
+            'kegiatan_id'  => 'required',
+            'nama_jabatan' => 'required|min_length[2]|max_length[100]',
+            'parent_id'    => 'permit_empty',
+            'tugas'        => 'permit_empty',
+            'urutan'       => 'permit_empty|integer'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+        }
+
+        $data = [
+            'kegiatan_id'  => $this->request->getPost('kegiatan_id'),
+            'nama_jabatan' => $this->request->getPost('nama_jabatan'),
+            'parent_id'    => $this->request->getPost('parent_id') ?: null,
+            'tugas'        => $this->request->getPost('tugas'),
+            'urutan'       => (int)$this->request->getPost('urutan') ?: 0
+        ];
+
+        try {
+            $this->jabatanKegiatanModel->update($id, $data);
+
+            // Log Activity
+            log_activity('UPDATE', 'trn_jabatan_kegiatan', $id, $jabatanBefore, $data);
+
+            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $data['kegiatan_id'])->with('success', 'Data jabatan berhasil diperbarui.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data jabatan: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteJabatan($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $jabatanBefore = $this->jabatanKegiatanModel->find($id);
+        if (!$jabatanBefore) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data jabatan tidak ditemukan.');
+        }
+
+        try {
+            $this->jabatanKegiatanModel->delete($id);
+
+            // Log Activity
+            log_activity('DELETE', 'trn_jabatan_kegiatan', $id, $jabatanBefore, null);
+
+            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $jabatanBefore['kegiatan_id'])->with('success', 'Jabatan berhasil dihapus.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus data jabatan: ' . $e->getMessage());
         }
     }
 }

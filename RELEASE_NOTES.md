@@ -1,5 +1,15 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.7] - 2026-06-20
+### ✨ Added
+- **Struktur Jabatan Relasional Terpisah**: Menghubungkan personil kepengurusan dan kepanitiaan secara tidak langsung melalui tabel jabatan (`trn_jabatan_periode` dan `trn_jabatan_kegiatan`), sehingga memungkinkan satu jabatan ditempati oleh lebih dari 1 personil (misalnya Pembina atau Anggota Humas).
+- **CRUD Jabatan Periode & Jabatan Kegiatan**: Menambahkan rute dan antarmuka kelola jabatan di bawah menu Kepengurusan (Tab "Struktur Jabatan") dan Kepanitiaan (Tab "Struktur Jabatan").
+- **Dropdown Jabatan Dinamis Berbasis Client-side**: Form input Pengurus dan Panitia menyajikan pilihan jabatan yang tersaring secara real-time berdasarkan periode/kegiatan yang dipilih oleh pengguna menggunakan JavaScript.
+
+### 🔄 Changed
+- **Pembersihan Form Personil Pengurus/Panitia**: Menghapus field `parent_id`, `urutan`, dan `tugas` pada form penugasan personil pengurus/panitia karena konfigurasi tersebut telah dipindahkan ke tingkat master Jabatan.
+- **Join Query Relasional Lebih Efisien**: Mengubah kueri fetch data pengurus dan panitia agar berelasi ke tabel jabatan, memastikan visualisasi jabatan dan atasan/koordinator dibaca langsung secara dinamis dari relasi master posisi jabatan.
+
 ## [v0.4.6] - 2026-06-20
 ### ✨ Added
 - Preservasi Filter Aktif pada Form CRUD: Meloloskan parameter `periode_id` (kepengurusan) dan `kegiatan_id` (kepanitiaan) pada tautan Tambah, Edit, dan Batal agar pilihan filter terjaga selama navigasi.

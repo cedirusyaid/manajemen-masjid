@@ -409,6 +409,11 @@
                 </button>
             </li>
             <li class="nav-item" role="presentation">
+                <button class="nav-link" id="jabatan-tab" data-bs-toggle="tab" data-bs-target="#jabatan" type="button" role="tab" aria-controls="jabatan" aria-selected="false">
+                    <i class="fa-solid fa-sitemap me-2"></i>Struktur Jabatan
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
                 <button class="nav-link" id="periode-tab" data-bs-toggle="tab" data-bs-target="#periode" type="button" role="tab" aria-controls="periode" aria-selected="false">
                     <i class="fa-solid fa-clock-rotate-left me-2"></i>Periode Kepengurusan
                 </button>
@@ -478,10 +483,10 @@
                                                     <?php endif; ?>
                                                 </td>
                                                 <td><strong><?= esc($pengurus['nama']) ?></strong><br><small class="text-muted"><?= esc($pengurus['email'] ?: '-') ?></small></td>
-                                                <td><span class="badge bg-light text-dark px-3 py-2 border"><?= esc($pengurus['jabatan']) ?></span></td>
+                                                <td><span class="badge bg-light text-dark px-3 py-2 border"><?= esc($pengurus['nama_jabatan']) ?></span></td>
                                                 <td>
-                                                    <?php if ($pengurus['nama_atasan']) : ?>
-                                                        <strong><?= esc($pengurus['nama_atasan']) ?></strong><br><small class="text-muted"><?= esc($pengurus['jabatan_atasan']) ?></small>
+                                                    <?php if ($pengurus['jabatan_atasan']) : ?>
+                                                        <strong><?= esc($pengurus['jabatan_atasan']) ?></strong>
                                                     <?php else : ?>
                                                         <span class="text-muted">-</span>
                                                     <?php endif; ?>
@@ -514,6 +519,76 @@
                                         <td colspan="8" class="text-center py-5 text-muted">
                                             <i class="fa-solid fa-filter fs-1 mb-3 d-block text-warning"></i>
                                             Silakan pilih periode kepengurusan terlebih dahulu untuk menampilkan daftar pengurus.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB STRUKTUR JABATAN -->
+            <div class="tab-pane fade" id="jabatan" role="tabpanel" aria-labelledby="jabatan-tab">
+                <div class="panel-card">
+                    <div class="panel-title">
+                        <span>Struktur Posisi Jabatan</span>
+                        <a href="<?= base_url('dashboard/kepengurusan/jabatan/create' . (!empty($selected_periode) ? '?periode_id=' . esc($selected_periode) : '')) ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
+                            <i class="fa-solid fa-plus me-2"></i>Tambah Jabatan
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Nama Jabatan</th>
+                                    <th>Membawahi (Parent)</th>
+                                    <th>Periode</th>
+                                    <th style="width: 80px;">Urutan</th>
+                                    <th style="width: 120px;" class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($selected_periode)) : ?>
+                                    <?php if (!empty($jabatan_list)) : ?>
+                                        <?php foreach ($jabatan_list as $jab) : ?>
+                                            <tr>
+                                                <td><strong><?= esc($jab['nama_jabatan']) ?></strong></td>
+                                                <td>
+                                                    <?php if ($jab['nama_atasan']) : ?>
+                                                        <span class="badge bg-light text-dark border px-3 py-2"><?= esc($jab['nama_atasan']) ?></span>
+                                                    <?php else : ?>
+                                                        <span class="text-muted">-</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td><?= esc($jab['nama_periode']) ?></td>
+                                                <td><?= esc($jab['urutan']) ?></td>
+                                                <td class="text-center">
+                                                    <div class="d-flex gap-2 justify-content-center">
+                                                        <a href="<?= base_url('dashboard/kepengurusan/jabatan/edit/' . esc($jab['id']) . (!empty($selected_periode) ? '?periode_id=' . esc($selected_periode) : '')) ?>" class="btn-action btn-edit" title="Edit">
+                                                            <i class="fa-solid fa-pen"></i>
+                                                        </a>
+                                                        <a href="<?= base_url('dashboard/kepengurusan/jabatan/delete/' . esc($jab['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus jabatan ini? Menghapus jabatan akan menghapus penugasan pengurus terkait.')" title="Hapus">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center py-5 text-muted">
+                                                <i class="fa-solid fa-sitemap fs-1 mb-3 d-block text-secondary"></i>
+                                                Belum ada struktur jabatan dibuat pada periode ini.
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
+                                <?php else : ?>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5 text-muted">
+                                            <i class="fa-solid fa-filter fs-1 mb-3 d-block text-warning"></i>
+                                            Silakan pilih periode kepengurusan terlebih dahulu untuk menampilkan daftar jabatan.
                                         </td>
                                     </tr>
                                 <?php endif; ?>
