@@ -1,4 +1,4 @@
-# 🕌 Website Resmi Masjid Agung Nujumul Ittihad Sinjai
+# 🕌 Aplikasi Manajemen Masjid (Manajemen-Masjid)
 > **Sarana Digitalisasi Manajemen Masjid, Transparansi Keuangan, dan Pusat Pelayanan Jamaah berbasis CodeIgniter 4.**
 
 ---
@@ -27,7 +27,7 @@ Aplikasi ini dikembangkan dalam dua fase utama dengan mengedepankan fungsionalit
 *   **📝 Pendaftaran TPA Online**: Penerimaan santri baru secara mandiri melalui form online.
 *   **🕋 Pelayanan Zakat (ZIS)**: Form pelaporan dan verifikasi zakat fitrah, zakat maal, dan sedekah khusus.
 *   **📞 Integrasi Telegram Bot**: Bot monitoring pengiriman notifikasi transaksi penting dan pelaporan galat (*system error*).
-*   **🏛️ Form Pengajuan Acara**: Pemesanan penggunaan fasilitas/ruangan Masjid Agung Nujumul Ittihad Sinjai oleh masyarakat umum.
+*   **🏛️ Form Pengajuan Acara**: Pemesanan penggunaan fasilitas/ruangan masjid oleh masyarakat umum.
 
 ---
 
@@ -55,8 +55,8 @@ Untuk mempermudah pemeliharaan sistem, dokumen perencanaan teknis disimpan secar
 
 ### 1. Kloning Repositori
 ```bash
-git clone git@github.com:cedirusyaid/masjidagung.git
-cd masjidagung
+git clone git@github.com:cedirusyaid/manajemen-masjid.git
+cd manajemen-masjid
 ```
 
 ### 2. Instalasi Dependensi
@@ -103,4 +103,4 @@ Setiap pembaruan kode harus mengikuti pedoman berikut:
 *   **Push**: Gunakan script otomatis [`push.sh`](file:///apps/masjidagung/push.sh) untuk kemudahan integrasi.
 
 ---
-*Pengurus Masjid Agung Nujumul Ittihad Sinjai*
+*Project Open Source - Manajemen Masjid*
