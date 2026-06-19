@@ -437,6 +437,28 @@
                         </a>
                     </div>
 
+                    <!-- Filter Kegiatan -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <form action="<?= base_url('dashboard/kepanitiaan') ?>" method="get" id="filterKegiatanForm">
+                                <label for="kegiatan_id" class="form-label fw-semibold text-muted small text-uppercase">Filter Kegiatan</label>
+                                <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                                    <span class="input-group-text bg-white border-end-0 text-muted">
+                                        <i class="fa-solid fa-calendar-days text-success"></i>
+                                    </span>
+                                    <select class="form-select border-start-0 ps-1" name="kegiatan_id" id="kegiatan_id" onchange="this.form.submit()" style="font-weight: 500;">
+                                        <option value="">-- Pilih Kegiatan --</option>
+                                        <?php foreach ($kegiatan_list as $k) : ?>
+                                            <option value="<?= esc($k['id']) ?>" <?= isset($selected_kegiatan) && $selected_kegiatan == $k['id'] ? 'selected' : '' ?>>
+                                                <?= esc($k['nama_kegiatan']) ?> (<?= date('d/m/Y', strtotime($k['tanggal_mulai'])) ?>)
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table custom-table">
                             <thead>
@@ -452,39 +474,48 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if (!empty($panitia_list)) : ?>
-                                    <?php foreach ($panitia_list as $panitia) : ?>
+                                <?php if (!empty($selected_kegiatan)) : ?>
+                                    <?php if (!empty($panitia_list)) : ?>
+                                        <?php foreach ($panitia_list as $panitia) : ?>
+                                            <tr>
+                                                <td><strong><?= esc($panitia['nama']) ?></strong><br><small class="text-muted"><?= esc($panitia['email'] ?: '-') ?></small></td>
+                                                <td><span class="badge bg-light text-dark px-3 py-2 border"><?= esc($panitia['jabatan']) ?></span></td>
+                                                <td>
+                                                    <?php if ($panitia['nama_atasan']) : ?>
+                                                        <strong><?= esc($panitia['nama_atasan']) ?></strong><br><small class="text-muted"><?= esc($panitia['jabatan_atasan']) ?></small>
+                                                    <?php else : ?>
+                                                        <span class="text-muted">-</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td><strong><?= esc($panitia['nama_kegiatan']) ?></strong></td>
+                                                <td><?= esc($panitia['tugas'] ?: '-') ?></td>
+                                                <td><?= esc($panitia['no_hp'] ?: '-') ?></td>
+                                                <td><?= esc($panitia['urutan']) ?></td>
+                                                <td class="text-center">
+                                                    <div class="d-flex gap-2 justify-content-center">
+                                                        <a href="<?= base_url('dashboard/kepanitiaan/panitia/edit/' . esc($panitia['id'])) ?>" class="btn-action btn-edit" title="Edit">
+                                                            <i class="fa-solid fa-pen"></i>
+                                                        </a>
+                                                        <a href="<?= base_url('dashboard/kepanitiaan/panitia/delete/' . esc($panitia['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus panitia ini?')" title="Hapus">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
                                         <tr>
-                                            <td><strong><?= esc($panitia['nama']) ?></strong><br><small class="text-muted"><?= esc($panitia['email'] ?: '-') ?></small></td>
-                                            <td><span class="badge bg-light text-dark px-3 py-2 border"><?= esc($panitia['jabatan']) ?></span></td>
-                                            <td>
-                                                <?php if ($panitia['nama_atasan']) : ?>
-                                                    <strong><?= esc($panitia['nama_atasan']) ?></strong><br><small class="text-muted"><?= esc($panitia['jabatan_atasan']) ?></small>
-                                                <?php else : ?>
-                                                    <span class="text-muted">-</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><strong><?= esc($panitia['nama_kegiatan']) ?></strong></td>
-                                            <td><?= esc($panitia['tugas'] ?: '-') ?></td>
-                                            <td><?= esc($panitia['no_hp'] ?: '-') ?></td>
-                                            <td><?= esc($panitia['urutan']) ?></td>
-                                            <td class="text-center">
-                                                <div class="d-flex gap-2 justify-content-center">
-                                                    <a href="<?= base_url('dashboard/kepanitiaan/panitia/edit/' . esc($panitia['id'])) ?>" class="btn-action btn-edit" title="Edit">
-                                                        <i class="fa-solid fa-pen"></i>
-                                                    </a>
-                                                    <a href="<?= base_url('dashboard/kepanitiaan/panitia/delete/' . esc($panitia['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus panitia ini?')" title="Hapus">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </a>
-                                                </div>
+                                            <td colspan="8" class="text-center py-5 text-muted">
+                                                <i class="fa-solid fa-people-group fs-1 mb-3 d-block text-secondary"></i>
+                                                Belum ada data anggota panitia terdaftar untuk kegiatan ini.
                                             </td>
                                         </tr>
-                                    <?php endforeach; ?>
+                                    <?php endif; ?>
                                 <?php else : ?>
                                     <tr>
                                         <td colspan="8" class="text-center py-5 text-muted">
-                                            <i class="fa-solid fa-people-group fs-1 mb-3 d-block"></i>
-                                            Belum ada data anggota panitia terdaftar.
+                                            <i class="fa-solid fa-filter fs-1 mb-3 d-block text-warning"></i>
+                                            Silakan pilih kegiatan terlebih dahulu untuk menampilkan daftar panitia.
                                         </td>
                                     </tr>
                                 <?php endif; ?>

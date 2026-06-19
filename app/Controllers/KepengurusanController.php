@@ -33,14 +33,34 @@ class KepengurusanController extends BaseController
         }
 
         $periodeList  = $this->periodeModel->where('deleted_at', null)->orderBy('tahun_mulai', 'DESC')->findAll();
-        $pengurusList = $this->pengurusModel->getPengurusWithPeriode();
+        
+        // Cari periode aktif untuk default
+        $activePeriode = null;
+        foreach ($periodeList as $p) {
+            if ($p['status'] === 'aktif') {
+                $activePeriode = $p['id'];
+                break;
+            }
+        }
+        
+        // Ambil filter periode dari request GET
+        $selectedPeriode = $this->request->getVar('periode_id');
+        if ($selectedPeriode === null) {
+            $selectedPeriode = $activePeriode;
+        }
+
+        $pengurusList = [];
+        if (!empty($selectedPeriode)) {
+            $pengurusList = $this->pengurusModel->getPengurusByPeriode($selectedPeriode);
+        }
 
         return view('dashboard/kepengurusan/index', [
-            'username'     => $this->session->get('username'),
-            'role_name'    => $this->session->get('role_name'),
-            'avatar'       => $this->session->get('avatar'),
-            'periode_list' => $periodeList,
-            'pengurus_list'=> $pengurusList
+            'username'         => $this->session->get('username'),
+            'role_name'        => $this->session->get('role_name'),
+            'avatar'           => $this->session->get('avatar'),
+            'periode_list'     => $periodeList,
+            'pengurus_list'    => $pengurusList,
+            'selected_periode' => $selectedPeriode
         ]);
     }
 

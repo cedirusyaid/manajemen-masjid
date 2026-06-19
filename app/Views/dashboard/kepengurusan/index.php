@@ -427,6 +427,28 @@
                         </a>
                     </div>
 
+                    <!-- Filter Periode -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <form action="<?= base_url('dashboard/kepengurusan') ?>" method="get" id="filterForm">
+                                <label for="periode_id" class="form-label fw-semibold text-muted small text-uppercase">Filter Periode</label>
+                                <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                                    <span class="input-group-text bg-white border-end-0 text-muted">
+                                        <i class="fa-solid fa-calendar-check text-success"></i>
+                                    </span>
+                                    <select class="form-select border-start-0 ps-1" name="periode_id" id="periode_id" onchange="this.form.submit()" style="font-weight: 500;">
+                                        <option value="">-- Pilih Periode --</option>
+                                        <?php foreach ($periode_list as $p) : ?>
+                                            <option value="<?= esc($p['id']) ?>" <?= $selected_periode == $p['id'] ? 'selected' : '' ?>>
+                                                <?= esc($p['nama_periode']) ?> (<?= esc($p['tahun_mulai']) ?> - <?= esc($p['tahun_selesai']) ?>) <?= $p['status'] === 'aktif' ? ' [Aktif]' : '' ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table custom-table">
                             <thead>
@@ -442,47 +464,56 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if (!empty($pengurus_list)) : ?>
-                                    <?php foreach ($pengurus_list as $pengurus) : ?>
-                                        <tr>
-                                            <td>
-                                                <?php if ($pengurus['foto']) : ?>
-                                                    <img src="<?= base_url('uploads/images/' . esc($pengurus['foto'])) ?>" class="table-avatar" alt="Foto">
-                                                <?php else : ?>
-                                                    <div class="table-avatar d-flex align-items-center justify-content-center bg-light text-muted">
-                                                        <i class="fa-solid fa-user fs-5"></i>
+                                <?php if (!empty($selected_periode)) : ?>
+                                    <?php if (!empty($pengurus_list)) : ?>
+                                        <?php foreach ($pengurus_list as $pengurus) : ?>
+                                            <tr>
+                                                <td>
+                                                    <?php if ($pengurus['foto']) : ?>
+                                                        <img src="<?= base_url('uploads/images/' . esc($pengurus['foto'])) ?>" class="table-avatar" alt="Foto">
+                                                    <?php else : ?>
+                                                        <div class="table-avatar d-flex align-items-center justify-content-center bg-light text-muted">
+                                                            <i class="fa-solid fa-user fs-5"></i>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td><strong><?= esc($pengurus['nama']) ?></strong><br><small class="text-muted"><?= esc($pengurus['email'] ?: '-') ?></small></td>
+                                                <td><span class="badge bg-light text-dark px-3 py-2 border"><?= esc($pengurus['jabatan']) ?></span></td>
+                                                <td>
+                                                    <?php if ($pengurus['nama_atasan']) : ?>
+                                                        <strong><?= esc($pengurus['nama_atasan']) ?></strong><br><small class="text-muted"><?= esc($pengurus['jabatan_atasan']) ?></small>
+                                                    <?php else : ?>
+                                                        <span class="text-muted">-</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td><?= esc($pengurus['nama_periode']) ?></td>
+                                                <td><?= esc($pengurus['no_hp'] ?: '-') ?></td>
+                                                <td><?= esc($pengurus['urutan']) ?></td>
+                                                <td class="text-center">
+                                                    <div class="d-flex gap-2 justify-content-center">
+                                                        <a href="<?= base_url('dashboard/kepengurusan/pengurus/edit/' . esc($pengurus['id'])) ?>" class="btn-action btn-edit" title="Edit">
+                                                            <i class="fa-solid fa-pen"></i>
+                                                        </a>
+                                                        <a href="<?= base_url('dashboard/kepengurusan/pengurus/delete/' . esc($pengurus['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus pengurus ini?')" title="Hapus">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </a>
                                                     </div>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><strong><?= esc($pengurus['nama']) ?></strong><br><small class="text-muted"><?= esc($pengurus['email'] ?: '-') ?></small></td>
-                                            <td><span class="badge bg-light text-dark px-3 py-2 border"><?= esc($pengurus['jabatan']) ?></span></td>
-                                            <td>
-                                                <?php if ($pengurus['nama_atasan']) : ?>
-                                                    <strong><?= esc($pengurus['nama_atasan']) ?></strong><br><small class="text-muted"><?= esc($pengurus['jabatan_atasan']) ?></small>
-                                                <?php else : ?>
-                                                    <span class="text-muted">-</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?= esc($pengurus['nama_periode']) ?></td>
-                                            <td><?= esc($pengurus['no_hp'] ?: '-') ?></td>
-                                            <td><?= esc($pengurus['urutan']) ?></td>
-                                            <td class="text-center">
-                                                <div class="d-flex gap-2 justify-content-center">
-                                                    <a href="<?= base_url('dashboard/kepengurusan/pengurus/edit/' . esc($pengurus['id'])) ?>" class="btn-action btn-edit" title="Edit">
-                                                        <i class="fa-solid fa-pen"></i>
-                                                    </a>
-                                                    <a href="<?= base_url('dashboard/kepengurusan/pengurus/delete/' . esc($pengurus['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus pengurus ini?')" title="Hapus">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </a>
-                                                </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <tr>
+                                            <td colspan="8" class="text-center py-5 text-muted">
+                                                <i class="fa-solid fa-users fs-1 mb-3 d-block text-secondary"></i>
+                                                Belum ada data pengurus terdaftar pada periode ini.
                                             </td>
                                         </tr>
-                                    <?php endforeach; ?>
+                                    <?php endif; ?>
                                 <?php else : ?>
                                     <tr>
                                         <td colspan="8" class="text-center py-5 text-muted">
-                                            <i class="fa-solid fa-users fs-1 mb-3 d-block"></i>
-                                            Belum ada data pengurus terdaftar.
+                                            <i class="fa-solid fa-filter fs-1 mb-3 d-block text-warning"></i>
+                                            Silakan pilih periode kepengurusan terlebih dahulu untuk menampilkan daftar pengurus.
                                         </td>
                                     </tr>
                                 <?php endif; ?>

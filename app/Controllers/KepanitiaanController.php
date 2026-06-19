@@ -33,14 +33,22 @@ class KepanitiaanController extends BaseController
         }
 
         $kegiatanList = $this->kegiatanModel->where('deleted_at', null)->orderBy('tanggal_mulai', 'DESC')->findAll();
-        $panitiaList  = $this->panitiaModel->getPanitiaWithKegiatan();
+        
+        // Ambil filter kegiatan dari request GET
+        $selectedKegiatan = $this->request->getVar('kegiatan_id');
+
+        $panitiaList = [];
+        if (!empty($selectedKegiatan)) {
+            $panitiaList = $this->panitiaModel->getPanitiaByKegiatan($selectedKegiatan);
+        }
 
         return view('dashboard/kepanitiaan/index', [
-            'username'      => $this->session->get('username'),
-            'role_name'     => $this->session->get('role_name'),
-            'avatar'        => $this->session->get('avatar'),
-            'kegiatan_list' => $kegiatanList,
-            'panitia_list'  => $panitiaList
+            'username'          => $this->session->get('username'),
+            'role_name'         => $this->session->get('role_name'),
+            'avatar'            => $this->session->get('avatar'),
+            'kegiatan_list'     => $kegiatanList,
+            'panitia_list'      => $panitiaList,
+            'selected_kegiatan' => $selectedKegiatan
         ]);
     }
 

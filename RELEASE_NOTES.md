@@ -1,5 +1,14 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.5] - 2026-06-20
+### ✨ Added
+- Filter Periode pada Halaman Kepengurusan: Menambahkan dropdown filter periode kepengurusan dengan status visual aktif. Jika periode tidak dipilih, daftar pengurus disembunyikan dengan tampilan placeholder instruksi yang informatif.
+- Filter Kegiatan pada Halaman Kepanitiaan: Menambahkan dropdown filter kegiatan. Daftar panitia disembunyikan secara default sebelum kegiatan dipilih oleh pengguna.
+- Metode getPanitiaByKegiatan pada PanitiaModel: Menambahkan query khusus untuk mengambil daftar panitia yang disaring berdasarkan kegiatan tertentu secara efisien.
+
+### 🔄 Changed
+- Logika Index Kepengurusan & Kepanitiaan Controller: Mengubah method `index()` pada `KepengurusanController` dan `KepanitiaanController` agar menerima parameter filter dari request GET dan membatasi data pengurus/panitia yang dikirim ke view.
+
 ## [v0.4.4] - 2026-06-19
 ### ✨ Added
 - Fitur Searchable Dropdown Menggunakan Select2: Mengintegrasikan library jQuery Select2 dengan `select2-bootstrap-5-theme` pada formulir Tambah/Ubah Pengurus dan Panitia.

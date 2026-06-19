@@ -68,4 +68,22 @@ class PengurusModel extends Model
                     ->orderBy('trn_pengurus.urutan', 'ASC')
                     ->findAll();
     }
+
+    public function getPengurusByPeriode(string $periodeId)
+    {
+        return $this->select('
+                        trn_pengurus.*, 
+                        mst_periode_pengurus.nama_periode, 
+                        mst_personil.nama, mst_personil.no_hp, mst_personil.email, mst_personil.foto,
+                        parent_p.nama as nama_atasan, parent_pengurus.jabatan as jabatan_atasan
+                    ')
+                    ->join('mst_periode_pengurus', 'mst_periode_pengurus.id = trn_pengurus.periode_id')
+                    ->join('mst_personil', 'mst_personil.id = trn_pengurus.personil_id')
+                    ->join('trn_pengurus as parent_pengurus', 'parent_pengurus.id = trn_pengurus.parent_id', 'left')
+                    ->join('mst_personil as parent_p', 'parent_p.id = parent_pengurus.personil_id', 'left')
+                    ->where('trn_pengurus.periode_id', $periodeId)
+                    ->where('trn_pengurus.deleted_at', null)
+                    ->orderBy('trn_pengurus.urutan', 'ASC')
+                    ->findAll();
+    }
 }

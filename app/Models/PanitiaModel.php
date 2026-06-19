@@ -69,4 +69,22 @@ class PanitiaModel extends Model
                     ->orderBy('trn_panitia.urutan', 'ASC')
                     ->findAll();
     }
+
+    public function getPanitiaByKegiatan($kegiatanId)
+    {
+        return $this->select('
+                        trn_panitia.*, 
+                        mst_kegiatan.nama_kegiatan, 
+                        mst_personil.nama, mst_personil.no_hp, mst_personil.email,
+                        parent_p.nama as nama_atasan, parent_panitia.jabatan as jabatan_atasan
+                    ')
+                    ->join('mst_kegiatan', 'mst_kegiatan.id = trn_panitia.kegiatan_id')
+                    ->join('mst_personil', 'mst_personil.id = trn_panitia.personil_id')
+                    ->join('trn_panitia as parent_panitia', 'parent_panitia.id = trn_panitia.parent_id', 'left')
+                    ->join('mst_personil as parent_p', 'parent_p.id = parent_panitia.personil_id', 'left')
+                    ->where('trn_panitia.kegiatan_id', $kegiatanId)
+                    ->where('trn_panitia.deleted_at', null)
+                    ->orderBy('trn_panitia.urutan', 'ASC')
+                    ->findAll();
+    }
 }
