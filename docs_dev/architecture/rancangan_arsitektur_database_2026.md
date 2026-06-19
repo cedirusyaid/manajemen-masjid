@@ -94,12 +94,14 @@ CREATE TABLE `sys_roles` (
 ```
 
 #### 3. Tabel `sys_settings`
-Konfigurasi website terpusat (Nama masjid, alamat, nomor kontak, link media sosial, api key jadwal sholat).
+Konfigurasi website terpusat (Nama masjid, alamat, nomor kontak, API jadwal sholat, info rekening donasi).
 ```sql
 CREATE TABLE `sys_settings` (
   `key` VARCHAR(50) NOT NULL,
-  `value` TEXT NOT NULL,
-  `description` VARCHAR(255) DEFAULT NULL,
+  `value` TEXT NULL,
+  `group` VARCHAR(50) DEFAULT 'general',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```

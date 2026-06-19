@@ -119,8 +119,9 @@ class Home extends BaseController
             return $jadwal;
         }
 
-        // Target API Kemenag via myQuran dengan ID Kota terkonfigurasi
-        $kotaId = config('App')->sholatKotaId ?? '2616';
+        // Target API Kemenag via myQuran dengan ID Kota terkonfigurasi (DB dengan fallback)
+        $settingModel = new \App\Models\SettingModel();
+        $kotaId = $settingModel->getSetting('sholat_kota_id') ?? (config('App')->sholatKotaId ?? '2616');
         $url = "https://api.myquran.com/v2/sholat/jadwal/{$kotaId}/" . date('Y/m/d');
 
         $fallbackJadwal = [

@@ -6,7 +6,8 @@ if (!function_exists('site_name')) {
      */
     function site_name(): string
     {
-        return config('App')->siteName ?? 'Website Resmi Masjid';
+        $model = new \App\Models\SettingModel();
+        return $model->getSetting('site_name') ?? (config('App')->siteName ?? 'Website Resmi Masjid');
     }
 }
 
@@ -16,42 +17,48 @@ if (!function_exists('site_address')) {
      */
     function site_address(): string
     {
-        return config('App')->siteAddress ?? 'Alamat Resmi Masjid Anda';
+        $model = new \App\Models\SettingModel();
+        return $model->getSetting('site_address') ?? (config('App')->siteAddress ?? 'Alamat Resmi Masjid Anda');
     }
 }
 
 if (!function_exists('donation_bsi_number')) {
     function donation_bsi_number(): string
     {
-        return config('App')->donationBsiNumber ?? '0000000000';
+        $model = new \App\Models\SettingModel();
+        return $model->getSetting('donation_bsi_number') ?? (config('App')->donationBsiNumber ?? '0000000000');
     }
 }
 
 if (!function_exists('donation_bsi_holder')) {
     function donation_bsi_holder(): string
     {
-        return config('App')->donationBsiHolder ?? 'Kas Bendahara Masjid';
+        $model = new \App\Models\SettingModel();
+        return $model->getSetting('donation_bsi_holder') ?? (config('App')->donationBsiHolder ?? 'Kas Bendahara Masjid');
     }
 }
 
 if (!function_exists('donation_sulselbar_number')) {
     function donation_sulselbar_number(): string
     {
-        return config('App')->donationSulselbarNumber ?? '0000000000000';
+        $model = new \App\Models\SettingModel();
+        return $model->getSetting('donation_sulselbar_number') ?? (config('App')->donationSulselbarNumber ?? '0000000000000');
     }
 }
 
 if (!function_exists('donation_sulselbar_holder')) {
     function donation_sulselbar_holder(): string
     {
-        return config('App')->donationSulselbarHolder ?? 'Panitia Pembangunan Masjid';
+        $model = new \App\Models\SettingModel();
+        return $model->getSetting('donation_sulselbar_holder') ?? (config('App')->donationSulselbarHolder ?? 'Panitia Pembangunan Masjid');
     }
 }
 
 if (!function_exists('qris_data')) {
     function qris_data(): string
     {
-        return config('App')->qrisData ?? 'MasjidAndaInfaqDigital';
+        $model = new \App\Models\SettingModel();
+        return $model->getSetting('qris_data') ?? (config('App')->qrisData ?? 'MasjidAndaInfaqDigital');
     }
 }
 
@@ -69,7 +76,8 @@ if (!function_exists('contact_email')) {
      */
     function contact_email(): string
     {
-        return config('App')->contactEmail ?? 'info@masjidanda.or.id';
+        $model = new \App\Models\SettingModel();
+        return $model->getSetting('contact_email') ?? (config('App')->contactEmail ?? 'info@masjidanda.or.id');
     }
 }
 
@@ -79,6 +87,7 @@ if (!function_exists('contact_phone')) {
      */
     function contact_phone(): string
     {
-        return config('App')->contactPhone ?? '(021) 12345678';
+        $model = new \App\Models\SettingModel();
+        return $model->getSetting('contact_phone') ?? (config('App')->contactPhone ?? '(021) 12345678');
     }
 }
