@@ -87,6 +87,7 @@ $routes->group('dashboard/personil', ['namespace' => 'App\Controllers'], functio
     $routes->get('/', 'PersonilController::index');
     $routes->get('create', 'PersonilController::create');
     $routes->post('store', 'PersonilController::store');
+    $routes->post('ajax-store', 'PersonilController::ajaxStore');
     $routes->get('edit/(:segment)', 'PersonilController::edit/$1');
     $routes->post('update/(:segment)', 'PersonilController::update/$1');
     $routes->get('delete/(:segment)', 'PersonilController::delete/$1');

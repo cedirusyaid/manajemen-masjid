@@ -339,15 +339,20 @@
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <label for="personil_id" class="form-label">Nama Personel Panitia</label>
-                        <select class="form-select" id="personil_id" name="personil_id" required>
-                            <option value="">-- Pilih Personel --</option>
-                            <?php foreach ($personil_list as $personil) : ?>
-                                <option value="<?= esc($personil['id']) ?>" <?= old('personil_id', esc($panitia['personil_id'])) == $personil['id'] ? 'selected' : '' ?>>
-                                    <?= esc($personil['nama']) ?> (<?= esc($personil['no_hp'] ?: 'Tidak ada No WA') ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <small class="text-muted mt-1 d-block">Jika personel belum terdaftar, silakan tambahkan terlebih dahulu di menu <a href="<?= base_url('dashboard/personil/create') ?>" target="_blank">Master Personel</a>.</small>
+                        <div class="input-group">
+                            <select class="form-select" id="personil_id" name="personil_id" required>
+                                <option value="">-- Pilih Personel --</option>
+                                <?php foreach ($personil_list as $personil) : ?>
+                                    <option value="<?= esc($personil['id']) ?>" <?= old('personil_id', esc($panitia['personil_id'])) == $personil['id'] ? 'selected' : '' ?>>
+                                        <?= esc($personil['nama']) ?> (<?= esc($personil['no_hp'] ?: 'Tidak ada No WA') ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button class="btn btn-outline-success" type="button" data-bs-toggle="modal" data-bs-target="#modalTambahPersonil" title="Tambah Personel Baru">
+                                <i class="fa-solid fa-user-plus"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted mt-1 d-block">Jika personel belum terdaftar, klik tombol hijau di samping kanan untuk menambahkan secara instan.</small>
                     </div>
 
                     <div class="col-md-6 mb-4">
@@ -402,5 +407,124 @@
 
     <!-- Bootstrap 5.3 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- MODAL TAMBAH PERSONIL INSTAN -->
+    <div class="modal fade" id="modalTambahPersonil" tabindex="-1" aria-labelledby="modalTambahPersonilLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header bg-success text-white rounded-top-4 py-3">
+                    <h5 class="modal-title font-heading fw-bold" id="modalTambahPersonilLabel">
+                        <i class="fa-solid fa-user-plus me-2"></i>Tambah Personel Baru
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="modalAlert" class="alert alert-danger d-none" role="alert"></div>
+                    <form id="formPersonilInstan">
+                        <div class="mb-3">
+                            <label class="form-label" for="p_nama">Nama Lengkap <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="p_nama" required placeholder="Nama lengkap beserta gelar jika ada">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="p_jenis_kelamin">Jenis Kelamin <span class="text-danger">*</span></label>
+                            <select class="form-select" id="p_jenis_kelamin" required>
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="p_no_hp">Nomor WhatsApp/HP (Opsional)</label>
+                            <input type="text" class="form-control" id="p_no_hp" placeholder="Contoh: 08123456789">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="p_alamat">Alamat Rumah (Opsional)</label>
+                            <textarea class="form-control" id="p_alamat" rows="2" placeholder="Alamat tempat tinggal"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer bg-light rounded-bottom-4 border-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal" style="border-radius: 10px;">Batal</button>
+                    <button type="button" class="btn btn-success px-4" id="btnSimpanPersonil" style="border-radius: 10px; background-color: #064e3b; border: none;">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AJAX Script untuk Simpan Personil -->
+    <script>
+        document.getElementById('btnSimpanPersonil').addEventListener('click', function() {
+            const nama = document.getElementById('p_nama').value.trim();
+            const jk = document.getElementById('p_jenis_kelamin').value;
+            const noHp = document.getElementById('p_no_hp').value.trim();
+            const alamat = document.getElementById('p_alamat').value.trim();
+            const modalAlert = document.getElementById('modalAlert');
+
+            if (nama.length < 3) {
+                modalAlert.innerText = 'Nama lengkap minimal 3 karakter.';
+                modalAlert.classList.remove('d-none');
+                return;
+            }
+
+            modalAlert.classList.add('d-none');
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...';
+
+            fetch('<?= base_url('dashboard/personil/ajax-store') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams({
+                    '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
+                    'nama': nama,
+                    'jenis_kelamin': jk,
+                    'no_hp': noHp,
+                    'alamat': alamat,
+                    'tipe_default': 'panitia'
+                })
+            })
+            .then(response => response.json())
+            .then(res => {
+                this.disabled = false;
+                this.innerHTML = 'Simpan';
+                
+                if (res.status) {
+                    // Berhasil simpan
+                    const selectEl = document.getElementById('personil_id');
+                    
+                    // Buat option baru
+                    const opt = document.createElement('option');
+                    opt.value = res.data.id;
+                    opt.text = res.data.nama + ' (WA: ' + (noHp || 'Tidak ada') + ')';
+                    opt.selected = true;
+                    
+                    // Masukkan ke select
+                    selectEl.add(opt, selectEl.options[1]);
+                    
+                    // Reset form & tutup modal
+                    document.getElementById('formPersonilInstan').reset();
+                    
+                    // Gunakan bootstrap class untuk modal hide
+                    const modalEl = document.getElementById('modalTambahPersonil');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modalInstance.hide();
+                    
+                    // Tampilkan notifikasi kecil
+                    alert(res.message);
+                } else {
+                    modalAlert.innerText = res.message || 'Gagal menyimpan data.';
+                    modalAlert.classList.remove('d-none');
+                }
+            })
+            .catch(err => {
+                this.disabled = false;
+                this.innerHTML = 'Simpan';
+                modalAlert.innerText = 'Terjadi kesalahan sistem, silakan coba lagi.';
+                modalAlert.classList.remove('d-none');
+                console.error(err);
+            });
+        });
+    </script>
 </body>
 </html>

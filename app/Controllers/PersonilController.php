@@ -298,4 +298,64 @@ class PersonilController extends BaseController
             return redirect()->to('/dashboard/personil')->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Simpan Personil Baru via AJAX (untuk inline creation)
+     */
+    public function ajaxStore()
+    {
+        // Cek akses admin secara manual (karena ini AJAX request)
+        if ($this->session->get('role_name') === 'Jemaah' || !$this->session->get('username')) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => 'Akses ditolak. Anda tidak memiliki wewenang.'
+            ])->setStatusCode(403);
+        }
+
+        $rules = [
+            'nama'          => 'required|min_length[3]|max_length[150]',
+            'jenis_kelamin' => 'required|in_list[L,P]',
+            'no_hp'         => 'permit_empty|min_length[8]|max_length[20]',
+            'alamat'        => 'permit_empty'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setJSON([
+                'status'  => false,
+                'message' => implode(' | ', $this->validator->getErrors())
+            ]);
+        }
+
+        $data = [
+            'nama'          => $this->request->getPost('nama'),
+            'jenis_kelamin' => $this->request->getPost('jenis_kelamin'),
+            'no_hp'         => $this->request->getPost('no_hp') ?: null,
+            'alamat'        => $this->request->getPost('alamat') ?: null,
+            'tipe_default'  => $this->request->getPost('tipe_default') ?: 'pengurus'
+        ];
+
+        try {
+            $this->personilModel->insert($data);
+            $newId = $this->personilModel->getInsertID() ?: \Config\Database::connect()->insertID();
+            
+            // Catat Audit Trail
+            log_activity('INSERT', 'mst_personil', $newId ?: 'UUID', null, $data);
+
+            return $this->response->setJSON([
+                'status'  => true,
+                'message' => 'Personil baru berhasil ditambahkan.',
+                'data'    => [
+                    'id'   => $newId,
+                    'nama' => $data['nama']
+                ]
+            ]);
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return $this->response->setJSON([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
+

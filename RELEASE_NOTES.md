@@ -1,5 +1,11 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.3] - 2026-06-19
+### ✨ Added
+- Fitur Input Personel Instan (Inline Creation) pada Form Pengurus & Panitia: Menambahkan tombol tambah personel baru langsung di samping dropdown pilihan personel pada formulir Tambah/Ubah Pengurus dan Panitia.
+- AJAX Endpoint Pembuatan Personel Baru: Membuat endpoint `/dashboard/personil/ajax-store` di `PersonilController` yang menangani validasi, pembuatan UUID, penyimpanan instan data personel baru, dan pencatatan audit trail log secara non-blocking.
+- Integrasi JavaScript Fetch & Bootstrap Modal: Mengintegrasikan Bootstrap Modal interaktif dan AJAX script yang secara dinamis menambahkan opsi personel baru yang baru saja didaftarkan ke dalam elemen select tanpa perlu me-reload halaman.
+
 ## [v0.4.2] - 2026-06-19
 ### ✨ Added
 - Fitur Bukti Transaksi Kas Keuangan: Menambahkan kolom `bukti_transaksi` pada tabel database `trn_keuangan` dan mendukung pengunggahan file bukti transaksi (nota pembelian, kuitansi, struk belanja dalam format PDF maupun Gambar).
