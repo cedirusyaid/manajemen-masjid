@@ -1,5 +1,15 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.8] - 2026-06-20
+### ✨ Added
+- **Halaman Detail Kepengurusan (Masa Bakti)**: Membuat halaman baru `dashboard/kepengurusan/detail/{periode_id}` untuk merinci susunan pengurus dan posisi jabatan kepengurusan di bawah satu periode yang dipilih secara visual, serta memisahkan alur kelola periode kepengurusan.
+- **Halaman Detail Kepanitiaan (Kegiatan)**: Membuat halaman baru `dashboard/kepanitiaan/detail/{kegiatan_id}` untuk merinci struktur kepanitiaan pelaksana dan jajaran posisi jabatan di bawah satu kegiatan yang dipilih.
+- **Tautan Navigasi & Aksi Rapi**: Menambahkan tombol aksi navigasi detail bersimbol pohon struktur organisasi (`fa-sitemap` & `fa-people-group`) pada daftar periode & kegiatan di halaman index.
+
+### 🔄 Changed
+- **Penyederhanaan Halaman Index Utama**: Mengubah halaman depan Kepengurusan (`/dashboard/kepengurusan`) dan Kepanitiaan (`/dashboard/kepanitiaan`) agar hanya memuat daftar master Periode/Kegiatan dalam bentuk tabel ringkas untuk navigasi yang lebih efisien dan terstruktur.
+- **Penyesuaian Redirect & Cancel Link**: Menyelaraskan seluruh aksi redirect pasca-CRUD (create, update, delete) dan link Cancel (Batal) pada form penugasan anggota & jabatan agar kembali ke halaman detail masing-masing periode/kegiatan.
+
 ## [v0.4.7] - 2026-06-20
 ### ✨ Added
 - **Struktur Jabatan Relasional Terpisah**: Menghubungkan personil kepengurusan dan kepanitiaan secara tidak langsung melalui tabel jabatan (`trn_jabatan_periode` dan `trn_jabatan_kegiatan`), sehingga memungkinkan satu jabatan ditempati oleh lebih dari 1 personil (misalnya Pembina atau Anggota Humas).

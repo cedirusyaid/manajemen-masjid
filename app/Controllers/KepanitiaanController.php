@@ -27,7 +27,7 @@ class KepanitiaanController extends BaseController
     }
 
     /**
-     * Tampilkan Kelola Kepanitiaan & Kegiatan
+     * Tampilkan Daftar Kegiatan (Halaman Depan Kepanitiaan)
      */
     public function index()
     {
@@ -37,24 +37,39 @@ class KepanitiaanController extends BaseController
 
         $kegiatanList = $this->kegiatanModel->where('deleted_at', null)->orderBy('tanggal_mulai', 'DESC')->findAll();
         
-        // Ambil filter kegiatan dari request GET
-        $selectedKegiatan = $this->request->getVar('kegiatan_id');
-
-        $panitiaList = [];
-        $jabatanList = [];
-        if (!empty($selectedKegiatan)) {
-            $panitiaList = $this->panitiaModel->getPanitiaByKegiatan($selectedKegiatan);
-            $jabatanList = $this->jabatanKegiatanModel->getJabatanByKegiatan($selectedKegiatan);
-        }
-
         return view('dashboard/kepanitiaan/index', [
             'username'          => $this->session->get('username'),
             'role_name'         => $this->session->get('role_name'),
             'avatar'            => $this->session->get('avatar'),
-            'kegiatan_list'     => $kegiatanList,
+            'kegiatan_list'     => $kegiatanList
+        ]);
+    }
+
+    /**
+     * Tampilkan Detail Kegiatan dengan Struktur Panitia & Struktur Jabatan Kegiatan
+     */
+    public function detail($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kegiatan = $this->kegiatanModel->find($id);
+        if (!$kegiatan) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data kegiatan tidak ditemukan.');
+        }
+
+        $panitiaList = $this->panitiaModel->getPanitiaByKegiatan($id);
+        $jabatanList = $this->jabatanKegiatanModel->getJabatanByKegiatan($id);
+
+        return view('dashboard/kepanitiaan/detail', [
+            'username'          => $this->session->get('username'),
+            'role_name'         => $this->session->get('role_name'),
+            'avatar'            => $this->session->get('avatar'),
+            'kegiatan'          => $kegiatan,
             'panitia_list'      => $panitiaList,
             'jabatan_list'      => $jabatanList,
-            'selected_kegiatan' => $selectedKegiatan
+            'validation'        => \Config\Services::validation()
         ]);
     }
 
@@ -108,7 +123,7 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('INSERT', 'mst_kegiatan', $newId, null, $data);
 
-            return redirect()->to('/dashboard/kepanitiaan')->with('success', 'Kegiatan baru berhasil dibuat.');
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $newId)->with('success', 'Kegiatan baru berhasil dibuat.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal membuat kegiatan baru: ' . $e->getMessage());
@@ -171,7 +186,7 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('UPDATE', 'mst_kegiatan', $id, $kegiatanBefore, $data);
 
-            return redirect()->to('/dashboard/kepanitiaan')->with('success', 'Kegiatan berhasil diperbarui.');
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $id)->with('success', 'Kegiatan berhasil diperbarui.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui kegiatan: ' . $e->getMessage());
@@ -260,7 +275,7 @@ class KepanitiaanController extends BaseController
             $jabatanInfo = $this->jabatanKegiatanModel->find($data['jabatan_kegiatan_id']);
             $kegiatanId = $jabatanInfo ? $jabatanInfo['kegiatan_id'] : '';
 
-            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $kegiatanId)->with('success', 'Anggota panitia baru berhasil ditambahkan.');
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $kegiatanId)->with('success', 'Anggota panitia baru berhasil ditambahkan.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal menambahkan anggota panitia: ' . $e->getMessage());
@@ -335,7 +350,7 @@ class KepanitiaanController extends BaseController
             $jabatanInfo = $this->jabatanKegiatanModel->find($data['jabatan_kegiatan_id']);
             $kegiatanId = $jabatanInfo ? $jabatanInfo['kegiatan_id'] : '';
 
-            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $kegiatanId)->with('success', 'Data panitia berhasil diperbarui.');
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $kegiatanId)->with('success', 'Data panitia berhasil diperbarui.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data panitia: ' . $e->getMessage());
@@ -362,7 +377,7 @@ class KepanitiaanController extends BaseController
             $jabatanInfo = $this->jabatanKegiatanModel->find($panitiaBefore['jabatan_kegiatan_id']);
             $kegiatanId = $jabatanInfo ? $jabatanInfo['kegiatan_id'] : '';
 
-            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $kegiatanId)->with('success', 'Anggota panitia berhasil dihapus.');
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $kegiatanId)->with('success', 'Anggota panitia berhasil dihapus.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus data panitia: ' . $e->getMessage());
@@ -431,7 +446,7 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('INSERT', 'trn_jabatan_kegiatan', $newId, null, $data);
 
-            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $data['kegiatan_id'])->with('success', 'Jabatan baru berhasil ditambahkan.');
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $data['kegiatan_id'])->with('success', 'Jabatan baru berhasil ditambahkan.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal menambahkan jabatan: ' . $e->getMessage());
@@ -506,7 +521,7 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('UPDATE', 'trn_jabatan_kegiatan', $id, $jabatanBefore, $data);
 
-            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $data['kegiatan_id'])->with('success', 'Data jabatan berhasil diperbarui.');
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $data['kegiatan_id'])->with('success', 'Data jabatan berhasil diperbarui.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data jabatan: ' . $e->getMessage());
@@ -530,7 +545,7 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('DELETE', 'trn_jabatan_kegiatan', $id, $jabatanBefore, null);
 
-            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $jabatanBefore['kegiatan_id'])->with('success', 'Jabatan berhasil dihapus.');
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $jabatanBefore['kegiatan_id'])->with('success', 'Jabatan berhasil dihapus.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus data jabatan: ' . $e->getMessage());

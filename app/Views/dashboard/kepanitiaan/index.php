@@ -21,7 +21,6 @@
             --white: #ffffff;
             --sidebar-width: 260px;
             --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
             --transition: all 0.25s ease;
         }
 
@@ -204,20 +203,6 @@
             justify-content: space-between;
         }
 
-        /* Tabs Styles */
-        .nav-pills .nav-link {
-            color: #4b5563;
-            font-weight: 600;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: var(--transition);
-        }
-
-        .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-            background-color: var(--primary);
-            color: var(--white);
-        }
-
         /* Table/Badges Styles */
         .custom-table {
             width: 100%;
@@ -290,6 +275,16 @@
             transition: var(--transition);
             border: none;
             font-size: 0.875rem;
+        }
+
+        .btn-detail {
+            background-color: rgba(6, 78, 59, 0.1);
+            color: var(--primary);
+        }
+
+        .btn-detail:hover {
+            background-color: var(--primary);
+            color: var(--white);
         }
 
         .btn-edit {
@@ -411,262 +406,71 @@
             </div>
         <?php endif; ?>
 
-        <!-- Nav tabs -->
-        <ul class="nav nav-pills mb-4 gap-2" id="kepanitiaanTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="panitia-tab" data-bs-toggle="tab" data-bs-target="#panitia" type="button" role="tab" aria-controls="panitia" aria-selected="true">
-                    <i class="fa-solid fa-people-carry-box me-2"></i>Struktur Panitia
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="jabatan-tab" data-bs-toggle="tab" data-bs-target="#jabatan" type="button" role="tab" aria-controls="jabatan" aria-selected="false">
-                    <i class="fa-solid fa-sitemap me-2"></i>Struktur Jabatan
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="kegiatan-tab" data-bs-toggle="tab" data-bs-target="#kegiatan" type="button" role="tab" aria-controls="kegiatan" aria-selected="false">
-                    <i class="fa-solid fa-calendar-check me-2"></i>Daftar Kegiatan
-                </button>
-            </li>
-        </ul>
-
-        <!-- Tab content -->
-        <div class="tab-content">
-            <!-- TAB PANITIA -->
-            <div class="tab-pane fade show active" id="panitia" role="tabpanel" aria-labelledby="panitia-tab">
-                <div class="panel-card">
-                    <div class="panel-title">
-                        <span>Anggota Panitia Kegiatan</span>
-                        <a href="<?= base_url('dashboard/kepanitiaan/panitia/create' . (!empty($selected_kegiatan) ? '?kegiatan_id=' . esc($selected_kegiatan) : '')) ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
-                            <i class="fa-solid fa-plus me-2"></i>Tambah Panitia
-                        </a>
-                    </div>
-
-                    <!-- Filter Kegiatan -->
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <form action="<?= base_url('dashboard/kepanitiaan') ?>" method="get" id="filterKegiatanForm">
-                                <label for="kegiatan_id" class="form-label fw-semibold text-muted small text-uppercase">Filter Kegiatan</label>
-                                <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
-                                    <span class="input-group-text bg-white border-end-0 text-muted">
-                                        <i class="fa-solid fa-calendar-days text-success"></i>
-                                    </span>
-                                    <select class="form-select border-start-0 ps-1" name="kegiatan_id" id="kegiatan_id" onchange="this.form.submit()" style="font-weight: 500;">
-                                        <option value="">-- Pilih Kegiatan --</option>
-                                        <?php foreach ($kegiatan_list as $k) : ?>
-                                            <option value="<?= esc($k['id']) ?>" <?= isset($selected_kegiatan) && $selected_kegiatan == $k['id'] ? 'selected' : '' ?>>
-                                                <?= esc($k['nama_kegiatan']) ?> (<?= date('d/m/Y', strtotime($k['tanggal_mulai'])) ?>)
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Nama Panitia</th>
-                                    <th>Jabatan Panitia</th>
-                                    <th>Atasan / Koordinator</th>
-                                    <th>Kegiatan</th>
-                                    <th>Tugas Khusus</th>
-                                    <th>Kontak</th>
-                                    <th style="width: 80px;">Urutan</th>
-                                    <th style="width: 120px;" class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($selected_kegiatan)) : ?>
-                                    <?php if (!empty($panitia_list)) : ?>
-                                        <?php foreach ($panitia_list as $panitia) : ?>
-                                            <tr>
-                                                <td><strong><?= esc($panitia['nama']) ?></strong><br><small class="text-muted"><?= esc($panitia['email'] ?: '-') ?></small></td>
-                                                <td><span class="badge bg-light text-dark px-3 py-2 border"><?= esc($panitia['jabatan']) ?></span></td>
-                                                <td>
-                                                    <?php if ($panitia['nama_atasan']) : ?>
-                                                        <strong><?= esc($panitia['nama_atasan']) ?></strong><br><small class="text-muted"><?= esc($panitia['jabatan_atasan']) ?></small>
-                                                    <?php else : ?>
-                                                        <span class="text-muted">-</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td><strong><?= esc($panitia['nama_kegiatan']) ?></strong></td>
-                                                <td><?= esc($panitia['tugas'] ?: '-') ?></td>
-                                                <td><?= esc($panitia['no_hp'] ?: '-') ?></td>
-                                                <td><?= esc($panitia['urutan']) ?></td>
-                                                <td class="text-center">
-                                                    <div class="d-flex gap-2 justify-content-center">
-                                                        <a href="<?= base_url('dashboard/kepanitiaan/panitia/edit/' . esc($panitia['id']) . (!empty($selected_kegiatan) ? '?kegiatan_id=' . esc($selected_kegiatan) : '')) ?>" class="btn-action btn-edit" title="Edit">
-                                                            <i class="fa-solid fa-pen"></i>
-                                                        </a>
-                                                        <a href="<?= base_url('dashboard/kepanitiaan/panitia/delete/' . esc($panitia['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus panitia ini?')" title="Hapus">
-                                                            <i class="fa-solid fa-trash"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else : ?>
-                                        <tr>
-                                            <td colspan="8" class="text-center py-5 text-muted">
-                                                <i class="fa-solid fa-people-group fs-1 mb-3 d-block text-secondary"></i>
-                                                Belum ada data anggota panitia terdaftar untuk kegiatan ini.
-                                            </td>
-                                        </tr>
-                                    <?php endif; ?>
-                                <?php else : ?>
-                                    <tr>
-                                        <td colspan="8" class="text-center py-5 text-muted">
-                                            <i class="fa-solid fa-filter fs-1 mb-3 d-block text-warning"></i>
-                                            Silakan pilih kegiatan terlebih dahulu untuk menampilkan daftar panitia.
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <!-- PANEL DAFTAR KEGIATAN -->
+        <div class="panel-card">
+            <div class="panel-title">
+                <span>Daftar Kegiatan Masjid</span>
+                <a href="<?= base_url('dashboard/kepanitiaan/kegiatan/create') ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
+                    <i class="fa-solid fa-plus me-2"></i>Tambah Kegiatan
+                </a>
             </div>
 
-            <!-- TAB STRUKTUR JABATAN -->
-            <div class="tab-pane fade" id="jabatan" role="tabpanel" aria-labelledby="jabatan-tab">
-                <div class="panel-card">
-                    <div class="panel-title">
-                        <span>Struktur Posisi Jabatan Kegiatan</span>
-                        <a href="<?= base_url('dashboard/kepanitiaan/jabatan/create' . (!empty($selected_kegiatan) ? '?kegiatan_id=' . esc($selected_kegiatan) : '')) ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
-                            <i class="fa-solid fa-plus me-2"></i>Tambah Jabatan
-                        </a>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table custom-table">
-                            <thead>
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>Nama Kegiatan</th>
+                            <th>Tanggal Mulai</th>
+                            <th>Tanggal Selesai</th>
+                            <th>Keterangan / Deskripsi</th>
+                            <th>Status</th>
+                            <th style="width: 160px;" class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($kegiatan_list)) : ?>
+                            <?php foreach ($kegiatan_list as $kegiatan) : ?>
                                 <tr>
-                                    <th>Nama Jabatan</th>
-                                    <th>Membawahi (Parent)</th>
-                                    <th>Kegiatan</th>
-                                    <th>Tugas Khusus Utama</th>
-                                    <th style="width: 80px;">Urutan</th>
-                                    <th style="width: 120px;" class="text-center">Aksi</th>
+                                    <td><strong><?= esc($kegiatan['nama_kegiatan']) ?></strong></td>
+                                    <td><?= date('d-m-Y', strtotime($kegiatan['tanggal_mulai'])) ?></td>
+                                    <td><?= date('d-m-Y', strtotime($kegiatan['tanggal_selesai'])) ?></td>
+                                    <td><?= esc($kegiatan['deskripsi'] ?: '-') ?></td>
+                                    <td>
+                                        <?php if ($kegiatan['status'] === 'rencana') : ?>
+                                            <span class="badge-rencana">Rencana</span>
+                                        <?php elseif ($kegiatan['status'] === 'berjalan') : ?>
+                                            <span class="badge-berjalan">Berjalan</span>
+                                        <?php elseif ($kegiatan['status'] === 'selesai') : ?>
+                                            <span class="badge-selesai">Selesai</span>
+                                        <?php else : ?>
+                                            <span class="badge-dibatalkan">Dibatalkan</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <a href="<?= base_url('dashboard/kepanitiaan/detail/' . esc($kegiatan['id'])) ?>" class="btn-action btn-detail" title="Kelola Panitia & Jabatan">
+                                                <i class="fa-solid fa-people-group"></i>
+                                            </a>
+                                            <a href="<?= base_url('dashboard/kepanitiaan/kegiatan/edit/' . esc($kegiatan['id'])) ?>" class="btn-action btn-edit" title="Ubah Kegiatan">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </a>
+                                            <a href="<?= base_url('dashboard/kepanitiaan/kegiatan/delete/' . esc($kegiatan['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus kegiatan ini? Menghapus kegiatan akan menghapus panitia dan struktur jabatan di dalamnya.')" title="Hapus Kegiatan">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($selected_kegiatan)) : ?>
-                                    <?php if (!empty($jabatan_list)) : ?>
-                                        <?php foreach ($jabatan_list as $jab) : ?>
-                                            <tr>
-                                                <td><strong><?= esc($jab['nama_jabatan']) ?></strong></td>
-                                                <td>
-                                                    <?php if ($jab['nama_atasan']) : ?>
-                                                        <span class="badge bg-light text-dark border px-3 py-2"><?= esc($jab['nama_atasan']) ?></span>
-                                                    <?php else : ?>
-                                                        <span class="text-muted">-</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td><?= esc($jab['nama_kegiatan']) ?></td>
-                                                <td><?= esc($jab['tugas'] ?: '-') ?></td>
-                                                <td><?= esc($jab['urutan']) ?></td>
-                                                <td class="text-center">
-                                                    <div class="d-flex gap-2 justify-content-center">
-                                                        <a href="<?= base_url('dashboard/kepanitiaan/jabatan/edit/' . esc($jab['id']) . (!empty($selected_kegiatan) ? '?kegiatan_id=' . esc($selected_kegiatan) : '')) ?>" class="btn-action btn-edit" title="Edit">
-                                                            <i class="fa-solid fa-pen"></i>
-                                                        </a>
-                                                        <a href="<?= base_url('dashboard/kepanitiaan/jabatan/delete/' . esc($jab['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus jabatan ini? Menghapus jabatan akan menghapus penugasan panitia terkait.')" title="Hapus">
-                                                            <i class="fa-solid fa-trash"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else : ?>
-                                        <tr>
-                                            <td colspan="6" class="text-center py-5 text-muted">
-                                                <i class="fa-solid fa-sitemap fs-1 mb-3 d-block text-secondary"></i>
-                                                Belum ada struktur jabatan dibuat pada kegiatan ini.
-                                            </td>
-                                        </tr>
-                                    <?php endif; ?>
-                                <?php else : ?>
-                                    <tr>
-                                        <td colspan="6" class="text-center py-5 text-muted">
-                                            <i class="fa-solid fa-filter fs-1 mb-3 d-block text-warning"></i>
-                                            Silakan pilih kegiatan terlebih dahulu untuk menampilkan daftar jabatan.
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB KEGIATAN -->
-            <div class="tab-pane fade" id="kegiatan" role="tabpanel" aria-labelledby="kegiatan-tab">
-                <div class="panel-card">
-                    <div class="panel-title">
-                        <span>Daftar Kegiatan Masjid</span>
-                        <a href="<?= base_url('dashboard/kepanitiaan/kegiatan/create') ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
-                            <i class="fa-solid fa-plus me-2"></i>Tambah Kegiatan
-                        </a>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Nama Kegiatan</th>
-                                    <th>Tanggal Mulai</th>
-                                    <th>Tanggal Selesai</th>
-                                    <th>Keterangan / Deskripsi</th>
-                                    <th>Status</th>
-                                    <th style="width: 120px;" class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($kegiatan_list)) : ?>
-                                    <?php foreach ($kegiatan_list as $kegiatan) : ?>
-                                        <tr>
-                                            <td><strong><?= esc($kegiatan['nama_kegiatan']) ?></strong></td>
-                                            <td><?= date('d-m-Y', strtotime($kegiatan['tanggal_mulai'])) ?></td>
-                                            <td><?= date('d-m-Y', strtotime($kegiatan['tanggal_selesai'])) ?></td>
-                                            <td><?= esc($kegiatan['deskripsi'] ?: '-') ?></td>
-                                            <td>
-                                                <?php if ($kegiatan['status'] === 'rencana') : ?>
-                                                    <span class="badge-rencana">Rencana</span>
-                                                <?php elseif ($kegiatan['status'] === 'berjalan') : ?>
-                                                    <span class="badge-berjalan">Berjalan</span>
-                                                <?php elseif ($kegiatan['status'] === 'selesai') : ?>
-                                                    <span class="badge-selesai">Selesai</span>
-                                                <?php else : ?>
-                                                    <span class="badge-dibatalkan">Dibatalkan</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="d-flex gap-2 justify-content-center">
-                                                    <a href="<?= base_url('dashboard/kepanitiaan/kegiatan/edit/' . esc($kegiatan['id'])) ?>" class="btn-action btn-edit" title="Edit">
-                                                        <i class="fa-solid fa-pen"></i>
-                                                    </a>
-                                                    <a href="<?= base_url('dashboard/kepanitiaan/kegiatan/delete/' . esc($kegiatan['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus kegiatan ini? Menghapus kegiatan akan menghapus panitia di dalamnya.')" title="Hapus">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php else : ?>
-                                    <tr>
-                                        <td colspan="6" class="text-center py-5 text-muted">
-                                            <i class="fa-solid fa-calendar-alt fs-1 mb-3 d-block"></i>
-                                            Belum ada data kegiatan terdaftar.
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                            <?php endforeach; ?>
+                        <?php else : ?>
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-calendar-alt fs-1 mb-3 d-block"></i>
+                                    Belum ada data kegiatan terdaftar.
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>

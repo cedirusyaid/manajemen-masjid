@@ -48,6 +48,9 @@ $routes->group('dashboard/keuangan', ['namespace' => 'App\Controllers'], functio
 $routes->group('dashboard/kepengurusan', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->get('/', 'KepengurusanController::index');
     
+    // Detail Route
+    $routes->get('detail/(:segment)', 'KepengurusanController::detail/$1');
+    
     // Periode Routes
     $routes->get('periode/create', 'KepengurusanController::createPeriode');
     $routes->post('periode/store', 'KepengurusanController::storePeriode');
@@ -73,6 +76,9 @@ $routes->group('dashboard/kepengurusan', ['namespace' => 'App\Controllers'], fun
 // Rute CRUD Kepanitiaan (Kegiatan & Anggota Panitia)
 $routes->group('dashboard/kepanitiaan', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->get('/', 'KepanitiaanController::index');
+    
+    // Detail Route
+    $routes->get('detail/(:segment)', 'KepanitiaanController::detail/$1');
     
     // Kegiatan Routes
     $routes->get('kegiatan/create', 'KepanitiaanController::createKegiatan');

@@ -29,6 +29,9 @@ class KepengurusanController extends BaseController
     /**
      * Tampilkan Kelola Kepengurusan
      */
+    /**
+     * Tampilkan Daftar Periode Kepengurusan (Halaman Depan)
+     */
     public function index()
     {
         if ($redirect = $this->checkAdminAccess()) {
@@ -37,36 +40,39 @@ class KepengurusanController extends BaseController
 
         $periodeList  = $this->periodeModel->where('deleted_at', null)->orderBy('tahun_mulai', 'DESC')->findAll();
         
-        // Cari periode aktif untuk default
-        $activePeriode = null;
-        foreach ($periodeList as $p) {
-            if ($p['status'] === 'aktif') {
-                $activePeriode = $p['id'];
-                break;
-            }
-        }
-        
-        // Ambil filter periode dari request GET
-        $selectedPeriode = $this->request->getVar('periode_id');
-        if ($selectedPeriode === null) {
-            $selectedPeriode = $activePeriode;
-        }
-
-        $pengurusList = [];
-        $jabatanList  = [];
-        if (!empty($selectedPeriode)) {
-            $pengurusList = $this->pengurusModel->getPengurusByPeriode($selectedPeriode);
-            $jabatanList  = $this->jabatanPeriodeModel->getJabatanByPeriode($selectedPeriode);
-        }
-
         return view('dashboard/kepengurusan/index', [
             'username'         => $this->session->get('username'),
             'role_name'        => $this->session->get('role_name'),
             'avatar'           => $this->session->get('avatar'),
-            'periode_list'     => $periodeList,
+            'periode_list'     => $periodeList
+        ]);
+    }
+
+    /**
+     * Tampilkan Detail Periode dengan Susunan Pengurus & Struktur Jabatan
+     */
+    public function detail($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $periode = $this->periodeModel->find($id);
+        if (!$periode) {
+            return redirect()->to('/dashboard/kepengurusan')->with('error', 'Data periode tidak ditemukan.');
+        }
+
+        $pengurusList = $this->pengurusModel->getPengurusByPeriode($id);
+        $jabatanList  = $this->jabatanPeriodeModel->getJabatanByPeriode($id);
+
+        return view('dashboard/kepengurusan/detail', [
+            'username'         => $this->session->get('username'),
+            'role_name'        => $this->session->get('role_name'),
+            'avatar'           => $this->session->get('avatar'),
+            'periode'          => $periode,
             'pengurus_list'    => $pengurusList,
             'jabatan_list'     => $jabatanList,
-            'selected_periode' => $selectedPeriode
+            'validation'       => \Config\Services::validation()
         ]);
     }
 
@@ -124,7 +130,7 @@ class KepengurusanController extends BaseController
             // Log Activity
             log_activity('INSERT', 'mst_periode_pengurus', $newId, null, $data);
 
-            return redirect()->to('/dashboard/kepengurusan')->with('success', 'Periode kepengurusan baru berhasil disimpan.');
+            return redirect()->to('/dashboard/kepengurusan/detail/' . $newId)->with('success', 'Periode kepengurusan baru berhasil disimpan.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data periode: ' . $e->getMessage());
@@ -191,7 +197,7 @@ class KepengurusanController extends BaseController
             // Log Activity
             log_activity('UPDATE', 'mst_periode_pengurus', $id, $periodeBefore, $data);
 
-            return redirect()->to('/dashboard/kepengurusan')->with('success', 'Data periode kepengurusan berhasil diubah.');
+            return redirect()->to('/dashboard/kepengurusan/detail/' . $id)->with('success', 'Data periode kepengurusan berhasil diubah.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data periode: ' . $e->getMessage());
@@ -280,7 +286,7 @@ class KepengurusanController extends BaseController
             $jabatanInfo = $this->jabatanPeriodeModel->find($data['jabatan_periode_id']);
             $periodeId = $jabatanInfo ? $jabatanInfo['periode_id'] : '';
 
-            return redirect()->to('/dashboard/kepengurusan?periode_id=' . $periodeId)->with('success', 'Anggota pengurus baru berhasil ditambahkan.');
+            return redirect()->to('/dashboard/kepengurusan/detail/' . $periodeId)->with('success', 'Anggota pengurus baru berhasil ditambahkan.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal menambahkan anggota pengurus: ' . $e->getMessage());
@@ -355,7 +361,7 @@ class KepengurusanController extends BaseController
             $jabatanInfo = $this->jabatanPeriodeModel->find($data['jabatan_periode_id']);
             $periodeId = $jabatanInfo ? $jabatanInfo['periode_id'] : '';
 
-            return redirect()->to('/dashboard/kepengurusan?periode_id=' . $periodeId)->with('success', 'Data anggota pengurus berhasil diperbarui.');
+            return redirect()->to('/dashboard/kepengurusan/detail/' . $periodeId)->with('success', 'Data anggota pengurus berhasil diperbarui.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data pengurus: ' . $e->getMessage());
@@ -382,7 +388,7 @@ class KepengurusanController extends BaseController
             $jabatanInfo = $this->jabatanPeriodeModel->find($pengurusBefore['jabatan_periode_id']);
             $periodeId = $jabatanInfo ? $jabatanInfo['periode_id'] : '';
 
-            return redirect()->to('/dashboard/kepengurusan?periode_id=' . $periodeId)->with('success', 'Anggota pengurus berhasil dihapus.');
+            return redirect()->to('/dashboard/kepengurusan/detail/' . $periodeId)->with('success', 'Anggota pengurus berhasil dihapus.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->to('/dashboard/kepengurusan')->with('error', 'Gagal menghapus data pengurus: ' . $e->getMessage());
@@ -456,7 +462,7 @@ class KepengurusanController extends BaseController
             // Log Activity
             log_activity('INSERT', 'trn_jabatan_periode', $newId, null, $data);
 
-            return redirect()->to('/dashboard/kepengurusan?periode_id=' . $data['periode_id'])->with('success', 'Jabatan baru berhasil ditambahkan.');
+            return redirect()->to('/dashboard/kepengurusan/detail/' . $data['periode_id'])->with('success', 'Jabatan baru berhasil ditambahkan.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal menambahkan jabatan: ' . $e->getMessage());
@@ -529,7 +535,7 @@ class KepengurusanController extends BaseController
             // Log Activity
             log_activity('UPDATE', 'trn_jabatan_periode', $id, $jabatanBefore, $data);
 
-            return redirect()->to('/dashboard/kepengurusan?periode_id=' . $data['periode_id'])->with('success', 'Data jabatan berhasil diperbarui.');
+            return redirect()->to('/dashboard/kepengurusan/detail/' . $data['periode_id'])->with('success', 'Data jabatan berhasil diperbarui.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data jabatan: ' . $e->getMessage());
@@ -553,7 +559,7 @@ class KepengurusanController extends BaseController
             // Log Activity
             log_activity('DELETE', 'trn_jabatan_periode', $id, $jabatanBefore, null);
 
-            return redirect()->to('/dashboard/kepengurusan?periode_id=' . $jabatanBefore['periode_id'])->with('success', 'Jabatan berhasil dihapus.');
+            return redirect()->to('/dashboard/kepengurusan/detail/' . $jabatanBefore['periode_id'])->with('success', 'Jabatan berhasil dihapus.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->to('/dashboard/kepengurusan')->with('error', 'Gagal menghapus data jabatan: ' . $e->getMessage());
