@@ -342,6 +342,11 @@
                 </a>
             </li>
             <li>
+                <a href="<?= base_url('dashboard/rekening') ?>" class="menu-link">
+                    <i class="fa-solid fa-credit-card"></i> Rekening Infaq
+                </a>
+            </li>
+            <li>
                 <a href="<?= base_url('dashboard/berita') ?>" class="menu-link">
                     <i class="fa-solid fa-newspaper"></i> Berita & Info
                 </a>
@@ -467,6 +472,7 @@
                             <th>Kategori</th>
                             <th>Keterangan</th>
                             <th>Penanggung Jawab</th>
+                            <th class="text-center" style="width: 80px;">Bukti</th>
                             <th class="text-end">Nominal</th>
                             <th class="text-center" style="width: 100px;">Aksi</th>
                         </tr>
@@ -492,6 +498,15 @@
                                         </small>
                                     </td>
                                     <td><?= esc($row['penanggung_jawab']) ?: '-' ?></td>
+                                    <td class="text-center">
+                                        <?php if (!empty($row['bukti_transaksi'])) : ?>
+                                            <a href="<?= base_url('uploads/keuangan/' . $row['bukti_transaksi']) ?>" target="_blank" class="btn-action btn-edit" title="Lihat Bukti Transaksi" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                                <i class="fa-solid <?= str_ends_with($row['bukti_transaksi'], '.pdf') ? 'fa-file-pdf' : 'fa-image' ?>"></i>
+                                            </a>
+                                        <?php else : ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td class="text-end fw-bold font-heading <?= $row['tipe'] === 'masuk' ? 'text-success' : 'text-danger' ?>">
                                         <?= $row['tipe'] === 'masuk' ? '+' : '-' ?> Rp <?= number_format($row['nominal'], 0, ',', '.') ?>
                                     </td>
@@ -509,7 +524,7 @@
                             <?php endforeach; ?>
                         <?php else : ?>
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
+                                <td colspan="7" class="text-center py-5 text-muted">
                                     <i class="fa-regular fa-folder-open d-block fs-3 mb-2"></i>
                                     Belum ada data pencatatan buku kas umum.
                                 </td>

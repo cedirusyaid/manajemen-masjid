@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ubah Anggota Pengurus - <?= site_name() ?></title>
+    <title>Tambah Rekening Infaq - <?= site_name() ?></title>
     <!-- Google Fonts: Inter & Outfit -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap 5.3 CSS -->
@@ -21,6 +21,7 @@
             --white: #ffffff;
             --sidebar-width: 260px;
             --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
             --transition: all 0.25s ease;
         }
 
@@ -148,15 +149,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: 32px;
         }
 
-        .profile-card {
+        .topbar-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
+
+        .topbar-profile {
             display: flex;
             align-items: center;
             gap: 12px;
             background-color: var(--white);
-            padding: 8px 18px 8px 10px;
+            padding: 8px 16px;
             border-radius: 30px;
             box-shadow: var(--shadow-sm);
             border: 1px solid rgba(0, 0, 0, 0.05);
@@ -183,47 +191,46 @@
             text-transform: uppercase;
         }
 
-        /* Form Styles */
         .panel-card {
             background-color: var(--white);
             border-radius: 16px;
-            padding: 30px;
-            box-shadow: var(--shadow-sm);
             border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-sm);
+            padding: 30px;
         }
 
         .form-label {
             font-weight: 600;
-            font-size: 0.875rem;
             color: #374151;
+            font-size: 0.9rem;
             margin-bottom: 8px;
         }
 
         .form-control, .form-select {
-            padding: 10px 16px;
             border-radius: 10px;
-            border: 1.5px solid #d1d5db;
+            padding: 10px 16px;
+            border: 1px solid #d1d5db;
             font-size: 0.95rem;
             transition: var(--transition);
         }
 
         .form-control:focus, .form-select:focus {
             border-color: var(--primary-light);
-            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.15);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
         }
 
-        .btn-submit {
+        .btn-save {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: var(--white);
             border: none;
-            padding: 10px 24px;
-            border-radius: 10px;
             font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 10px;
             transition: var(--transition);
         }
 
-        .btn-submit:hover {
-            opacity: 0.9;
+        .btn-save:hover {
+            opacity: 0.95;
             box-shadow: 0 4px 12px rgba(6, 78, 59, 0.25);
             color: var(--white);
         }
@@ -231,26 +238,16 @@
         .btn-cancel {
             background-color: #f3f4f6;
             color: #4b5563;
-            border: 1px solid #d1d5db;
-            padding: 10px 24px;
-            border-radius: 10px;
+            border: 1px solid #e5e7eb;
             font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 10px;
             transition: var(--transition);
-            text-decoration: none;
         }
 
         .btn-cancel:hover {
             background-color: #e5e7eb;
             color: #1f2937;
-        }
-
-        .preview-img {
-            width: 100px;
-            height: 100px;
-            border-radius: 10px;
-            object-fit: cover;
-            border: 1px solid #d1d5db;
-            margin-bottom: 12px;
         }
     </style>
 </head>
@@ -281,7 +278,7 @@
                 </a>
             </li>
             <li>
-                <a href="<?= base_url('dashboard/rekening') ?>" class="menu-link">
+                <a href="<?= base_url('dashboard/rekening') ?>" class="menu-link active">
                     <i class="fa-solid fa-credit-card"></i> Rekening Infaq
                 </a>
             </li>
@@ -296,7 +293,12 @@
                 </a>
             </li>
             <li>
-                <a href="<?= base_url('dashboard/kepengurusan') ?>" class="menu-link active">
+                <a href="<?= base_url('dashboard/personil') ?>" class="menu-link">
+                    <i class="fa-solid fa-user-gear"></i> Master Personel
+                </a>
+            </li>
+            <li>
+                <a href="<?= base_url('dashboard/kepengurusan') ?>" class="menu-link">
                     <i class="fa-solid fa-users"></i> Kepengurusan
                 </a>
             </li>
@@ -318,87 +320,92 @@
     <main class="main-content">
         <!-- TOPBAR -->
         <div class="topbar">
-            <div>
-                <h1 class="h3 fw-bold mb-1 text-dark">Ubah Data Pengurus</h1>
-                <p class="text-muted mb-0">Edit profil dan info jabatan pengurus masjid.</p>
+            <div class="topbar-title">
+                <h1>Tambah Rekening Infaq</h1>
+                <p class="text-muted mb-0">Mendaftarkan nomor rekening bank baru atau QRIS infaq masjid.</p>
             </div>
-            
-            <div class="profile-card">
-                <img class="profile-avatar" src="<?= esc($avatar) ?>" alt="Avatar">
-                <div class="profile-info">
+            <div class="topbar-profile">
+                <img src="<?= $avatar ?? base_url('assets/images/default-avatar.png') ?>" alt="Avatar" class="profile-avatar">
+                <div>
                     <div class="profile-name"><?= esc($username) ?></div>
                     <div class="profile-role"><?= esc($role_name) ?></div>
                 </div>
             </div>
         </div>
 
-        <!-- Flash Messages -->
-        <?php if (session()->getFlashdata('error')) : ?>
-            <div class="alert alert-danger d-flex align-items-center gap-2 mb-4 border-0 shadow-sm" role="alert">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <div><?= session()->getFlashdata('error') ?></div>
-            </div>
-        <?php endif; ?>
-
-        <!-- FORM PANEL -->
+        <!-- FORM CARD -->
         <div class="panel-card">
-            <form action="<?= base_url('dashboard/kepengurusan/pengurus/update/' . esc($pengurus['id'])) ?>" method="post">
+            <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-plus-circle me-2"></i>Form Metode Infaq</h5>
+            
+            <form action="<?= base_url('dashboard/rekening/store') ?>" method="POST" enctype="multipart/form-data">
                 <?= csrf_field() ?>
-
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="personil_id" class="form-label">Nama Personel Pengurus</label>
-                        <select class="form-select" id="personil_id" name="personil_id" required>
-                            <option value="">-- Pilih Personel --</option>
-                            <?php foreach ($personil_list as $personil) : ?>
-                                <option value="<?= esc($personil['id']) ?>" <?= old('personil_id', esc($pengurus['personil_id'])) == $personil['id'] ? 'selected' : '' ?>>
-                                    <?= esc($personil['nama']) ?> (<?= esc($personil['no_hp'] ?: 'Tidak ada No WA') ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <small class="text-muted mt-1 d-block">Jika personel belum terdaftar, silakan tambahkan terlebih dahulu di menu <a href="<?= base_url('dashboard/personil/create') ?>" target="_blank">Master Personel</a>.</small>
+                
+                <div class="row g-4">
+                    <!-- Nama Bank/Metode -->
+                    <div class="col-md-6">
+                        <label for="nama_bank" class="form-label">Nama Bank / Metode Pembayaran</label>
+                        <input type="text" class="form-control <?= session('errors.nama_bank') ? 'is-invalid' : '' ?>" id="nama_bank" name="nama_bank" placeholder="Contoh: BSI, Bank Mandiri, QRIS" value="<?= old('nama_bank') ?>" required>
+                        <?php if (session('errors.nama_bank')) : ?>
+                            <div class="invalid-feedback"><?= session('errors.nama_bank') ?></div>
+                        <?php endif; ?>
                     </div>
 
-                    <div class="col-md-6 mb-4">
-                        <label for="jabatan" class="form-label">Jabatan Kepengurusan</label>
-                        <input type="text" class="form-control" id="jabatan" name="jabatan" placeholder="Contoh: Ketua Umum / Bendahara" value="<?= old('jabatan', esc($pengurus['jabatan'])) ?>" required>
+                    <!-- Jenis Metode -->
+                    <div class="col-md-6">
+                        <label for="jenis" class="form-label">Jenis Metode Pembayaran</label>
+                        <select class="form-select <?= session('errors.jenis') ? 'is-invalid' : '' ?>" id="jenis" name="jenis" required>
+                            <option value="transfer" <?= old('jenis') === 'transfer' ? 'selected' : '' ?>>Transfer Bank</option>
+                            <option value="qris" <?= old('jenis') === 'qris' ? 'selected' : '' ?>>QRIS (Barcode Infaq)</option>
+                        </select>
+                        <?php if (session('errors.jenis')) : ?>
+                            <div class="invalid-feedback"><?= session('errors.jenis') ?></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Nomor Rekening / Payload QRIS -->
+                    <div class="col-md-6" id="no_rek_container">
+                        <label for="nomor_rekening" class="form-label" id="label_no_rek">Nomor Rekening</label>
+                        <input type="text" class="form-control <?= session('errors.nomor_rekening') ? 'is-invalid' : '' ?>" id="nomor_rekening" name="nomor_rekening" placeholder="Masukkan nomor rekening bank" value="<?= old('nomor_rekening') ?>">
+                        <small class="text-muted d-block mt-1" id="help_no_rek">Nomor rekening tanpa spasi atau tanda hubung.</small>
+                        <?php if (session('errors.nomor_rekening')) : ?>
+                            <div class="invalid-feedback"><?= session('errors.nomor_rekening') ?></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Atas Nama Pemilik -->
+                    <div class="col-md-6" id="atas_nama_container">
+                        <label for="atas_nama" class="form-label">Atas Nama Pemilik</label>
+                        <input type="text" class="form-control <?= session('errors.atas_nama') ? 'is-invalid' : '' ?>" id="atas_nama" name="atas_nama" placeholder="Contoh: Kas Masjid Agung" value="<?= old('atas_nama') ?>">
+                        <?php if (session('errors.atas_nama')) : ?>
+                            <div class="invalid-feedback"><?= session('errors.atas_nama') ?></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Upload Logo Bank / Barcode QRIS -->
+                    <div class="col-md-6">
+                        <label for="logo" class="form-label" id="label_logo">Logo Bank (Opsional)</label>
+                        <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                        <small class="text-muted d-block mt-1" id="help_logo">Format gambar JPEG, PNG, atau WebP (Maks 2MB). Sistem otomatis mengonversi ke format WebP.</small>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Status Aktif</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="active" <?= old('status') === 'active' ? 'selected' : '' ?>>Aktif (Tampil di Depan)</option>
+                            <option value="inactive" <?= old('status') === 'inactive' ? 'selected' : '' ?>>Nonaktif (Disembunyikan)</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="periode_id" class="form-label">Periode Masa Bakti</label>
-                        <select class="form-select" id="periode_id" name="periode_id" required>
-                            <option value="">-- Pilih Periode --</option>
-                            <?php foreach ($periode_list as $periode) : ?>
-                                <option value="<?= esc($periode['id']) ?>" <?= old('periode_id', esc($pengurus['periode_id'])) == $periode['id'] ? 'selected' : '' ?>>
-                                    <?= esc($periode['nama_periode']) ?> <?= $periode['status'] == 'aktif' ? '(Aktif)' : '' ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3 mb-4">
-                        <label for="urutan" class="form-label">Urutan Tampilan Visual</label>
-                        <input type="number" class="form-control" id="urutan" name="urutan" placeholder="Contoh: 1" value="<?= old('urutan', esc($pengurus['urutan'])) ?>">
-                    </div>
-
-                    <div class="col-md-3 mb-4">
-                        <label for="parent_id" class="form-label">Jabatan Atasan (Parent)</label>
-                        <select class="form-select" id="parent_id" name="parent_id">
-                            <option value="">-- Tanpa Atasan (Puncak Pimpinan) --</option>
-                            <?php foreach ($pengurus_list as $p_parent) : ?>
-                                <option value="<?= esc($p_parent['id']) ?>" <?= old('parent_id', esc($pengurus['parent_id'])) == $p_parent['id'] ? 'selected' : '' ?>>
-                                    <?= esc($p_parent['nama']) ?> (<?= esc($p_parent['jabatan']) ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="d-flex gap-3 justify-content-end mt-4">
-                    <a href="<?= base_url('dashboard/kepengurusan') ?>" class="btn btn-cancel">Batal</a>
-                    <button type="submit" class="btn btn-submit">Simpan Perubahan <i class="fa-solid fa-save ms-2"></i></button>
+                <!-- BUTTONS -->
+                <div class="d-flex gap-3 justify-content-end mt-5">
+                    <a href="<?= base_url('dashboard/rekening') ?>" class="btn btn-cancel">
+                        <i class="fa-solid fa-xmark me-2"></i>Batal
+                    </a>
+                    <button type="submit" class="btn btn-save">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Simpan Rekening
+                    </button>
                 </div>
             </form>
         </div>
@@ -406,5 +413,34 @@
 
     <!-- Bootstrap 5.3 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dynamic Form Fields Helper JS -->
+    <script>
+        const jenisSelect = document.getElementById('jenis');
+        const labelNoRek = document.getElementById('label_no_rek');
+        const helpNoRek = document.getElementById('help_no_rek');
+        const nomorRekeningInput = document.getElementById('nomor_rekening');
+        const labelLogo = document.getElementById('label_logo');
+        const helpLogo = document.getElementById('help_logo');
+
+        function adjustFormFields() {
+            if (jenisSelect.value === 'qris') {
+                labelNoRek.innerText = 'Payload / Teks String QRIS (Opsional jika upload gambar)';
+                nomorRekeningInput.placeholder = 'Contoh: MasjidAgungSinjaiInfaqDigital';
+                helpNoRek.innerText = 'Teks payload QRIS resmi (misal format string QRIS) untuk auto-generate QR Code dinamis.';
+                labelLogo.innerText = 'Upload Barcode/Gambar QRIS (Sangat Disarankan)';
+                helpLogo.innerText = 'Unggah gambar QRIS masjid Anda. Sistem otomatis mengonversi ke format WebP.';
+            } else {
+                labelNoRek.innerText = 'Nomor Rekening';
+                nomorRekeningInput.placeholder = 'Masukkan nomor rekening bank';
+                helpNoRek.innerText = 'Nomor rekening tanpa spasi atau tanda hubung.';
+                labelLogo.innerText = 'Logo Bank (Opsional)';
+                helpLogo.innerText = 'Format gambar JPEG, PNG, atau WebP (Maks 2MB). Sistem otomatis mengonversi ke format WebP.';
+            }
+        }
+
+        jenisSelect.addEventListener('change', adjustFormFields);
+        document.addEventListener('DOMContentLoaded', adjustFormFields);
+    </script>
 </body>
 </html>

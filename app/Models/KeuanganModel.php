@@ -14,7 +14,7 @@ class KeuanganModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'id', 'tanggal', 'kategori', 'tipe', 
-        'nominal', 'keterangan', 'penanggung_jawab'
+        'nominal', 'keterangan', 'penanggung_jawab', 'bukti_transaksi'
     ];
 
     // Dates

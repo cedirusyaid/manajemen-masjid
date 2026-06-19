@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Berita & Pengumuman - <?= site_name() ?></title>
+    <title>Kelola Rekening Infaq - <?= site_name() ?></title>
     <!-- Google Fonts: Inter & Outfit -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap 5.3 CSS -->
@@ -37,7 +37,7 @@
             font-family: 'Outfit', sans-serif;
         }
 
-        /* Sidebar Styles (Same as Dashboard) */
+        /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--dark-navy);
@@ -149,15 +149,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: 32px;
         }
 
-        .profile-card {
+        .topbar-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
+
+        .topbar-profile {
             display: flex;
             align-items: center;
             gap: 12px;
             background-color: var(--white);
-            padding: 8px 18px 8px 10px;
+            padding: 8px 16px;
             border-radius: 30px;
             box-shadow: var(--shadow-sm);
             border: 1px solid rgba(0, 0, 0, 0.05);
@@ -265,6 +272,33 @@
             background-color: #ef4444;
             color: var(--white);
         }
+        
+        .badge-status {
+            font-size: 0.775rem;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+        
+        .badge-active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+        
+        .badge-inactive {
+            background-color: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+
+        .logo-thumbnail {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 4px;
+        }
     </style>
 </head>
 <body>
@@ -294,12 +328,12 @@
                 </a>
             </li>
             <li>
-                <a href="<?= base_url('dashboard/rekening') ?>" class="menu-link">
+                <a href="<?= base_url('dashboard/rekening') ?>" class="menu-link active">
                     <i class="fa-solid fa-credit-card"></i> Rekening Infaq
                 </a>
             </li>
             <li>
-                <a href="<?= base_url('dashboard/berita') ?>" class="menu-link active">
+                <a href="<?= base_url('dashboard/berita') ?>" class="menu-link">
                     <i class="fa-solid fa-newspaper"></i> Berita & Info
                 </a>
             </li>
@@ -336,41 +370,40 @@
     <main class="main-content">
         <!-- TOPBAR -->
         <div class="topbar">
-            <div>
-                <h1 class="h3 fw-bold mb-1 text-dark">Kelola Berita & Pengumuman</h1>
-                <p class="text-muted mb-0">Tulis artikel dakwah, info kegiatan, dan pengumuman untuk jamaah.</p>
+            <div class="topbar-title">
+                <h1>Kelola Rekening Infaq</h1>
+                <p class="text-muted mb-0">Kelola rekening bank transfer & barcode QRIS untuk halaman donasi publik.</p>
             </div>
-            
-            <div class="profile-card">
-                <img class="profile-avatar" src="<?= esc($avatar) ?>" alt="Avatar">
-                <div class="profile-info">
+            <div class="topbar-profile">
+                <img src="<?= $avatar ?? base_url('assets/images/default-avatar.png') ?>" alt="Avatar" class="profile-avatar">
+                <div>
                     <div class="profile-name"><?= esc($username) ?></div>
                     <div class="profile-role"><?= esc($role_name) ?></div>
                 </div>
             </div>
         </div>
 
-        <!-- Flash Messages -->
+        <!-- NOTIFICATION ALERTS -->
         <?php if (session()->getFlashdata('success')) : ?>
-            <div class="alert alert-success d-flex align-items-center gap-2 mb-4 border-0" role="alert">
-                <i class="fa-solid fa-circle-check"></i>
-                <div><?= session()->getFlashdata('success') ?></div>
+            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
+                <i class="fa-solid fa-circle-check me-2"></i> <?= session()->getFlashdata('success') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
 
         <?php if (session()->getFlashdata('error')) : ?>
-            <div class="alert alert-danger d-flex align-items-center gap-2 mb-4 border-0" role="alert">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <div><?= session()->getFlashdata('error') ?></div>
+            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
+                <i class="fa-solid fa-circle-xmark me-2"></i> <?= session()->getFlashdata('error') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
 
-        <!-- DATA PANEL -->
+        <!-- MAIN TABLE PANEL -->
         <div class="panel-card">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-newspaper me-2 text-success"></i>Daftar Artikel & Berita</h5>
-                <a href="<?= base_url('dashboard/berita/create') ?>" class="btn btn-add">
-                    <i class="fa-solid fa-plus me-2"></i> Tulis Berita Baru
+                <h5 class="fw-bold m-0"><i class="fa-solid fa-credit-card me-2 text-success"></i>Daftar Metode Infaq & Donasi</h5>
+                <a href="<?= base_url('dashboard/rekening/create') ?>" class="btn btn-add">
+                    <i class="fa-solid fa-plus me-2"></i>Tambah Rekening/QRIS
                 </a>
             </div>
 
@@ -378,44 +411,49 @@
                 <table class="table align-middle">
                     <thead>
                         <tr>
-                            <th style="width: 100px;">Banner</th>
-                            <th>Judul Berita</th>
-                            <th>Penulis</th>
+                            <th style="width: 60px;">No</th>
+                            <th style="width: 80px;">Logo/QRIS</th>
+                            <th>Nama Bank / Metode</th>
+                            <th>No. Rekening / Payload QRIS</th>
+                            <th>Atas Nama</th>
+                            <th>Jenis</th>
                             <th>Status</th>
-                            <th>Tanggal Dibuat</th>
-                            <th class="text-center" style="width: 100px;">Aksi</th>
+                            <th style="width: 120px; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (!empty($berita_list)) : ?>
-                            <?php foreach ($berita_list as $row) : ?>
+                        <?php if (!empty($rekening_list)) : ?>
+                            <?php $no = 1; foreach ($rekening_list as $rek) : ?>
                                 <tr>
+                                    <td><?= $no++ ?></td>
                                     <td>
-                                        <?php if ($row['banner']) : ?>
-                                            <img src="<?= base_url('uploads/images/' . $row['banner']) ?>" class="rounded" style="width: 70px; height: 45px; object-fit: cover;" alt="Banner">
+                                        <?php if (!empty($rek['logo']) && is_file(FCPATH . 'uploads/rekening/' . $rek['logo'])) : ?>
+                                            <img src="<?= base_url('uploads/rekening/' . $rek['logo']) ?>" class="logo-thumbnail" alt="Logo">
                                         <?php else : ?>
-                                            <span class="badge bg-light text-muted border border-light-subtle rounded py-2 px-3">No Image</span>
+                                            <div class="logo-thumbnail d-flex align-items-center justify-content-center bg-light text-muted">
+                                                <i class="fa-solid <?= $rek['jenis'] === 'qris' ? 'fa-qrcode' : 'fa-building-columns' ?> fs-4"></i>
+                                            </div>
                                         <?php endif; ?>
                                     </td>
+                                    <td><strong><?= esc($rek['nama_bank']) ?></strong></td>
+                                    <td class="font-heading"><?= esc($rek['nomor_rekening'] ?: '-') ?></td>
+                                    <td><?= esc($rek['atas_nama'] ?: '-') ?></td>
                                     <td>
-                                        <div class="fw-bold text-dark mb-1"><?= esc($row['judul']) ?></div>
-                                        <small class="text-muted"><i class="fa-solid fa-link me-1"></i> <?= esc($row['slug']) ?></small>
+                                        <span class="badge text-uppercase bg-<?= $rek['jenis'] === 'qris' ? 'primary' : 'success' ?>" style="font-size: 0.75rem;">
+                                            <?= esc($rek['jenis']) ?>
+                                        </span>
                                     </td>
-                                    <td><?= esc($row['author_name']) ?></td>
                                     <td>
-                                        <?php if ($row['status'] === 'published') : ?>
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle fw-semibold px-3 py-2 rounded-pill">Diterbitkan</span>
-                                        <?php else : ?>
-                                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle fw-semibold px-3 py-2 rounded-pill">Draft</span>
-                                        <?php endif; ?>
+                                        <span class="badge-status badge-<?= $rek['status'] === 'active' ? 'active' : 'inactive' ?>">
+                                            <?= $rek['status'] === 'active' ? 'Aktif' : 'Nonaktif' ?>
+                                        </span>
                                     </td>
-                                    <td><?= esc(date('d/m/Y H:i', strtotime($row['created_at']))) ?></td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
-                                            <a href="<?= base_url('dashboard/berita/edit/' . $row['id']) ?>" class="btn-action btn-edit" title="Ubah">
-                                                <i class="fa-solid fa-pencil"></i>
+                                            <a href="<?= base_url('dashboard/rekening/edit/' . $rek['id']) ?>" class="btn-action btn-edit" title="Ubah">
+                                                <i class="fa-solid fa-pen-to-square"></i>
                                             </a>
-                                            <a href="<?= base_url('dashboard/berita/delete/' . $row['id']) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus berita ini?');" title="Hapus">
+                                            <a href="<?= base_url('dashboard/rekening/delete/' . $rek['id']) ?>" class="btn-action btn-delete" title="Hapus" onclick="return confirm('Apakah Anda yakin ingin menghapus metode infaq ini?');">
                                                 <i class="fa-solid fa-trash"></i>
                                             </a>
                                         </div>
@@ -424,9 +462,10 @@
                             <?php endforeach; ?>
                         <?php else : ?>
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="fa-regular fa-folder-open d-block fs-3 mb-2"></i>
-                                    Belum ada data berita atau pengumuman yang ditulis.
+                                <td colspan="8" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-credit-card fs-1 mb-3 text-muted"></i>
+                                    <p class="mb-0">Belum ada metode infaq/rekening terdaftar.</p>
+                                    <small>Silakan klik tombol "Tambah Rekening/QRIS" untuk memulai.</small>
                                 </td>
                             </tr>
                         <?php endif; ?>

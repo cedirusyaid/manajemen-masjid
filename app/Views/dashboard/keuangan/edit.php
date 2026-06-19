@@ -267,6 +267,11 @@
                 </a>
             </li>
             <li>
+                <a href="<?= base_url('dashboard/rekening') ?>" class="menu-link">
+                    <i class="fa-solid fa-credit-card"></i> Rekening Infaq
+                </a>
+            </li>
+            <li>
                 <a href="<?= base_url('dashboard/berita') ?>" class="menu-link">
                     <i class="fa-solid fa-newspaper"></i> Berita & Info
                 </a>
@@ -328,7 +333,7 @@
 
         <!-- FORM PANEL -->
         <div class="panel-card">
-            <form action="<?= base_url('dashboard/keuangan/update/' . $kas['id']) ?>" method="post">
+            <form action="<?= base_url('dashboard/keuangan/update/' . $kas['id']) ?>" method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
 
                 <div class="row">
@@ -379,6 +384,27 @@
                     <div class="col-md-4 mb-4">
                         <label for="penanggung_jawab" class="form-label">Penanggung Jawab / Penerima</label>
                         <input type="text" class="form-control" id="penanggung_jawab" name="penanggung_jawab" placeholder="Contoh: Bendahara Masjid" value="<?= old('penanggung_jawab', $kas['penanggung_jawab']) ?>">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Bukti Transaksi -->
+                    <div class="col-md-12 mb-4">
+                        <label for="bukti_transaksi" class="form-label">Bukti Transaksi (Nota / Kuitansi - PDF atau Gambar, Maks 2MB)</label>
+                        <input type="file" class="form-control" id="bukti_transaksi" name="bukti_transaksi" accept="image/*,application/pdf">
+                        <small class="text-muted mt-1 d-block">Pilih file baru jika ingin mengganti bukti transaksi yang sudah ada. Format gambar (JPEG/PNG/WebP) otomatis dikompres ke format WebP.</small>
+                        
+                        <?php if (!empty($kas['bukti_transaksi'])) : ?>
+                            <div class="mt-3 p-3 bg-light rounded-4 d-flex align-items-center gap-3 border" style="max-width: max-content;">
+                                <i class="fa-solid <?= str_ends_with($kas['bukti_transaksi'], '.pdf') ? 'fa-file-pdf text-danger fs-3' : 'fa-image text-success fs-3' ?>"></i>
+                                <div>
+                                    <small class="text-muted d-block">Bukti Saat Ini:</small>
+                                    <a href="<?= base_url('uploads/keuangan/' . $kas['bukti_transaksi']) ?>" target="_blank" class="fw-semibold text-decoration-none text-dark">
+                                        <?= esc($kas['bukti_transaksi']) ?> <i class="fa-solid fa-up-right-from-square ms-1 text-primary" style="font-size: 0.8rem;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 

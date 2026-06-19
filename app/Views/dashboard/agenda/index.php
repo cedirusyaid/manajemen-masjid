@@ -294,6 +294,11 @@
                 </a>
             </li>
             <li>
+                <a href="<?= base_url('dashboard/rekening') ?>" class="menu-link">
+                    <i class="fa-solid fa-credit-card"></i> Rekening Infaq
+                </a>
+            </li>
+            <li>
                 <a href="<?= base_url('dashboard/berita') ?>" class="menu-link">
                     <i class="fa-solid fa-newspaper"></i> Berita & Info
                 </a>

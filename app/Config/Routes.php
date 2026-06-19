@@ -102,3 +102,13 @@ $routes->group('dashboard/agenda', ['namespace' => 'App\Controllers'], function(
     $routes->get('delete/(:segment)', 'AgendaController::delete/$1');
 });
 
+// Rute CRUD Rekening & Metode Infaq
+$routes->group('dashboard/rekening', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('/', 'RekeningController::index');
+    $routes->get('create', 'RekeningController::create');
+    $routes->post('store', 'RekeningController::store');
+    $routes->get('edit/(:segment)', 'RekeningController::edit/$1');
+    $routes->post('update/(:segment)', 'RekeningController::update/$1');
+    $routes->get('delete/(:segment)', 'RekeningController::delete/$1');
+});
+

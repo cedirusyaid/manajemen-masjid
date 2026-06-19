@@ -93,13 +93,77 @@ class KeuanganController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
         }
 
+        $buktiName = null;
+        $buktiFile = $this->request->getFile('bukti_transaksi');
+
+        if ($buktiFile && $buktiFile->isValid() && !$buktiFile->hasMoved()) {
+            // Validasi file: image or pdf, max 2MB
+            $validationRule = [
+                'bukti_transaksi' => [
+                    'label' => 'Bukti Transaksi',
+                    'rules' => 'uploaded[bukti_transaksi]|max_size[bukti_transaksi,2048]|ext_in[bukti_transaksi,jpg,jpeg,png,webp,pdf]',
+                ]
+            ];
+            
+            if (!$this->validate($validationRule)) {
+                return redirect()->back()->withInput()->with('error', $this->validator->getError('bukti_transaksi'));
+            }
+
+            if (!is_dir(FCPATH . 'uploads/keuangan')) {
+                mkdir(FCPATH . 'uploads/keuangan', 0755, true);
+            }
+
+            $ext = $buktiFile->getClientExtension();
+            if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp'])) {
+                // Terapkan Auto WebP untuk gambar
+                $buktiName = $buktiFile->getRandomName();
+                $buktiName = pathinfo($buktiName, PATHINFO_FILENAME) . '.webp';
+                $imagePath = $buktiFile->getTempName();
+                
+                $info = getimagesize($imagePath);
+                if ($info) {
+                    $mime = $info['mime'];
+                    switch ($mime) {
+                        case 'image/jpeg':
+                            $image = imagecreatefromjpeg($imagePath);
+                            break;
+                        case 'image/png':
+                            $image = imagecreatefrompng($imagePath);
+                            break;
+                        case 'image/gif':
+                            $image = imagecreatefromgif($imagePath);
+                            break;
+                        case 'image/webp':
+                            $image = imagecreatefromwebp($imagePath);
+                            break;
+                        default:
+                            $image = false;
+                    }
+
+                    if ($image !== false) {
+                        imagewebp($image, FCPATH . 'uploads/keuangan/' . $buktiName, 80);
+                        imagedestroy($image);
+                    } else {
+                        $buktiFile->move(FCPATH . 'uploads/keuangan', $buktiName);
+                    }
+                } else {
+                    $buktiFile->move(FCPATH . 'uploads/keuangan', $buktiName);
+                }
+            } else {
+                // PDF - save langsung
+                $buktiName = $buktiFile->getRandomName();
+                $buktiFile->move(FCPATH . 'uploads/keuangan', $buktiName);
+            }
+        }
+
         $data = [
             'tanggal'          => $this->request->getPost('tanggal'),
             'kategori'         => $this->request->getPost('kategori'),
             'tipe'             => $this->request->getPost('tipe'),
             'nominal'          => $this->request->getPost('nominal'),
             'keterangan'       => $this->request->getPost('keterangan'),
-            'penanggung_jawab' => $this->request->getPost('penanggung_jawab')
+            'penanggung_jawab' => $this->request->getPost('penanggung_jawab'),
+            'bukti_transaksi'  => $buktiName
         ];
 
         try {
@@ -168,13 +232,82 @@ class KeuanganController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
         }
 
+        $buktiName = $kas['bukti_transaksi'];
+        $buktiFile = $this->request->getFile('bukti_transaksi');
+
+        if ($buktiFile && $buktiFile->isValid() && !$buktiFile->hasMoved()) {
+            // Validasi file: image or pdf, max 2MB
+            $validationRule = [
+                'bukti_transaksi' => [
+                    'label' => 'Bukti Transaksi',
+                    'rules' => 'uploaded[bukti_transaksi]|max_size[bukti_transaksi,2048]|ext_in[bukti_transaksi,jpg,jpeg,png,webp,pdf]',
+                ]
+            ];
+            
+            if (!$this->validate($validationRule)) {
+                return redirect()->back()->withInput()->with('error', $this->validator->getError('bukti_transaksi'));
+            }
+
+            // Hapus bukti transaksi lama jika ada
+            if (!empty($kas['bukti_transaksi']) && is_file(FCPATH . 'uploads/keuangan/' . $kas['bukti_transaksi'])) {
+                @unlink(FCPATH . 'uploads/keuangan/' . $kas['bukti_transaksi']);
+            }
+
+            if (!is_dir(FCPATH . 'uploads/keuangan')) {
+                mkdir(FCPATH . 'uploads/keuangan', 0755, true);
+            }
+
+            $ext = $buktiFile->getClientExtension();
+            if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp'])) {
+                // Terapkan Auto WebP untuk gambar
+                $buktiName = $buktiFile->getRandomName();
+                $buktiName = pathinfo($buktiName, PATHINFO_FILENAME) . '.webp';
+                $imagePath = $buktiFile->getTempName();
+                
+                $info = getimagesize($imagePath);
+                if ($info) {
+                    $mime = $info['mime'];
+                    switch ($mime) {
+                        case 'image/jpeg':
+                            $image = imagecreatefromjpeg($imagePath);
+                            break;
+                        case 'image/png':
+                            $image = imagecreatefrompng($imagePath);
+                            break;
+                        case 'image/gif':
+                            $image = imagecreatefromgif($imagePath);
+                            break;
+                        case 'image/webp':
+                            $image = imagecreatefromwebp($imagePath);
+                            break;
+                        default:
+                            $image = false;
+                    }
+
+                    if ($image !== false) {
+                        imagewebp($image, FCPATH . 'uploads/keuangan/' . $buktiName, 80);
+                        imagedestroy($image);
+                    } else {
+                        $buktiFile->move(FCPATH . 'uploads/keuangan', $buktiName);
+                    }
+                } else {
+                    $buktiFile->move(FCPATH . 'uploads/keuangan', $buktiName);
+                }
+            } else {
+                // PDF - save langsung
+                $buktiName = $buktiFile->getRandomName();
+                $buktiFile->move(FCPATH . 'uploads/keuangan', $buktiName);
+            }
+        }
+
         $data = [
             'tanggal'          => $this->request->getPost('tanggal'),
             'kategori'         => $this->request->getPost('kategori'),
             'tipe'             => $this->request->getPost('tipe'),
             'nominal'          => $this->request->getPost('nominal'),
             'keterangan'       => $this->request->getPost('keterangan'),
-            'penanggung_jawab' => $this->request->getPost('penanggung_jawab')
+            'penanggung_jawab' => $this->request->getPost('penanggung_jawab'),
+            'bukti_transaksi'  => $buktiName
         ];
 
         try {

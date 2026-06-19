@@ -267,6 +267,11 @@
                 </a>
             </li>
             <li>
+                <a href="<?= base_url('dashboard/rekening') ?>" class="menu-link">
+                    <i class="fa-solid fa-credit-card"></i> Rekening Infaq
+                </a>
+            </li>
+            <li>
                 <a href="<?= base_url('dashboard/berita') ?>" class="menu-link">
                     <i class="fa-solid fa-newspaper"></i> Berita & Info
                 </a>
@@ -328,7 +333,7 @@
 
         <!-- FORM PANEL -->
         <div class="panel-card">
-            <form action="<?= base_url('dashboard/keuangan/store') ?>" method="post">
+            <form action="<?= base_url('dashboard/keuangan/store') ?>" method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
 
                 <div class="row">
@@ -379,6 +384,15 @@
                     <div class="col-md-4 mb-4">
                         <label for="penanggung_jawab" class="form-label">Penanggung Jawab / Penerima</label>
                         <input type="text" class="form-control" id="penanggung_jawab" name="penanggung_jawab" placeholder="Contoh: Bendahara Masjid" value="<?= old('penanggung_jawab') ?>">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Bukti Transaksi -->
+                    <div class="col-md-12 mb-4">
+                        <label for="bukti_transaksi" class="form-label">Bukti Transaksi (Nota / Kuitansi - PDF atau Gambar, Maks 2MB)</label>
+                        <input type="file" class="form-control" id="bukti_transaksi" name="bukti_transaksi" accept="image/*,application/pdf">
+                        <small class="text-muted mt-1 d-block">Unggah nota pembelian, kuitansi, atau bukti transaksi lainnya jika ada. Format gambar (JPEG/PNG/WebP) otomatis dikompres ke format WebP.</small>
                     </div>
                 </div>
 

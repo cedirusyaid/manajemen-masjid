@@ -1,5 +1,23 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.2] - 2026-06-19
+### ✨ Added
+- Fitur Bukti Transaksi Kas Keuangan: Menambahkan kolom `bukti_transaksi` pada tabel database `trn_keuangan` dan mendukung pengunggahan file bukti transaksi (nota pembelian, kuitansi, struk belanja dalam format PDF maupun Gambar).
+- Smart Asset Upload (Auto WebP) Bukti Keuangan: Mengimplementasikan konversi otomatis file gambar bukti transaksi ke format **WebP** dengan kompresi 80% menggunakan GD Library PHP untuk menghemat penyimpanan disk server.
+- Tampilan Bukti Transaksi di Dashboard: Menambahkan kolom "Bukti" pada tabel buku kas umum (`index.php`) yang memungkinkan pengurus melihat/mengunduh berkas bukti transaksi secara instan di tab baru.
+- Integrasi Form Tambah & Ubah Kas: Menambahkan input file bukti transaksi pada form tambah (`create.php`) dan form ubah (`edit.php`), lengkap dengan visual pratinjau bukti yang sudah diunggah sebelumnya.
+
+### 🐛 Fixed
+- Perbaikan Parameter log_activity() di RekeningController: Mengoreksi bug tanda tangan fungsi `log_activity()` pada aksi `store()`, `update()`, dan `delete()` di `RekeningController.php` untuk mencegah terjadinya `TypeError` runtime pada server PHP 8.x.
+
+## [v0.4.1] - 2026-06-19
+### ✨ Added
+- Modul CRUD Rekening Infaq & QRIS: Membangun `RekeningController.php` dan tampilan administrasi di `dashboard/rekening/` (`index.php`, `tambah.php`, `edit.php`) guna mendukung pengelolaan daftar rekening donasi dan barcode QRIS langsung dari panel dashboard admin.
+- Smart Asset Upload (Auto WebP): Mengimplementasikan konversi file gambar logo bank atau barcode QRIS secara otomatis ke format **WebP** menggunakan library GD PHP saat data disimpan/diperbarui.
+- Integrasi Audit Trail & Log Aktivitas: Mencatat setiap aksi tambah, ubah, dan hapus rekening ke log aktivitas (`log_activity()`) pengurus secara otomatis.
+- Navigasi Sidebar Terpadu: Menyinkronkan menu navigasi baru "Rekening Infaq" ke dalam sidebar menu di seluruh 26 file tampilan dashboard admin secara konsisten.
+- Pendaftaran Rute CRUD: Menambahkan grup rute `dashboard/rekening` di `app/Config/Routes.php`.
+
 ## [v0.4.0] - 2026-06-19
 ### ✨ Added
 - Database Penyaluran Infaq (mst_rekening): Membuat tabel master `mst_rekening` untuk menampung metode donasi masjid secara modular (baik transfer bank lokal maupun QRIS infaq). Pengurus masjid kini dapat menambah, menonaktifkan, atau menyesuaikan berbagai pilihan rekening donasi secara mandiri.

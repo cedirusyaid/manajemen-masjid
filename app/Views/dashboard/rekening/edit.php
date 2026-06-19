@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ubah Berita - Panel Admin</title>
+    <title>Ubah Rekening Infaq - <?= site_name() ?></title>
     <!-- Google Fonts: Inter & Outfit -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap 5.3 CSS -->
@@ -11,13 +11,6 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- JQuery (Wajib untuk Summernote) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Summernote WYSIWYG CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-    <!-- Summernote WYSIWYG JS -->
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-
     <style>
         :root {
             --primary: #064e3b;
@@ -28,6 +21,7 @@
             --white: #ffffff;
             --sidebar-width: 260px;
             --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
             --transition: all 0.25s ease;
         }
 
@@ -43,7 +37,7 @@
             font-family: 'Outfit', sans-serif;
         }
 
-        /* Sidebar Styles (Same as Dashboard) */
+        /* Sidebar Styles */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--dark-navy);
@@ -71,6 +65,7 @@
             font-weight: 700;
             color: var(--white);
             text-decoration: none;
+            letter-spacing: -0.5px;
         }
 
         .sidebar-brand i {
@@ -154,15 +149,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: 32px;
         }
 
-        .profile-card {
+        .topbar-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
+
+        .topbar-profile {
             display: flex;
             align-items: center;
             gap: 12px;
             background-color: var(--white);
-            padding: 8px 18px 8px 10px;
+            padding: 8px 16px;
             border-radius: 30px;
             box-shadow: var(--shadow-sm);
             border: 1px solid rgba(0, 0, 0, 0.05);
@@ -199,34 +201,35 @@
 
         .form-label {
             font-weight: 600;
-            font-size: 0.85rem;
             color: #374151;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
         }
 
         .form-control, .form-select {
-            padding: 12px 16px;
             border-radius: 10px;
-            border: 1.5px solid #d1d5db;
+            padding: 10px 16px;
+            border: 1px solid #d1d5db;
             font-size: 0.95rem;
             transition: var(--transition);
         }
 
         .form-control:focus, .form-select:focus {
             border-color: var(--primary-light);
-            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.15);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
         }
 
-        .btn-submit {
+        .btn-save {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: var(--white);
             border: none;
             font-weight: 600;
-            padding: 12px 24px;
+            padding: 12px 28px;
             border-radius: 10px;
             transition: var(--transition);
         }
 
-        .btn-submit:hover {
+        .btn-save:hover {
             opacity: 0.95;
             box-shadow: 0 4px 12px rgba(6, 78, 59, 0.25);
             color: var(--white);
@@ -235,27 +238,26 @@
         .btn-cancel {
             background-color: #f3f4f6;
             color: #4b5563;
-            border: 1px solid #d1d5db;
+            border: 1px solid #e5e7eb;
             font-weight: 600;
-            padding: 12px 24px;
+            padding: 12px 28px;
             border-radius: 10px;
             transition: var(--transition);
         }
 
         .btn-cancel:hover {
             background-color: #e5e7eb;
+            color: #1f2937;
         }
 
-        /* Summernote Style Overwrite */
-        .note-editor.note-frame {
-            border: 1.5px solid #d1d5db !important;
-            border-radius: 10px !important;
-            overflow: hidden;
-        }
-        
-        .note-toolbar {
-            background-color: #f9fafb !important;
-            border-bottom: 1.5px solid #d1d5db !important;
+        .current-logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 8px;
+            background-color: #f9fafb;
         }
     </style>
 </head>
@@ -286,12 +288,12 @@
                 </a>
             </li>
             <li>
-                <a href="<?= base_url('dashboard/rekening') ?>" class="menu-link">
+                <a href="<?= base_url('dashboard/rekening') ?>" class="menu-link active">
                     <i class="fa-solid fa-credit-card"></i> Rekening Infaq
                 </a>
             </li>
             <li>
-                <a href="<?= base_url('dashboard/berita') ?>" class="menu-link active">
+                <a href="<?= base_url('dashboard/berita') ?>" class="menu-link">
                     <i class="fa-solid fa-newspaper"></i> Berita & Info
                 </a>
             </li>
@@ -328,74 +330,104 @@
     <main class="main-content">
         <!-- TOPBAR -->
         <div class="topbar">
-            <div>
-                <h1 class="h3 fw-bold mb-1 text-dark">Ubah Berita / Pengumuman</h1>
-                <p class="text-muted mb-0">Ubah detail rilis informasi dakwah jamaah.</p>
+            <div class="topbar-title">
+                <h1>Ubah Rekening Infaq</h1>
+                <p class="text-muted mb-0">Memperbarui data nomor rekening bank atau QRIS infaq masjid.</p>
             </div>
-            
-            <div class="profile-card">
-                <img class="profile-avatar" src="<?= esc($avatar) ?>" alt="Avatar">
-                <div class="profile-info">
+            <div class="topbar-profile">
+                <img src="<?= $avatar ?? base_url('assets/images/default-avatar.png') ?>" alt="Avatar" class="profile-avatar">
+                <div>
                     <div class="profile-name"><?= esc($username) ?></div>
                     <div class="profile-role"><?= esc($role_name) ?></div>
                 </div>
             </div>
         </div>
 
-        <!-- Flash Messages -->
-        <?php if (session()->getFlashdata('error')) : ?>
-            <div class="alert alert-danger d-flex align-items-center gap-2 mb-4 border-0" role="alert">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <div><?= session()->getFlashdata('error') ?></div>
-            </div>
-        <?php endif; ?>
-
-        <!-- FORM PANEL -->
+        <!-- FORM CARD -->
         <div class="panel-card">
-            <form action="<?= base_url('dashboard/berita/update/' . $berita['id']) ?>" method="post" enctype="multipart/form-data">
+            <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-pen-to-square me-2"></i>Ubah Metode Infaq</h5>
+            
+            <form action="<?= base_url('dashboard/rekening/update/' . $rekening['id']) ?>" method="POST" enctype="multipart/form-data">
                 <?= csrf_field() ?>
+                
+                <div class="row g-4">
+                    <!-- Nama Bank/Metode -->
+                    <div class="col-md-6">
+                        <label for="nama_bank" class="form-label">Nama Bank / Metode Pembayaran</label>
+                        <input type="text" class="form-control <?= session('errors.nama_bank') ? 'is-invalid' : '' ?>" id="nama_bank" name="nama_bank" placeholder="Contoh: BSI, Bank Mandiri, QRIS" value="<?= old('nama_bank', $rekening['nama_bank']) ?>" required>
+                        <?php if (session('errors.nama_bank')) : ?>
+                            <div class="invalid-feedback"><?= session('errors.nama_bank') ?></div>
+                        <?php endif; ?>
+                    </div>
 
-                <div class="row">
-                    <!-- Judul Berita -->
-                    <div class="col-md-8 mb-4">
-                        <label for="judul" class="form-label">Judul Berita / Pengumuman</label>
-                        <input type="text" class="form-control" id="judul" name="judul" value="<?= old('judul', $berita['judul']) ?>" required>
+                    <!-- Jenis Metode -->
+                    <div class="col-md-6">
+                        <label for="jenis" class="form-label">Jenis Metode Pembayaran</label>
+                        <select class="form-select <?= session('errors.jenis') ? 'is-invalid' : '' ?>" id="jenis" name="jenis" required>
+                            <option value="transfer" <?= old('jenis', $rekening['jenis']) === 'transfer' ? 'selected' : '' ?>>Transfer Bank</option>
+                            <option value="qris" <?= old('jenis', $rekening['jenis']) === 'qris' ? 'selected' : '' ?>>QRIS (Barcode Infaq)</option>
+                        </select>
+                        <?php if (session('errors.jenis')) : ?>
+                            <div class="invalid-feedback"><?= session('errors.jenis') ?></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Nomor Rekening / Payload QRIS -->
+                    <div class="col-md-6" id="no_rek_container">
+                        <label for="nomor_rekening" class="form-label" id="label_no_rek">Nomor Rekening</label>
+                        <input type="text" class="form-control <?= session('errors.nomor_rekening') ? 'is-invalid' : '' ?>" id="nomor_rekening" name="nomor_rekening" placeholder="Masukkan nomor rekening bank" value="<?= old('nomor_rekening', $rekening['nomor_rekening']) ?>">
+                        <small class="text-muted d-block mt-1" id="help_no_rek">Nomor rekening tanpa spasi atau tanda hubung.</small>
+                        <?php if (session('errors.nomor_rekening')) : ?>
+                            <div class="invalid-feedback"><?= session('errors.nomor_rekening') ?></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Atas Nama Pemilik -->
+                    <div class="col-md-6" id="atas_nama_container">
+                        <label for="atas_nama" class="form-label">Atas Nama Pemilik</label>
+                        <input type="text" class="form-control <?= session('errors.atas_nama') ? 'is-invalid' : '' ?>" id="atas_nama" name="atas_nama" placeholder="Contoh: Kas Masjid Agung" value="<?= old('atas_nama', $rekening['atas_nama']) ?>">
+                        <?php if (session('errors.atas_nama')) : ?>
+                            <div class="invalid-feedback"><?= session('errors.atas_nama') ?></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Logo Bank / Barcode QRIS Saat Ini -->
+                    <div class="col-md-6 d-flex flex-column gap-2">
+                        <label class="form-label">Logo / QRIS Saat Ini</label>
+                        <?php if (!empty($rekening['logo']) && is_file(FCPATH . 'uploads/rekening/' . $rekening['logo'])) : ?>
+                            <img src="<?= base_url('uploads/rekening/' . $rekening['logo']) ?>" class="current-logo" alt="Logo">
+                        <?php else : ?>
+                            <div class="current-logo d-flex align-items-center justify-content-center bg-light text-muted">
+                                <i class="fa-solid <?= $rekening['jenis'] === 'qris' ? 'fa-qrcode' : 'fa-building-columns' ?> fs-1"></i>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Upload Logo Bank / Barcode QRIS Baru -->
+                    <div class="col-md-6 align-self-end">
+                        <label for="logo" class="form-label" id="label_logo">Ganti Gambar/Logo (Opsional)</label>
+                        <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                        <small class="text-muted d-block mt-1" id="help_logo">Format gambar JPEG, PNG, atau WebP (Maks 2MB). Sistem otomatis mengonversi ke format WebP.</small>
                     </div>
 
                     <!-- Status -->
-                    <div class="col-md-4 mb-4">
-                        <label for="status" class="form-label">Status Penerbitan</label>
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Status Aktif</label>
                         <select class="form-select" id="status" name="status" required>
-                            <option value="published" <?= old('status', $berita['status']) === 'published' ? 'selected' : '' ?>>Publikasikan (Published)</option>
-                            <option value="draft" <?= old('status', $berita['status']) === 'draft' ? 'selected' : '' ?>>Simpan sebagai Draft (Draft)</option>
+                            <option value="active" <?= old('status', $rekening['status']) === 'active' ? 'selected' : '' ?>>Aktif (Tampil di Depan)</option>
+                            <option value="inactive" <?= old('status', $rekening['status']) === 'inactive' ? 'selected' : '' ?>>Nonaktif (Disembunyikan)</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Banner Gambar (Auto WebP) -->
-                <div class="mb-4">
-                    <label for="banner" class="form-label">Gambar Sampul / Banner (Biarkan kosong jika tidak diubah)</label>
-                    <input type="file" class="form-control" id="banner" name="banner" accept="image/png, image/jpeg, image/jpg, image/webp">
-                    <div class="form-text text-muted">Format yang didukung: JPG, JPEG, PNG, WEBP. Sistem otomatis mengkonversi gambar ke format WebP.</div>
-                    
-                    <?php if ($berita['banner']) : ?>
-                        <div class="mt-3">
-                            <span class="d-block text-muted mb-2 font-heading fs-7">Banner Aktif Saat Ini:</span>
-                            <img src="<?= base_url('uploads/images/' . $berita['banner']) ?>" class="img-thumbnail" style="max-height: 150px; object-fit: cover;" alt="Banner Current">
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <!-- Konten Berita (Summernote WYSIWYG) -->
-                <div class="mb-4">
-                    <label for="summernote" class="form-label">Isi Berita / Konten Pengumuman</label>
-                    <textarea id="summernote" name="konten" required><?= old('konten', $berita['konten']) ?></textarea>
-                </div>
-
-                <!-- Buttons -->
-                <div class="d-flex gap-3 justify-content-end">
-                    <a href="<?= base_url('dashboard/berita') ?>" class="btn btn-cancel">Batal</a>
-                    <button type="submit" class="btn btn-submit">Simpan Perubahan <i class="fa-solid fa-save ms-2"></i></button>
+                <!-- BUTTONS -->
+                <div class="d-flex gap-3 justify-content-end mt-5">
+                    <a href="<?= base_url('dashboard/rekening') ?>" class="btn btn-cancel">
+                        <i class="fa-solid fa-xmark me-2"></i>Batal
+                    </a>
+                    <button type="submit" class="btn btn-save">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Simpan Perubahan
+                    </button>
                 </div>
             </form>
         </div>
@@ -403,25 +435,34 @@
 
     <!-- Bootstrap 5.3 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Summernote Initialization Script -->
+    
+    <!-- Dynamic Form Fields Helper JS -->
     <script>
-        $(document).ready(function() {
-            $('#summernote').summernote({
-                placeholder: 'Tuliskan isi berita, pengumuman, atau artikel dakwah di sini...',
-                tabsize: 2,
-                height: 350,
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'underline', 'clear']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ]
-            });
-        });
+        const jenisSelect = document.getElementById('jenis');
+        const labelNoRek = document.getElementById('label_no_rek');
+        const helpNoRek = document.getElementById('help_no_rek');
+        const nomorRekeningInput = document.getElementById('nomor_rekening');
+        const labelLogo = document.getElementById('label_logo');
+        const helpLogo = document.getElementById('help_logo');
+
+        function adjustFormFields() {
+            if (jenisSelect.value === 'qris') {
+                labelNoRek.innerText = 'Payload / Teks String QRIS (Opsional jika upload gambar)';
+                nomorRekeningInput.placeholder = 'Contoh: MasjidAgungSinjaiInfaqDigital';
+                helpNoRek.innerText = 'Teks payload QRIS resmi (misal format string QRIS) untuk auto-generate QR Code dinamis.';
+                labelLogo.innerText = 'Ganti Barcode/Gambar QRIS (Opsional)';
+                helpLogo.innerText = 'Unggah gambar QRIS baru. Sistem otomatis mengonversi ke format WebP.';
+            } else {
+                labelNoRek.innerText = 'Nomor Rekening';
+                nomorRekeningInput.placeholder = 'Masukkan nomor rekening bank';
+                helpNoRek.innerText = 'Nomor rekening tanpa spasi atau tanda hubung.';
+                labelLogo.innerText = 'Ganti Logo Bank (Opsional)';
+                helpLogo.innerText = 'Format gambar JPEG, PNG, atau WebP (Maks 2MB). Sistem otomatis mengonversi ke format WebP.';
+            }
+        }
+
+        jenisSelect.addEventListener('change', adjustFormFields);
+        document.addEventListener('DOMContentLoaded', adjustFormFields);
     </script>
 </body>
 </html>
