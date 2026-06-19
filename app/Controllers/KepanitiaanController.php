@@ -6,6 +6,8 @@ use App\Models\KegiatanModel;
 use App\Models\PanitiaModel;
 use App\Models\PersonilModel;
 use App\Models\JabatanKegiatanModel;
+use App\Models\KelompokKegiatanModel;
+use App\Models\AnggotaKelompokModel;
 use Exception;
 
 class KepanitiaanController extends BaseController
@@ -14,15 +16,19 @@ class KepanitiaanController extends BaseController
     protected $panitiaModel;
     protected $personilModel;
     protected $jabatanKegiatanModel;
+    protected $kelompokKegiatanModel;
+    protected $anggotaKelompokModel;
     protected $session;
 
     public function __construct()
     {
-        $this->kegiatanModel        = new KegiatanModel();
-        $this->panitiaModel         = new PanitiaModel();
-        $this->personilModel        = new PersonilModel();
-        $this->jabatanKegiatanModel = new JabatanKegiatanModel();
-        $this->session              = \Config\Services::session();
+        $this->kegiatanModel         = new KegiatanModel();
+        $this->panitiaModel          = new PanitiaModel();
+        $this->personilModel         = new PersonilModel();
+        $this->jabatanKegiatanModel  = new JabatanKegiatanModel();
+        $this->kelompokKegiatanModel = new KelompokKegiatanModel();
+        $this->anggotaKelompokModel  = new AnggotaKelompokModel();
+        $this->session               = \Config\Services::session();
         helper(['url', 'form', 'audit_helper', 'telegram_helper']);
     }
 
@@ -46,7 +52,7 @@ class KepanitiaanController extends BaseController
     }
 
     /**
-     * Tampilkan Detail Kegiatan dengan Struktur Panitia & Struktur Jabatan Kegiatan
+     * Tampilkan Detail Kegiatan dengan Struktur Panitia, Struktur Jabatan, dan Kelompok Kegiatan
      */
     public function detail($id)
     {
@@ -61,6 +67,12 @@ class KepanitiaanController extends BaseController
 
         $panitiaList = $this->panitiaModel->getPanitiaByKegiatan($id);
         $jabatanList = $this->jabatanKegiatanModel->getJabatanByKegiatan($id);
+        
+        // Load kelompok kegiatan dan anggotanya
+        $kelompokList = $this->kelompokKegiatanModel->getKelompokByKegiatan($id);
+        foreach ($kelompokList as &$kelompok) {
+            $kelompok['anggota'] = $this->anggotaKelompokModel->getAnggotaByKelompok($kelompok['id']);
+        }
 
         return view('dashboard/kepanitiaan/detail', [
             'username'          => $this->session->get('username'),
@@ -69,6 +81,7 @@ class KepanitiaanController extends BaseController
             'kegiatan'          => $kegiatan,
             'panitia_list'      => $panitiaList,
             'jabatan_list'      => $jabatanList,
+            'kelompok_list'     => $kelompokList,
             'validation'        => \Config\Services::validation()
         ]);
     }
@@ -549,6 +562,258 @@ class KepanitiaanController extends BaseController
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus data jabatan: ' . $e->getMessage());
+        }
+    }
+
+    // ==========================================
+    // KELOMPOK KEGIATAN CRUD
+    // ==========================================
+
+    public function createKelompok()
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kegiatanId = $this->request->getVar('kegiatan_id');
+        $kegiatan = $this->kegiatanModel->find($kegiatanId);
+        if (!$kegiatan) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Kegiatan tidak ditemukan.');
+        }
+
+        return view('dashboard/kepanitiaan/kelompok_create', [
+            'username'    => $this->session->get('username'),
+            'role_name'   => $this->session->get('role_name'),
+            'avatar'      => $this->session->get('avatar'),
+            'kegiatan'    => $kegiatan,
+            'validation'  => \Config\Services::validation()
+        ]);
+    }
+
+    public function storeKelompok()
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kegiatanId = $this->request->getPost('kegiatan_id');
+        $rules = [
+            'kegiatan_id'   => 'required',
+            'nama_kelompok' => 'required|min_length[3]|max_length[255]',
+            'keterangan'    => 'permit_empty'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+        }
+
+        $data = [
+            'kegiatan_id'   => $kegiatanId,
+            'nama_kelompok' => $this->request->getPost('nama_kelompok'),
+            'keterangan'    => $this->request->getPost('keterangan')
+        ];
+
+        try {
+            $this->kelompokKegiatanModel->insert($data);
+            $newId = $this->kelompokKegiatanModel->getInsertID() ?: $this->kelompokKegiatanModel->db->insertID();
+
+            // Log Activity
+            log_activity('INSERT', 'mst_kelompok_kegiatan', $newId, null, $data);
+
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $kegiatanId)->with('success', 'Kelompok kegiatan baru berhasil ditambahkan.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan kelompok: ' . $e->getMessage());
+        }
+    }
+
+    public function editKelompok($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kelompok = $this->kelompokKegiatanModel->find($id);
+        if (!$kelompok) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data kelompok tidak ditemukan.');
+        }
+
+        $kegiatan = $this->kegiatanModel->find($kelompok['kegiatan_id']);
+
+        return view('dashboard/kepanitiaan/kelompok_edit', [
+            'username'    => $this->session->get('username'),
+            'role_name'   => $this->session->get('role_name'),
+            'avatar'      => $this->session->get('avatar'),
+            'kelompok'    => $kelompok,
+            'kegiatan'    => $kegiatan,
+            'validation'  => \Config\Services::validation()
+        ]);
+    }
+
+    public function updateKelompok($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kelompokBefore = $this->kelompokKegiatanModel->find($id);
+        if (!$kelompokBefore) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data kelompok tidak ditemukan.');
+        }
+
+        $rules = [
+            'nama_kelompok' => 'required|min_length[3]|max_length[255]',
+            'keterangan'    => 'permit_empty'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+        }
+
+        $data = [
+            'nama_kelompok' => $this->request->getPost('nama_kelompok'),
+            'keterangan'    => $this->request->getPost('keterangan')
+        ];
+
+        try {
+            $this->kelompokKegiatanModel->update($id, $data);
+
+            // Log Activity
+            log_activity('UPDATE', 'mst_kelompok_kegiatan', $id, $kelompokBefore, $data);
+
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $kelompokBefore['kegiatan_id'])->with('success', 'Kelompok kegiatan berhasil diperbarui.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui kelompok: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteKelompok($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kelompokBefore = $this->kelompokKegiatanModel->find($id);
+        if (!$kelompokBefore) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data kelompok tidak ditemukan.');
+        }
+
+        try {
+            $this->kelompokKegiatanModel->delete($id);
+
+            // Log Activity
+            log_activity('DELETE', 'mst_kelompok_kegiatan', $id, $kelompokBefore, null);
+
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $kelompokBefore['kegiatan_id'])->with('success', 'Kelompok kegiatan berhasil dihapus.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus kelompok: ' . $e->getMessage());
+        }
+    }
+
+    // ==========================================
+    // ANGGOTA KELOMPOK CRUD
+    // ==========================================
+
+    public function kelolaAnggotaKelompok($kelompokId)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kelompok = $this->kelompokKegiatanModel->find($kelompokId);
+        if (!$kelompok) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Kelompok tidak ditemukan.');
+        }
+
+        $kegiatan = $this->kegiatanModel->find($kelompok['kegiatan_id']);
+        $anggotaList = $this->anggotaKelompokModel->getAnggotaByKelompok($kelompokId);
+        $personilList = $this->personilModel->where('deleted_at', null)->orderBy('nama', 'ASC')->findAll();
+
+        return view('dashboard/kepanitiaan/kelompok_anggota', [
+            'username'      => $this->session->get('username'),
+            'role_name'     => $this->session->get('role_name'),
+            'avatar'        => $this->session->get('avatar'),
+            'kelompok'      => $kelompok,
+            'kegiatan'      => $kegiatan,
+            'anggota_list'  => $anggotaList,
+            'personil_list' => $personilList,
+            'validation'    => \Config\Services::validation()
+        ]);
+    }
+
+    public function storeAnggotaKelompok()
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kelompokId = $this->request->getPost('kelompok_id');
+        $rules = [
+            'kelompok_id' => 'required',
+            'personil_id' => 'required',
+            'peran'       => 'required|min_length[2]|max_length[100]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+        }
+
+        $personilId = $this->request->getPost('personil_id');
+
+        // Cek apakah personil sudah ada di kelompok ini
+        $existing = $this->anggotaKelompokModel
+                         ->where('kelompok_id', $kelompokId)
+                         ->where('personil_id', $personilId)
+                         ->where('deleted_at', null)
+                         ->first();
+
+        if ($existing) {
+            return redirect()->back()->withInput()->with('error', 'Personel tersebut sudah terdaftar di kelompok ini.');
+        }
+
+        $data = [
+            'kelompok_id' => $kelompokId,
+            'personil_id' => $personilId,
+            'peran'       => $this->request->getPost('peran')
+        ];
+
+        try {
+            $this->anggotaKelompokModel->insert($data);
+            $newId = $this->anggotaKelompokModel->getInsertID() ?: $this->anggotaKelompokModel->db->insertID();
+
+            // Log Activity
+            log_activity('INSERT', 'trn_anggota_kelompok', $newId, null, $data);
+
+            return redirect()->to('/dashboard/kepanitiaan/kelompok/anggota/' . $kelompokId)->with('success', 'Anggota kelompok baru berhasil ditambahkan.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan anggota kelompok: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteAnggotaKelompok($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $anggotaBefore = $this->anggotaKelompokModel->find($id);
+        if (!$anggotaBefore) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data anggota kelompok tidak ditemukan.');
+        }
+
+        try {
+            $this->anggotaKelompokModel->delete($id);
+
+            // Log Activity
+            log_activity('DELETE', 'trn_anggota_kelompok', $id, $anggotaBefore, null);
+
+            return redirect()->to('/dashboard/kepanitiaan/kelompok/anggota/' . $anggotaBefore['kelompok_id'])->with('success', 'Anggota kelompok berhasil dihapus.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus anggota kelompok: ' . $e->getMessage());
         }
     }
 }

@@ -459,6 +459,11 @@
                     <i class="fa-solid fa-sitemap me-2"></i>Struktur Jabatan
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="kelompok-tab" data-bs-toggle="tab" data-bs-target="#kelompok" type="button" role="tab" aria-controls="kelompok" aria-selected="false">
+                    <i class="fa-solid fa-users-viewfinder me-2"></i>Kelompok Kegiatan
+                </button>
+            </li>
         </ul>
 
         <!-- Tab content -->
@@ -578,6 +583,78 @@
                                         <td colspan="5" class="text-center py-5 text-muted">
                                             <i class="fa-solid fa-sitemap fs-1 mb-3 d-block text-secondary"></i>
                                             Belum ada struktur jabatan dibuat pada kegiatan ini.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB KELOMPOK KEGIATAN -->
+            <div class="tab-pane fade" id="kelompok" role="tabpanel" aria-labelledby="kelompok-tab">
+                <div class="panel-card bg-white border-0 shadow-sm rounded-4">
+                    <div class="panel-title d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold text-dark fs-5">Kelompok Kegiatan (Qurban / Penyedia Buka Puasa, dll)</span>
+                        <a href="<?= base_url('dashboard/kepanitiaan/kelompok/create?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
+                            <i class="fa-solid fa-plus me-2"></i>Tambah Kelompok
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 250px;">Nama Kelompok</th>
+                                    <th>Keterangan / Catatan</th>
+                                    <th>Anggota Kelompok (Jemaah)</th>
+                                    <th style="width: 150px;" class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($kelompok_list)) : ?>
+                                    <?php foreach ($kelompok_list as $kel) : ?>
+                                        <tr>
+                                            <td>
+                                                <strong class="text-dark d-block"><?= esc($kel['nama_kelompok']) ?></strong>
+                                            </td>
+                                            <td><?= esc($kel['keterangan'] ?: '-') ?></td>
+                                            <td>
+                                                <?php if (!empty($kel['anggota'])) : ?>
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        <?php foreach ($kel['anggota'] as $agt) : ?>
+                                                            <span class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill" title="No WA: <?= esc($agt['no_hp'] ?: '-') ?>" style="font-size: 0.825rem;">
+                                                                <i class="fa-solid fa-user me-1 text-success"></i>
+                                                                <?= esc($agt['nama']) ?> 
+                                                                <small class="text-muted fw-semibold">(<?= esc($agt['peran']) ?>)</small>
+                                                            </span>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php else : ?>
+                                                    <span class="text-muted small"><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>Belum ada anggota. Silakan kelola anggota.</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex gap-2 justify-content-center">
+                                                    <a href="<?= base_url('dashboard/kepanitiaan/kelompok/anggota/' . esc($kel['id'])) ?>" class="btn-action btn-edit" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981;" title="Kelola Anggota Kelompok">
+                                                        <i class="fa-solid fa-user-gear"></i>
+                                                    </a>
+                                                    <a href="<?= base_url('dashboard/kepanitiaan/kelompok/edit/' . esc($kel['id']) . '?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn-action btn-edit" title="Edit Kelompok">
+                                                        <i class="fa-solid fa-pen"></i>
+                                                    </a>
+                                                    <a href="<?= base_url('dashboard/kepanitiaan/kelompok/delete/' . esc($kel['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus kelompok ini beserta semua anggotanya?')" title="Hapus Kelompok">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <tr>
+                                        <td colspan="4" class="text-center py-5 text-muted">
+                                            <i class="fa-solid fa-users-viewfinder fs-1 mb-3 d-block text-secondary"></i>
+                                            Belum ada kelompok kegiatan dibuat pada kegiatan ini.
                                         </td>
                                     </tr>
                                 <?php endif; ?>

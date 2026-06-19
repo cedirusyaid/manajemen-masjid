@@ -1,5 +1,12 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.9] - 2026-06-20
+### ✨ Added
+- **Fitur Kelompok Kegiatan**: Menambahkan fitur pembuatan kelompok kegiatan (seperti Kelompok Qurban Sapi/Kambing, Kelompok Penyedia Buka Puasa Ramadhan, dll.) di bawah masing-masing Kegiatan Kepanitiaan.
+- **Skema Database Relasional Baru**: Membuat tabel `mst_kelompok_kegiatan` dan `trn_anggota_kelompok` untuk mendukung pemisahan kelompok dari struktur kepanitiaan pelaksana utama.
+- **Halaman Kelola Anggota Kelompok**: Membuat antarmuka kelola anggota kelompok (`dashboard/kepanitiaan/kelompok/anggota/{id}`) yang mendukung penambahan anggota (jemaah) dengan pilihan peran serta integrasi modal tambah personel instan secara AJAX (rules #5 & #6).
+- **Integrasi Tab Kelompok**: Menambahkan tab "Kelompok Kegiatan" pada halaman detail kegiatan (`dashboard/kepanitiaan/detail/{id}`) untuk menampilkan ringkasan kelompok beserta daftar anggotanya secara responsif dan dinamis.
+
 ## [v0.4.8] - 2026-06-20
 ### ✨ Added
 - **Halaman Detail Kepengurusan (Masa Bakti)**: Membuat halaman baru `dashboard/kepengurusan/detail/{periode_id}` untuk merinci susunan pengurus dan posisi jabatan kepengurusan di bawah satu periode yang dipilih secara visual, serta memisahkan alur kelola periode kepengurusan.

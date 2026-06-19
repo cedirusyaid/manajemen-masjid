@@ -100,6 +100,18 @@ $routes->group('dashboard/kepanitiaan', ['namespace' => 'App\Controllers'], func
     $routes->get('panitia/edit/(:segment)', 'KepanitiaanController::editPanitia/$1');
     $routes->post('panitia/update/(:segment)', 'KepanitiaanController::updatePanitia/$1');
     $routes->get('panitia/delete/(:segment)', 'KepanitiaanController::deletePanitia/$1');
+
+    // Kelompok Routes
+    $routes->get('kelompok/create', 'KepanitiaanController::createKelompok');
+    $routes->post('kelompok/store', 'KepanitiaanController::storeKelompok');
+    $routes->get('kelompok/edit/(:segment)', 'KepanitiaanController::editKelompok/$1');
+    $routes->post('kelompok/update/(:segment)', 'KepanitiaanController::updateKelompok/$1');
+    $routes->get('kelompok/delete/(:segment)', 'KepanitiaanController::deleteKelompok/$1');
+    
+    // Anggota Kelompok Routes
+    $routes->get('kelompok/anggota/(:segment)', 'KepanitiaanController::kelolaAnggotaKelompok/$1');
+    $routes->post('kelompok/anggota/store', 'KepanitiaanController::storeAnggotaKelompok');
+    $routes->get('kelompok/anggota/delete/(:segment)', 'KepanitiaanController::deleteAnggotaKelompok/$1');
 });
 
 // Rute CRUD Master Personil (Unified Personnel)
