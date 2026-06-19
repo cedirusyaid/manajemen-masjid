@@ -110,7 +110,25 @@ CREATE TABLE `sys_settings` (
 
 ### B. Tabel Master (`mst_`)
 
-#### 1. Tabel `mst_imam_khatib`
+#### 1. Tabel `mst_rekening`
+Menyimpan data metode penyaluran amal, rekening bank, dan payload/foto QRIS donasi.
+```sql
+CREATE TABLE `mst_rekening` (
+  `id` CHAR(36) NOT NULL,
+  `nama_bank` VARCHAR(100) NOT NULL,
+  `nomor_rekening` VARCHAR(50) DEFAULT NULL,
+  `atas_nama` VARCHAR(150) DEFAULT NULL,
+  `jenis` ENUM('transfer', 'qris') NOT NULL DEFAULT 'transfer',
+  `logo` VARCHAR(255) DEFAULT NULL, -- Logo bank atau file gambar QRIS
+  `status` ENUM('active', 'inactive') DEFAULT 'active',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` DATETIME DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+#### 2. Tabel `mst_imam_khatib`
 Data profil imam, khatib, dan muadzin.
 ```sql
 CREATE TABLE `mst_imam_khatib` (

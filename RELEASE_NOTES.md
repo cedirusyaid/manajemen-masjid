@@ -1,5 +1,11 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.0] - 2026-06-19
+### ✨ Added
+- Database Penyaluran Infaq (mst_rekening): Membuat tabel master `mst_rekening` untuk menampung metode donasi masjid secara modular (baik transfer bank lokal maupun QRIS infaq). Pengurus masjid kini dapat menambah, menonaktifkan, atau menyesuaikan berbagai pilihan rekening donasi secara mandiri.
+- Upload & Generator QRIS Dinamis: Mendukung penayangan gambar QRIS statis hasil upload (dari folder `public/uploads/rekening/`) secara visual, serta fallback generator otomatis dari payload string QRIS via Google/QRServer API jika berkas gambar tidak di-upload.
+- Integrasi Rekening Model & Rendering Landing Page: Membangun `App\Models\RekeningModel` dan memodifikasi `Home.php` controller serta view `themes/default/home.php` untuk menampilkan daftar rekening transfer bank dan kartu QRIS secara dinamis dari database (dengan fallback ke helper statis jika data database kosong).
+
 ## [v0.3.9] - 2026-06-19
 ### ✨ Added
 - Dynamic Theme Engine (Templating): Mengimplementasikan arsitektur folder tema dinamis di mana berkas view frontend beranda dipindahkan ke folder tema bawaan `app/Views/themes/default/home.php`.

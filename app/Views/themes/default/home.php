@@ -576,24 +576,74 @@
                     <h2 class="fw-bold mb-3 font-heading">Kemudahan Berdonasi & Infak Digital</h2>
                     <p class="mb-4 opacity-90">Salurkan infak, shadaqah, dan zakat terbaik Anda secara praktis untuk mendukung operasional dakwah dan pemeliharaan fasilitas <?= site_name() ?>.</p>
                     <div class="d-flex flex-wrap gap-4">
-                        <div>
-                            <i class="fa-solid fa-building-columns text-warning fs-3 mb-2 d-block"></i>
-                            <strong>Bank Syariah Indonesia</strong><br>
-                            <span class="fs-5 font-heading"><?= donation_bsi_number() ?></span><br>
-                            <small class="opacity-75">a.n. <?= donation_bsi_holder() ?></small>
-                        </div>
-                        <div style="border-left: 1px solid rgba(255,255,255,0.2); padding-left: 20px;">
-                            <i class="fa-solid fa-money-check-dollar text-warning fs-3 mb-2 d-block"></i>
-                            <strong>Bank Sulselbar</strong><br>
-                            <span class="fs-5 font-heading"><?= donation_sulselbar_number() ?></span><br>
-                            <small class="opacity-75">a.n. <?= donation_sulselbar_holder() ?></small>
-                        </div>
+                        <?php 
+                        $hasTransfer = false;
+                        if (!empty($rekening_list)): 
+                            $borderIdx = 0;
+                            foreach ($rekening_list as $rek): 
+                                if ($rek['jenis'] !== 'transfer') continue;
+                                $hasTransfer = true;
+                                $borderStyle = ($borderIdx > 0) ? 'border-left: 1px solid rgba(255,255,255,0.2); padding-left: 20px;' : '';
+                                $borderIdx++;
+                        ?>
+                            <div style="<?= $borderStyle ?>">
+                                <i class="fa-solid fa-building-columns text-warning fs-3 mb-2 d-block"></i>
+                                <strong><?= esc($rek['nama_bank']) ?></strong><br>
+                                <span class="fs-5 font-heading"><?= esc($rek['nomor_rekening']) ?></span><br>
+                                <small class="opacity-75">a.n. <?= esc($rek['atas_nama']) ?></small>
+                            </div>
+                        <?php 
+                            endforeach; 
+                        endif; 
+                        
+                        if (!$hasTransfer): // Fallback jika DB kosong
+                        ?>
+                            <div>
+                                <i class="fa-solid fa-building-columns text-warning fs-3 mb-2 d-block"></i>
+                                <strong>Bank Syariah Indonesia</strong><br>
+                                <span class="fs-5 font-heading"><?= donation_bsi_number() ?></span><br>
+                                <small class="opacity-75">a.n. <?= donation_bsi_holder() ?></small>
+                            </div>
+                            <div style="border-left: 1px solid rgba(255,255,255,0.2); padding-left: 20px;">
+                                <i class="fa-solid fa-money-check-dollar text-warning fs-3 mb-2 d-block"></i>
+                                <strong>Bank Sulselbar</strong><br>
+                                <span class="fs-5 font-heading"><?= donation_sulselbar_number() ?></span><br>
+                                <small class="opacity-75">a.n. <?= donation_sulselbar_holder() ?></small>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="col-lg-5 text-center">
+                    <?php
+                    $qrisChannel = null;
+                    if (!empty($rekening_list)) {
+                        foreach ($rekening_list as $rek) {
+                            if ($rek['jenis'] === 'qris') {
+                                $qrisChannel = $rek;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Fallback values
+                    $qrisImageUrl = qris_url();
+                    $qrisTitle = 'QRIS INFAK MASJID';
+                    
+                    if ($qrisChannel) {
+                        $qrisTitle = esc($qrisChannel['atas_nama']);
+                        if (!empty($qrisChannel['logo']) && is_file(FCPATH . 'uploads/rekening/' . $qrisChannel['logo'])) {
+                            // Jika ada file gambar QRIS di-upload oleh pengurus
+                            $qrisImageUrl = base_url('uploads/rekening/' . $qrisChannel['logo']);
+                        } else {
+                            // Dinamis generate dari string payload QRIS di database
+                            $payload = $qrisChannel['nomor_rekening'];
+                            $qrisImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" . urlencode($payload);
+                        }
+                    }
+                    ?>
                     <div class="qris-card">
-                        <small class="text-muted fw-bold d-block mb-2 font-heading"><i class="fa-solid fa-qrcode me-1"></i> QRIS MASJID AGUNG</small>
-                        <img class="qris-img" src="<?= qris_url() ?>" alt="QRIS Infaq">
+                        <small class="text-muted fw-bold d-block mb-2 font-heading"><i class="fa-solid fa-qrcode me-1"></i> <?= esc($qrisTitle) ?></small>
+                        <img class="qris-img" src="<?= $qrisImageUrl ?>" alt="QRIS Infaq">
                         <small class="text-muted d-block mt-2">Dukung Semua Aplikasi Dompet Digital</small>
                     </div>
                 </div>

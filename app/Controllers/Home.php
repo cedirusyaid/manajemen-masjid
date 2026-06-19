@@ -98,11 +98,15 @@ class Home extends BaseController
             ];
         }
 
+        $rekeningModel = new \App\Models\RekeningModel();
+        $rekeningList  = $rekeningModel->getActiveChannels();
+
         return render_theme('home', [
             'petugas_jumat' => $petugasJumat,
             'jadwal_sholat' => $jadwalSholat,
             'agenda_list'   => $agendaList,
-            'berita_list'   => $beritaList
+            'berita_list'   => $beritaList,
+            'rekening_list' => $rekeningList
         ]);
     }
 
