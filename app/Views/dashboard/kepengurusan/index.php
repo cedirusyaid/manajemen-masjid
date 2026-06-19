@@ -422,7 +422,7 @@
                 <div class="panel-card">
                     <div class="panel-title">
                         <span>Anggota Pengurus Masjid</span>
-                        <a href="<?= base_url('dashboard/kepengurusan/pengurus/create') ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
+                        <a href="<?= base_url('dashboard/kepengurusan/pengurus/create' . (!empty($selected_periode) ? '?periode_id=' . esc($selected_periode) : '')) ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
                             <i class="fa-solid fa-plus me-2"></i>Tambah Pengurus
                         </a>
                     </div>
@@ -491,7 +491,7 @@
                                                 <td><?= esc($pengurus['urutan']) ?></td>
                                                 <td class="text-center">
                                                     <div class="d-flex gap-2 justify-content-center">
-                                                        <a href="<?= base_url('dashboard/kepengurusan/pengurus/edit/' . esc($pengurus['id'])) ?>" class="btn-action btn-edit" title="Edit">
+                                                        <a href="<?= base_url('dashboard/kepengurusan/pengurus/edit/' . esc($pengurus['id']) . (!empty($selected_periode) ? '?periode_id=' . esc($selected_periode) : '')) ?>" class="btn-action btn-edit" title="Edit">
                                                             <i class="fa-solid fa-pen"></i>
                                                         </a>
                                                         <a href="<?= base_url('dashboard/kepengurusan/pengurus/delete/' . esc($pengurus['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus pengurus ini?')" title="Hapus">

@@ -432,7 +432,7 @@
                 <div class="panel-card">
                     <div class="panel-title">
                         <span>Anggota Panitia Kegiatan</span>
-                        <a href="<?= base_url('dashboard/kepanitiaan/panitia/create') ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
+                        <a href="<?= base_url('dashboard/kepanitiaan/panitia/create' . (!empty($selected_kegiatan) ? '?kegiatan_id=' . esc($selected_kegiatan) : '')) ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
                             <i class="fa-solid fa-plus me-2"></i>Tambah Panitia
                         </a>
                     </div>
@@ -493,7 +493,7 @@
                                                 <td><?= esc($panitia['urutan']) ?></td>
                                                 <td class="text-center">
                                                     <div class="d-flex gap-2 justify-content-center">
-                                                        <a href="<?= base_url('dashboard/kepanitiaan/panitia/edit/' . esc($panitia['id'])) ?>" class="btn-action btn-edit" title="Edit">
+                                                        <a href="<?= base_url('dashboard/kepanitiaan/panitia/edit/' . esc($panitia['id']) . (!empty($selected_kegiatan) ? '?kegiatan_id=' . esc($selected_kegiatan) : '')) ?>" class="btn-action btn-edit" title="Edit">
                                                             <i class="fa-solid fa-pen"></i>
                                                         </a>
                                                         <a href="<?= base_url('dashboard/kepanitiaan/panitia/delete/' . esc($panitia['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus panitia ini?')" title="Hapus">

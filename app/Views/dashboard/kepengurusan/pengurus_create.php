@@ -375,7 +375,7 @@
                         <select class="form-select" id="periode_id" name="periode_id" required>
                             <option value="">-- Pilih Periode --</option>
                             <?php foreach ($periode_list as $periode) : ?>
-                                <option value="<?= esc($periode['id']) ?>" <?= old('periode_id') == $periode['id'] || $periode['status'] == 'aktif' ? 'selected' : '' ?>>
+                                <option value="<?= esc($periode['id']) ?>" <?= old('periode_id') == $periode['id'] || (isset($selected_periode) && $selected_periode == $periode['id']) || (empty(old('periode_id')) && !isset($selected_periode) && $periode['status'] == 'aktif') ? 'selected' : '' ?>>
                                     <?= esc($periode['nama_periode']) ?> <?= $periode['status'] == 'aktif' ? '(Aktif)' : '' ?>
                                 </option>
                             <?php endforeach; ?>
@@ -401,7 +401,7 @@
                 </div>
 
                 <div class="d-flex gap-3 justify-content-end mt-4">
-                    <a href="<?= base_url('dashboard/kepengurusan') ?>" class="btn btn-cancel">Batal</a>
+                    <a href="<?= base_url('dashboard/kepengurusan' . (!empty($selected_periode) ? '?periode_id=' . esc($selected_periode) : '')) ?>" class="btn btn-cancel">Batal</a>
                     <button type="submit" class="btn btn-submit">Simpan Anggota <i class="fa-solid fa-save ms-2"></i></button>
                 </div>
             </form>

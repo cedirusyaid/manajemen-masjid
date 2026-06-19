@@ -233,14 +233,17 @@ class KepengurusanController extends BaseController
                             ->where('trn_pengurus.deleted_at', null)
                             ->findAll();
 
+        $selectedPeriode = $this->request->getVar('periode_id');
+
         return view('dashboard/kepengurusan/pengurus_create', [
-            'username'     => $this->session->get('username'),
-            'role_name'    => $this->session->get('role_name'),
-            'avatar'       => $this->session->get('avatar'),
-            'periode_list' => $periodeList,
-            'personil_list'=> $personilList,
-            'pengurus_list'=> $pengurusList,
-            'validation'   => \Config\Services::validation()
+            'username'         => $this->session->get('username'),
+            'role_name'        => $this->session->get('role_name'),
+            'avatar'           => $this->session->get('avatar'),
+            'periode_list'     => $periodeList,
+            'personil_list'    => $personilList,
+            'pengurus_list'    => $pengurusList,
+            'selected_periode' => $selectedPeriode,
+            'validation'       => \Config\Services::validation()
         ]);
     }
 
@@ -277,7 +280,7 @@ class KepengurusanController extends BaseController
             // Log Activity
             log_activity('INSERT', 'trn_pengurus', $newId, null, $data);
 
-            return redirect()->to('/dashboard/kepengurusan')->with('success', 'Anggota pengurus baru berhasil ditambahkan.');
+            return redirect()->to('/dashboard/kepengurusan?periode_id=' . $data['periode_id'])->with('success', 'Anggota pengurus baru berhasil ditambahkan.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal menambahkan anggota pengurus: ' . $e->getMessage());
@@ -303,15 +306,18 @@ class KepengurusanController extends BaseController
                             ->where('trn_pengurus.deleted_at', null)
                             ->findAll();
 
+        $selectedPeriode = $this->request->getVar('periode_id');
+
         return view('dashboard/kepengurusan/pengurus_edit', [
-            'username'     => $this->session->get('username'),
-            'role_name'    => $this->session->get('role_name'),
-            'avatar'       => $this->session->get('avatar'),
-            'pengurus'     => $pengurus,
-            'periode_list' => $periodeList,
-            'personil_list'=> $personilList,
-            'pengurus_list'=> $pengurusList,
-            'validation'   => \Config\Services::validation()
+            'username'         => $this->session->get('username'),
+            'role_name'        => $this->session->get('role_name'),
+            'avatar'           => $this->session->get('avatar'),
+            'pengurus'         => $pengurus,
+            'periode_list'     => $periodeList,
+            'personil_list'    => $personilList,
+            'pengurus_list'    => $pengurusList,
+            'selected_periode' => $selectedPeriode,
+            'validation'       => \Config\Services::validation()
         ]);
     }
 
@@ -352,10 +358,10 @@ class KepengurusanController extends BaseController
             // Log Activity
             log_activity('UPDATE', 'trn_pengurus', $id, $pengurusBefore, $data);
 
-            return redirect()->to('/dashboard/kepengurusan')->with('success', 'Data anggota pengurus berhasil diperbarui.');
+            return redirect()->to('/dashboard/kepengurusan?periode_id=' . $data['periode_id'])->with('success', 'Data anggota pengurus berhasil diperbarui.');
         } catch (Exception $e) {
             telegram_log_error($e);
-            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui anggota pengurus: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data pengurus: ' . $e->getMessage());
         }
     }
 
@@ -376,10 +382,11 @@ class KepengurusanController extends BaseController
             // Log Activity
             log_activity('DELETE', 'trn_pengurus', $id, $pengurusBefore, null);
 
-            return redirect()->to('/dashboard/kepengurusan')->with('success', 'Data anggota pengurus berhasil dihapus (Soft Delete).');
+            $periodeId = $pengurusBefore['periode_id'];
+            return redirect()->to('/dashboard/kepengurusan?periode_id=' . $periodeId)->with('success', 'Anggota pengurus berhasil dihapus.');
         } catch (Exception $e) {
             telegram_log_error($e);
-            return redirect()->to('/dashboard/kepengurusan')->with('error', 'Gagal menghapus anggota pengurus: ' . $e->getMessage());
+            return redirect()->to('/dashboard/kepengurusan')->with('error', 'Gagal menghapus data pengurus: ' . $e->getMessage());
         }
     }
 }

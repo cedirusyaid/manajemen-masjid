@@ -1,5 +1,13 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.6] - 2026-06-20
+### ✨ Added
+- Preservasi Filter Aktif pada Form CRUD: Meloloskan parameter `periode_id` (kepengurusan) dan `kegiatan_id` (kepanitiaan) pada tautan Tambah, Edit, dan Batal agar pilihan filter terjaga selama navigasi.
+- Auto-Default Pilihan Dropdown: Dropdown input Periode/Kegiatan pada form pembuatan pengurus dan panitia secara otomatis ter-default sesuai dengan filter aktif dari halaman sebelumnya.
+
+### 🔄 Changed
+- Logika Redirect Pasca-Aksi (CRUD): Mengubah tujuan redirect setelah aksi Simpan, Perbarui, dan Hapus (Delete) pengurus/panitia agar menyertakan query parameter filter aktif yang sesuai.
+
 ## [v0.4.5] - 2026-06-20
 ### ✨ Added
 - Filter Periode pada Halaman Kepengurusan: Menambahkan dropdown filter periode kepengurusan dengan status visual aktif. Jika periode tidak dipilih, daftar pengurus disembunyikan dengan tampilan placeholder instruksi yang informatif.

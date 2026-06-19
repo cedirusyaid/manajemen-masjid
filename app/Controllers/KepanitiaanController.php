@@ -213,14 +213,17 @@ class KepanitiaanController extends BaseController
                             ->where('trn_panitia.deleted_at', null)
                             ->findAll();
 
+        $selectedKegiatan = $this->request->getVar('kegiatan_id');
+
         return view('dashboard/kepanitiaan/panitia_create', [
-            'username'      => $this->session->get('username'),
-            'role_name'     => $this->session->get('role_name'),
-            'avatar'        => $this->session->get('avatar'),
-            'kegiatan_list' => $kegiatanList,
-            'personil_list' => $personilList,
-            'panitia_list'  => $panitiaList,
-            'validation'    => \Config\Services::validation()
+            'username'          => $this->session->get('username'),
+            'role_name'         => $this->session->get('role_name'),
+            'avatar'            => $this->session->get('avatar'),
+            'kegiatan_list'     => $kegiatanList,
+            'personil_list'     => $personilList,
+            'panitia_list'      => $panitiaList,
+            'selected_kegiatan' => $selectedKegiatan,
+            'validation'        => \Config\Services::validation()
         ]);
     }
 
@@ -259,7 +262,7 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('INSERT', 'trn_panitia', $newId, null, $data);
 
-            return redirect()->to('/dashboard/kepanitiaan')->with('success', 'Anggota panitia baru berhasil ditambahkan.');
+            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $data['kegiatan_id'])->with('success', 'Anggota panitia baru berhasil ditambahkan.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal menambahkan anggota panitia: ' . $e->getMessage());
@@ -285,15 +288,18 @@ class KepanitiaanController extends BaseController
                             ->where('trn_panitia.deleted_at', null)
                             ->findAll();
 
+        $selectedKegiatan = $this->request->getVar('kegiatan_id');
+
         return view('dashboard/kepanitiaan/panitia_edit', [
-            'username'      => $this->session->get('username'),
-            'role_name'     => $this->session->get('role_name'),
-            'avatar'        => $this->session->get('avatar'),
-            'panitia'       => $panitia,
-            'kegiatan_list' => $kegiatanList,
-            'personil_list' => $personilList,
-            'panitia_list'  => $panitiaList,
-            'validation'    => \Config\Services::validation()
+            'username'          => $this->session->get('username'),
+            'role_name'         => $this->session->get('role_name'),
+            'avatar'            => $this->session->get('avatar'),
+            'panitia'           => $panitia,
+            'kegiatan_list'     => $kegiatanList,
+            'personil_list'     => $personilList,
+            'panitia_list'      => $panitiaList,
+            'selected_kegiatan' => $selectedKegiatan,
+            'validation'        => \Config\Services::validation()
         ]);
     }
 
@@ -336,7 +342,7 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('UPDATE', 'trn_panitia', $id, $panitiaBefore, $data);
 
-            return redirect()->to('/dashboard/kepanitiaan')->with('success', 'Data panitia berhasil diperbarui.');
+            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $data['kegiatan_id'])->with('success', 'Data panitia berhasil diperbarui.');
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data panitia: ' . $e->getMessage());
@@ -360,10 +366,11 @@ class KepanitiaanController extends BaseController
             // Log Activity
             log_activity('DELETE', 'trn_panitia', $id, $panitiaBefore, null);
 
-            return redirect()->to('/dashboard/kepanitiaan')->with('success', 'Anggota panitia berhasil dihapus (Soft Delete).');
+            $kegiatanId = $panitiaBefore['kegiatan_id'];
+            return redirect()->to('/dashboard/kepanitiaan?kegiatan_id=' . $kegiatanId)->with('success', 'Anggota panitia berhasil dihapus.');
         } catch (Exception $e) {
             telegram_log_error($e);
-            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus anggota panitia: ' . $e->getMessage());
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus data panitia: ' . $e->getMessage());
         }
     }
 }

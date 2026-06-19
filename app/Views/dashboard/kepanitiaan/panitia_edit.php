@@ -406,7 +406,7 @@
                 </div>
 
                 <div class="d-flex gap-3 justify-content-end mt-4">
-                    <a href="<?= base_url('dashboard/kepanitiaan') ?>" class="btn btn-cancel">Batal</a>
+                    <a href="<?= base_url('dashboard/kepanitiaan' . (!empty($selected_kegiatan) ? '?kegiatan_id=' . esc($selected_kegiatan) : '')) ?>" class="btn btn-cancel">Batal</a>
                     <button type="submit" class="btn btn-submit">Simpan Perubahan <i class="fa-solid fa-save ms-2"></i></button>
                 </div>
             </form>
