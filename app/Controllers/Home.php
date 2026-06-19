@@ -98,7 +98,7 @@ class Home extends BaseController
             ];
         }
 
-        return view('home', [
+        return render_theme('home', [
             'petugas_jumat' => $petugasJumat,
             'jadwal_sholat' => $jadwalSholat,
             'agenda_list'   => $agendaList,

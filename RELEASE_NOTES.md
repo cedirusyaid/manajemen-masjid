@@ -1,10 +1,20 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
-## [v0.3.7] - 2026-06-19
+## [v0.3.9] - 2026-06-19
+### ✨ Added
+- Dynamic Theme Engine (Templating): Mengimplementasikan arsitektur folder tema dinamis di mana berkas view frontend beranda dipindahkan ke folder tema bawaan `app/Views/themes/default/home.php`.
+- Helper render_theme(): Menambahkan fungsi pembantu global `render_theme()` di `site_helper.php` untuk memuat berkas tampilan berdasarkan parameter `'active_theme'` dari tabel konfigurasi `sys_settings` database, lengkap dengan lapisan pelindung kegagalan (*fallback layer*) otomatis ke tema `default` agar aplikasi tidak crash jika berkas custom tidak ditemukan.
+- Integrasi Controller: Menghubungkan dashboard depan di `Home.php` controller agar menggunakan sistem rendering tema dinamis.
+
+## [v0.3.8] - 2026-06-19
 ### ✨ Added
 - Database Option/Settings Engine: Menambahkan tabel sistem `sys_settings` di database untuk menyimpan parameter konfigurasi dinamis aplikasi (seperti nama masjid, alamat, nomor kontak, detail donasi, dan ID kota jadwal sholat) agar administrator masjid dapat mengubahnya dengan mudah melalui antarmuka web (UI) di masa depan tanpa memodifikasi berkas `.env` server.
 - Modul SettingModel & Caching: Membangun `App\Models\SettingModel` untuk menangani pembacaan opsi database secara modular. Dilengkapi dengan static memory cache (request-level) dan framework cache (24-hour TTL) untuk menjamin performa akses data tetap instan dan optimal.
 - Sinkronisasi Layer Konfigurasi Hybrid: Memodifikasi seluruh fungsi global di `site_helper.php` dan logika jadwal sholat di `Home.php` controller agar membaca konfigurasi dinamis dari tabel `sys_settings` di database terlebih dahulu, sebelum otomatis jatuh kembali (*fallback*) ke nilai lokal di berkas konfigurasi `.env` / `App.php`.
+
+## [v0.3.7] - 2026-06-19
+### 🔄 Changed
+- Dokumentasi Proyek: Pembaruan `README.md` untuk menyelaraskan tautan clone repositori publik baru (`manajemen-masjid.git`) dan standarisasi nama generik open-source.
 
 ## [v0.3.6] - 2026-06-19
 ### 🔄 Changed

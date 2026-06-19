@@ -91,3 +91,30 @@ if (!function_exists('contact_phone')) {
         return $model->getSetting('contact_phone') ?? (config('App')->contactPhone ?? '(021) 12345678');
     }
 }
+
+if (!function_exists('render_theme')) {
+    /**
+     * Renderer View Dinamis Berbasis Tema Aktif dengan Sistem Fallback
+     */
+    function render_theme(string $viewName, array $data = []): string
+    {
+        $model = new \App\Models\SettingModel();
+        
+        // Ambil nama folder tema aktif dari database (default: 'default')
+        $activeTheme = $model->getSetting('active_theme', 'default');
+        if (empty($activeTheme)) {
+            $activeTheme = 'default';
+        }
+        
+        // Tentukan target path tema aktif
+        $targetView = "themes/{$activeTheme}/{$viewName}";
+        
+        // Validasi: Apakah file view di tema aktif tersebut ada?
+        if (is_file(APPPATH . 'Views/' . $targetView . '.php')) {
+            return view($targetView, $data);
+        }
+        
+        // Fallback Layer: Jika tema custom tidak memiliki file tersebut, muat file bawaan dari tema 'default'
+        return view("themes/default/{$viewName}", $data);
+    }
+}
