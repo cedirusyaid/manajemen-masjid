@@ -1,5 +1,11 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.11] - 2026-06-20
+### ✨ Added
+- **Visualisasi Bagan Struktur (Org Chart)**: Menambahkan tab baru "Bagan Struktur (Org Chart)" pada halaman detail Kepengurusan dan Kepanitiaan.
+- **Fungsi Penyusunan Pohon Rekursif**: Mengimplementasikan algoritma pembentuk tree-node berbasis relasi `parent_id` langsung di sisi View untuk merender garis koneksi secara dinamis.
+- **Tampilan Premium Bagan CSS**: Mengintegrasikan style CSS tree connector yang responsif dengan efek interaktif saat kursor diarahkan ke kotak jabatan (hovering animation).
+
 ## [v0.4.10] - 2026-06-20
 ### 🔄 Changed
 - **Penggabungan Tab Anggota & Jabatan**: Menyatukan tab susunan anggota (panitia/pengurus) dan tab struktur jabatan pada halaman detail Kepengurusan dan Kepanitiaan menjadi satu tab terpadu "Struktur Organisasi".

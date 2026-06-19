@@ -282,6 +282,139 @@
             background-color: #ef4444;
             color: var(--white);
         }
+
+        /* Org Chart Tree CSS */
+        .org-chart-container {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 30px;
+            background-color: var(--white);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            min-height: 400px;
+        }
+
+        .org-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .org-tree ul {
+            padding-top: 20px; 
+            position: relative;
+            transition: all 0.5s;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding-left: 0;
+        }
+
+        .org-tree li {
+            float: left; 
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 20px 10px 0 10px;
+            transition: all 0.5s;
+        }
+
+        .org-tree li::before, .org-tree li::after {
+            content: '';
+            position: absolute; 
+            top: 0; 
+            right: 50%;
+            border-top: 2px solid #cbd5e1;
+            width: 50%; 
+            height: 20px;
+        }
+
+        .org-tree li::after {
+            right: auto; 
+            left: 50%;
+            border-left: 2px solid #cbd5e1;
+        }
+
+        .org-tree li:only-child::after, .org-tree li:only-child::before {
+            display: none;
+        }
+
+        .org-tree li:only-child { 
+            padding-top: 0;
+        }
+
+        .org-tree li:first-child::before, .org-tree li:last-child::after {
+            border: 0 none;
+        }
+
+        .org-tree li:last-child::before {
+            border-right: 2px solid #cbd5e1;
+            border-radius: 0 5px 0 0;
+        }
+
+        .org-tree li:first-child::after {
+            border-radius: 5px 0 0 0;
+        }
+
+        .org-tree ul ul::before {
+            content: '';
+            position: absolute; 
+            top: 0; 
+            left: 50%;
+            border-left: 2px solid #cbd5e1;
+            width: 0; 
+            height: 20px;
+        }
+
+        .org-tree-node {
+            border: 1.5px solid #e5e7eb;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: #1f2937;
+            font-size: 0.875rem;
+            display: inline-block;
+            border-radius: 14px;
+            background-color: var(--white);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s ease;
+            min-width: 170px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .org-tree-node:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .org-tree-node .node-title {
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            color: var(--primary);
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .org-tree-node .node-names {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border-top: 1px dashed #e5e7eb;
+            padding-top: 6px;
+            margin-top: 6px;
+            text-align: left;
+        }
+
+        .org-tree-node .node-name {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
     </style>
 </head>
 <body>
@@ -414,11 +547,64 @@
             </div>
         </div>
 
+        <?php
+        if (!function_exists('buildPeriodeTree')) {
+            function buildPeriodeTree(array $elements, $parentId = null) {
+                $branch = array();
+                foreach ($elements as $element) {
+                    if ($element['parent_id'] === $parentId) {
+                        $children = buildPeriodeTree($elements, $element['id']);
+                        if ($children) {
+                            $element['children'] = $children;
+                        }
+                        $branch[] = $element;
+                    }
+                }
+                return $branch;
+            }
+        }
+
+        if (!function_exists('renderPeriodeTreeHtml')) {
+            function renderPeriodeTreeHtml($tree) {
+                $html = '<ul>';
+                foreach ($tree as $node) {
+                    $html .= '<li>';
+                    $html .= '<div class="org-tree-node">';
+                    $html .= '<div class="node-title">' . esc($node['nama_jabatan']) . '</div>';
+                    
+                    if (!empty($node['pengurus'])) {
+                        $html .= '<div class="node-names">';
+                        foreach ($node['pengurus'] as $p) {
+                            $html .= '<div class="node-name"><i class="fa-solid fa-user me-1 text-success small"></i>' . esc($p['nama']) . '</div>';
+                        }
+                        $html .= '</div>';
+                    } else {
+                        $html .= '<div class="text-muted small" style="font-size: 0.75rem; font-style: italic; margin-top: 4px;">Kosong</div>';
+                    }
+                    
+                    $html .= '</div>';
+                    
+                    if (!empty($node['children'])) {
+                        $html .= renderPeriodeTreeHtml($node['children']);
+                    }
+                    $html .= '</li>';
+                }
+                $html .= '</ul>';
+                return $html;
+            }
+        }
+        ?>
+
         <!-- Nav tabs -->
         <ul class="nav nav-pills mb-4 gap-2" id="kepengurusanTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="struktur-tab" data-bs-toggle="tab" data-bs-target="#struktur" type="button" role="tab" aria-controls="struktur" aria-selected="true">
                     <i class="fa-solid fa-sitemap me-2"></i>Struktur Organisasi
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="chart-tab" data-bs-toggle="tab" data-bs-target="#chart" type="button" role="tab" aria-controls="chart" aria-selected="false">
+                    <i class="fa-solid fa-diagram-project me-2"></i>Bagan Struktur (Org Chart)
                 </button>
             </li>
         </ul>
@@ -543,14 +729,29 @@
                     <?php endif; ?>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <!-- Bootstrap 5.3 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+            <!-- TAB BAGAN STRUKTUR (ORG CHART) -->
+            <div class="tab-pane fade" id="chart" role="tabpanel" aria-labelledby="chart-tab">
+                <div class="panel-card bg-white border-0 shadow-sm rounded-4 mb-4">
+                    <div class="panel-title mb-4">
+                        <span class="fw-bold text-dark fs-5">Bagan Struktur Organisasi Kepengurusan</span>
                     </div>
+                    
+                    <?php if (!empty($jabatan_list)) : ?>
+                        <div class="org-chart-container">
+                            <div class="org-tree">
+                                <?php 
+                                    $treeData = buildPeriodeTree($jabatan_list, null);
+                                    echo renderPeriodeTreeHtml($treeData);
+                                ?>
+                            </div>
+                        </div>
+                    <?php else : ?>
+                        <div class="text-center py-5 text-muted bg-light rounded-4 border border-dashed">
+                            <i class="fa-solid fa-sitemap fs-1 mb-3 d-block text-secondary"></i>
+                            Belum ada struktur jabatan dibuat pada periode ini.
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
