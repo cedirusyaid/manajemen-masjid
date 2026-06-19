@@ -67,6 +67,13 @@ class KepanitiaanController extends BaseController
 
         $panitiaList = $this->panitiaModel->getPanitiaByKegiatan($id);
         $jabatanList = $this->jabatanKegiatanModel->getJabatanByKegiatan($id);
+
+        // Petakan panitia ke masing-masing jabatan
+        foreach ($jabatanList as &$jabatan) {
+            $jabatan['panitia'] = array_filter($panitiaList, function($p) use ($jabatan) {
+                return $p['jabatan_kegiatan_id'] === $jabatan['id'];
+            });
+        }
         
         // Load kelompok kegiatan dan anggotanya
         $kelompokList = $this->kelompokKegiatanModel->getKelompokByKegiatan($id);

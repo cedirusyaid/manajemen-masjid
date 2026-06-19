@@ -417,145 +417,139 @@
         <!-- Nav tabs -->
         <ul class="nav nav-pills mb-4 gap-2" id="kepengurusanTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="pengurus-tab" data-bs-toggle="tab" data-bs-target="#pengurus" type="button" role="tab" aria-controls="pengurus" aria-selected="true">
-                    <i class="fa-solid fa-users-line me-2"></i>Jajaran Pengurus
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="jabatan-tab" data-bs-toggle="tab" data-bs-target="#jabatan" type="button" role="tab" aria-controls="jabatan" aria-selected="false">
-                    <i class="fa-solid fa-sitemap me-2"></i>Struktur Jabatan
+                <button class="nav-link active" id="struktur-tab" data-bs-toggle="tab" data-bs-target="#struktur" type="button" role="tab" aria-controls="struktur" aria-selected="true">
+                    <i class="fa-solid fa-sitemap me-2"></i>Struktur Organisasi
                 </button>
             </li>
         </ul>
 
         <!-- Tab content -->
         <div class="tab-content">
-            <!-- TAB DAFTAR PENGURUS -->
-            <div class="tab-pane fade show active" id="pengurus" role="tabpanel" aria-labelledby="pengurus-tab">
-                <div class="panel-card">
-                    <div class="panel-title">
-                        <span>Anggota Jajaran Pengurus</span>
-                        <a href="<?= base_url('dashboard/kepengurusan/pengurus/create?periode_id=' . esc($periode['id'])) ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
-                            <i class="fa-solid fa-plus me-2"></i>Tambah Anggota
-                        </a>
+            <!-- TAB STRUKTUR ORGANISASI (JABATAN & PENGURUS) -->
+            <div class="tab-pane fade show active" id="struktur" role="tabpanel" aria-labelledby="struktur-tab">
+                <div class="panel-card bg-white border-0 shadow-sm rounded-4 mb-4">
+                    <div class="panel-title d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <span class="fw-bold text-dark fs-5">Jajaran Kepengurusan Berdasarkan Jabatan</span>
+                        <div class="d-flex gap-2">
+                            <a href="<?= base_url('dashboard/kepengurusan/jabatan/create?periode_id=' . esc($periode['id'])) ?>" class="btn btn-sm btn-outline-success px-3 py-2 fw-semibold" style="border-radius: 8px;">
+                                <i class="fa-solid fa-plus me-1"></i>Tambah Jabatan
+                            </a>
+                            <a href="<?= base_url('dashboard/kepengurusan/pengurus/create?periode_id=' . esc($periode['id'])) ?>" class="btn btn-sm btn-success px-3 py-2 fw-semibold" style="background-color: var(--primary); border: none; border-radius: 8px;">
+                                <i class="fa-solid fa-user-plus me-1"></i>Tugaskan Pengurus
+                            </a>
+                        </div>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table custom-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 80px;">Foto</th>
-                                    <th>Nama Pengurus</th>
-                                    <th>Jabatan</th>
-                                    <th>Atasan / Induk</th>
-                                    <th>Kontak WA</th>
-                                    <th style="width: 120px;" class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($pengurus_list)) : ?>
-                                    <?php foreach ($pengurus_list as $pengurus) : ?>
-                                        <tr>
-                                            <td>
-                                                <?php if ($pengurus['foto']) : ?>
-                                                    <img src="<?= base_url('uploads/images/' . esc($pengurus['foto'])) ?>" class="table-avatar" alt="Foto">
+                    <?php if (!empty($jabatan_list)) : ?>
+                        <div class="row g-4">
+                            <?php foreach ($jabatan_list as $jab) : ?>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card h-100 border-0 shadow-sm rounded-4" style="background-color: #f9fafb; border: 1px solid #e5e7eb !important;">
+                                        <!-- Card Header: Info Jabatan -->
+                                        <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-2 rounded-top-4 d-flex justify-content-between align-items-start">
+                                            <div class="overflow-hidden">
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 px-2 py-1 rounded-pill mb-2 d-inline-block small">
+                                                    Urutan: <?= esc($jab['urutan']) ?>
+                                                </span>
+                                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="<?= esc($jab['nama_jabatan']) ?>"><?= esc($jab['nama_jabatan']) ?></h3>
+                                                <?php if ($jab['nama_atasan']) : ?>
+                                                    <small class="text-muted d-block text-truncate" title="Atasan: <?= esc($jab['nama_atasan']) ?>">
+                                                        <i class="fa-solid fa-turn-up fa-rotate-90 me-1 text-secondary"></i>
+                                                        Atasan: <span class="fw-semibold text-secondary"><?= esc($jab['nama_atasan']) ?></span>
+                                                    </small>
                                                 <?php else : ?>
-                                                    <div class="table-avatar d-flex align-items-center justify-content-center bg-light text-muted">
-                                                        <i class="fa-solid fa-user fs-5"></i>
-                                                    </div>
+                                                    <small class="text-muted d-block"><i class="fa-solid fa-crown me-1 text-warning"></i>Jabatan Puncak</small>
                                                 <?php endif; ?>
-                                            </td>
-                                            <td><strong><?= esc($pengurus['nama']) ?></strong><br><small class="text-muted"><?= esc($pengurus['email'] ?: '-') ?></small></td>
-                                            <td><span class="badge bg-light text-dark px-3 py-2 border"><?= esc($pengurus['nama_jabatan']) ?></span></td>
-                                            <td>
-                                                <?php if ($pengurus['jabatan_atasan']) : ?>
-                                                    <strong><?= esc($pengurus['jabatan_atasan']) ?></strong>
-                                                <?php else : ?>
-                                                    <span class="text-muted">-</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?= esc($pengurus['no_hp'] ?: '-') ?></td>
-                                            <td class="text-center">
-                                                <div class="d-flex gap-2 justify-content-center">
-                                                    <a href="<?= base_url('dashboard/kepengurusan/pengurus/edit/' . esc($pengurus['id']) . '?periode_id=' . esc($periode['id'])) ?>" class="btn-action btn-edit" title="Edit">
-                                                        <i class="fa-solid fa-pen"></i>
-                                                    </a>
-                                                    <a href="<?= base_url('dashboard/kepengurusan/pengurus/delete/' . esc($pengurus['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus pengurus ini?')" title="Hapus">
-                                                        <i class="fa-solid fa-trash"></i>
+                                            </div>
+                                            <!-- Aksi Jabatan -->
+                                            <div class="dropdown">
+                                                <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fa-solid fa-ellipsis-vertical fs-5"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                                                    <li>
+                                                        <a class="dropdown-item py-2 px-3 small" href="<?= base_url('dashboard/kepengurusan/jabatan/edit/' . esc($jab['id']) . '?periode_id=' . esc($periode['id'])) ?>">
+                                                            <i class="fa-solid fa-edit me-2 text-primary"></i>Ubah Jabatan
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item py-2 px-3 small text-danger" href="<?= base_url('dashboard/kepengurusan/jabatan/delete/' . esc($jab['id'])) ?>" onclick="return confirm('Apakah Anda yakin ingin menghapus jabatan ini? Menghapus jabatan akan menghapus penugasan pengurus terkait.')">
+                                                            <i class="fa-solid fa-trash me-2"></i>Hapus Jabatan
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Card Body: Daftar Pengurus -->
+                                        <div class="card-body px-4 pb-4">
+                                            <hr class="mt-1 mb-3 text-muted opacity-25">
+                                            
+                                            <?php if (!empty($jab['pengurus'])) : ?>
+                                                <ul class="list-unstyled mb-0 d-flex flex-column gap-3">
+                                                    <?php foreach ($jab['pengurus'] as $peng) : ?>
+                                                        <li class="p-3 bg-white rounded-3 shadow-xs border d-flex justify-content-between align-items-center">
+                                                            <div class="d-flex align-items-center gap-3 overflow-hidden">
+                                                                <?php if ($peng['foto']) : ?>
+                                                                    <img src="<?= base_url('uploads/images/' . esc($peng['foto'])) ?>" class="rounded-circle object-fit-cover border" style="width: 40px; height: 40px; flex-shrink: 0;" alt="Foto">
+                                                                <?php else : ?>
+                                                                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-light text-muted border" style="width: 40px; height: 40px; flex-shrink: 0;">
+                                                                        <i class="fa-solid fa-user text-secondary"></i>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                                
+                                                                <div class="overflow-hidden">
+                                                                    <strong class="text-dark d-block text-truncate" style="max-width: 120px;" title="<?= esc($peng['nama']) ?>"><?= esc($peng['nama']) ?></strong>
+                                                                    <?php if ($peng['no_hp']) : ?>
+                                                                        <a href="https://api.whatsapp.com/send?phone=<?= esc($peng['no_hp']) ?>" target="_blank" class="text-decoration-none text-muted small d-inline-block mt-0.5">
+                                                                            <i class="fa-brands fa-whatsapp text-success me-1"></i><?= esc($peng['no_hp']) ?>
+                                                                        </a>
+                                                                    <?php else : ?>
+                                                                        <small class="text-muted d-block mt-0.5"><i class="fa-solid fa-phone-slash me-1"></i>Tidak ada WA</small>
+                                                                    <?php endif; ?>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Aksi Anggota -->
+                                                            <div class="d-flex gap-1 ms-2">
+                                                                <a href="<?= base_url('dashboard/kepengurusan/pengurus/edit/' . esc($peng['id']) . '?periode_id=' . esc($periode['id'])) ?>" class="btn-action btn-edit" style="width: 28px; height: 28px; font-size: 0.8rem;" title="Edit Penugasan">
+                                                                    <i class="fa-solid fa-pen"></i>
+                                                                </a>
+                                                                <a href="<?= base_url('dashboard/kepengurusan/pengurus/delete/' . esc($peng['id'])) ?>" class="btn-action btn-delete" style="width: 28px; height: 28px; font-size: 0.8rem;" onclick="return confirm('Apakah Anda yakin ingin menghapus pengurus ini?')" title="Hapus Penugasan">
+                                                                    <i class="fa-solid fa-trash"></i>
+                                                                </a>
+                                                            </div>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            <?php else : ?>
+                                                <div class="text-center py-4 bg-white rounded-3 border border-dashed">
+                                                    <i class="fa-solid fa-user-slash text-muted mb-2 d-block fs-4"></i>
+                                                    <p class="text-muted small mb-3">Belum ditugaskan</p>
+                                                    <a href="<?= base_url('dashboard/kepengurusan/pengurus/create?periode_id=' . esc($periode['id']) . '&jabatan_periode_id=' . esc($jab['id'])) ?>" class="btn btn-xs btn-outline-success py-1 px-2.5 rounded-pill fw-semibold" style="font-size: 0.775rem;">
+                                                        <i class="fa-solid fa-user-plus me-1"></i>Tugaskan
                                                     </a>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php else : ?>
-                                    <tr>
-                                        <td colspan="6" class="text-center py-5 text-muted">
-                                            <i class="fa-solid fa-users fs-1 mb-3 d-block text-secondary"></i>
-                                            Belum ada data pengurus terdaftar pada periode ini.
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else : ?>
+                        <div class="text-center py-5 text-muted bg-light rounded-4 border border-dashed">
+                            <i class="fa-solid fa-sitemap fs-1 mb-3 d-block text-secondary"></i>
+                            Belum ada struktur jabatan dibuat pada periode ini.
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
+        </div>
+    </main>
 
-            <!-- TAB STRUKTUR JABATAN -->
-            <div class="tab-pane fade" id="jabatan" role="tabpanel" aria-labelledby="jabatan-tab">
-                <div class="panel-card">
-                    <div class="panel-title">
-                        <span>Struktur Posisi Jabatan</span>
-                        <a href="<?= base_url('dashboard/kepengurusan/jabatan/create?periode_id=' . esc($periode['id'])) ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
-                            <i class="fa-solid fa-plus me-2"></i>Tambah Jabatan
-                        </a>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Nama Jabatan</th>
-                                    <th>Membawahi (Parent)</th>
-                                    <th style="width: 80px;">Urutan</th>
-                                    <th style="width: 120px;" class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($jabatan_list)) : ?>
-                                    <?php foreach ($jabatan_list as $jab) : ?>
-                                        <tr>
-                                            <td><strong><?= esc($jab['nama_jabatan']) ?></strong></td>
-                                            <td>
-                                                <?php if ($jab['nama_atasan']) : ?>
-                                                    <span class="badge bg-light text-dark border px-3 py-2"><?= esc($jab['nama_atasan']) ?></span>
-                                                <?php else : ?>
-                                                    <span class="text-muted">-</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?= esc($jab['urutan']) ?></td>
-                                            <td class="text-center">
-                                                <div class="d-flex gap-2 justify-content-center">
-                                                    <a href="<?= base_url('dashboard/kepengurusan/jabatan/edit/' . esc($jab['id']) . '?periode_id=' . esc($periode['id'])) ?>" class="btn-action btn-edit" title="Edit">
-                                                        <i class="fa-solid fa-pen"></i>
-                                                    </a>
-                                                    <a href="<?= base_url('dashboard/kepengurusan/jabatan/delete/' . esc($jab['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus jabatan ini? Menghapus jabatan akan menghapus penugasan pengurus terkait.')" title="Hapus">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php else : ?>
-                                    <tr>
-                                        <td colspan="4" class="text-center py-5 text-muted">
-                                            <i class="fa-solid fa-sitemap fs-1 mb-3 d-block text-secondary"></i>
-                                            Belum ada struktur jabatan dibuat pada periode ini.
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
                     </div>
                 </div>
             </div>

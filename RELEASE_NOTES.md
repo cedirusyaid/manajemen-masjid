@@ -1,5 +1,12 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.10] - 2026-06-20
+### 🔄 Changed
+- **Penggabungan Tab Anggota & Jabatan**: Menyatukan tab susunan anggota (panitia/pengurus) dan tab struktur jabatan pada halaman detail Kepengurusan dan Kepanitiaan menjadi satu tab terpadu "Struktur Organisasi".
+- **Visualisasi Berbasis Card Jabatan**: Merombak tampilan tabel pengurus/panitia menjadi layout grid card jabatan yang teratur. Di dalam card jabatan tersebut, jemaah/pengurus pengisinya didaftarkan langsung beserta tugas khususnya.
+- **Logika Mapping Relasional Controller**: Mengubah controller `KepengurusanController` dan `KepanitiaanController` untuk memetakan data panitia/pengurus ke masing-masing jabatan yang sesuai sebelum dirender di view.
+- **Aksi CRUD Kontekstual & Instan**: Menyediakan menu dropdown pada header card jabatan untuk Ubah/Hapus Jabatan, tombol CRUD penugasan pada list anggota, serta tombol penugasan instan untuk jabatan yang kosong.
+
 ## [v0.4.9] - 2026-06-20
 ### ✨ Added
 - **Fitur Kelompok Kegiatan**: Menambahkan fitur pembuatan kelompok kegiatan (seperti Kelompok Qurban Sapi/Kambing, Kelompok Penyedia Buka Puasa Ramadhan, dll.) di bawah masing-masing Kegiatan Kepanitiaan.

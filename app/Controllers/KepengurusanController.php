@@ -65,6 +65,13 @@ class KepengurusanController extends BaseController
         $pengurusList = $this->pengurusModel->getPengurusByPeriode($id);
         $jabatanList  = $this->jabatanPeriodeModel->getJabatanByPeriode($id);
 
+        // Petakan pengurus ke masing-masing jabatan
+        foreach ($jabatanList as &$jabatan) {
+            $jabatan['pengurus'] = array_filter($pengurusList, function($p) use ($jabatan) {
+                return $p['jabatan_periode_id'] === $jabatan['id'];
+            });
+        }
+
         return view('dashboard/kepengurusan/detail', [
             'username'         => $this->session->get('username'),
             'role_name'        => $this->session->get('role_name'),
