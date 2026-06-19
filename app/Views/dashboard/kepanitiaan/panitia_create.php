@@ -11,6 +11,14 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- jQuery (Wajib untuk Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 CSS & Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
     <style>
         :root {
             --primary: #064e3b;
@@ -502,6 +510,9 @@
                     // Masukkan ke select
                     selectEl.add(opt, selectEl.options[1]);
                     
+                    // Trigger update untuk Select2
+                    $(selectEl).val(res.data.id).trigger('change');
+                    
                     // Reset form & tutup modal
                     document.getElementById('formPersonilInstan').reset();
                     
@@ -523,6 +534,26 @@
                 modalAlert.innerText = 'Terjadi kesalahan sistem, silakan coba lagi.';
                 modalAlert.classList.remove('d-none');
                 console.error(err);
+            });
+        });
+
+        // Inisialisasi Select2 Searchable Dropdown
+        $(document).ready(function() {
+            $('#personil_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- Pilih Personel --',
+                width: '100%'
+            });
+            $('#parent_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- Pilih Koordinator (Jika Ada) --',
+                allowClear: true,
+                width: '100%'
+            });
+            $('#kegiatan_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- Pilih Kegiatan --',
+                width: '100%'
             });
         });
     </script>

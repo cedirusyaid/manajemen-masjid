@@ -1,5 +1,11 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.4] - 2026-06-19
+### ✨ Added
+- Fitur Searchable Dropdown Menggunakan Select2: Mengintegrasikan library jQuery Select2 dengan `select2-bootstrap-5-theme` pada formulir Tambah/Ubah Pengurus dan Panitia.
+- Pencarian Nama Personel & Hubungan Jabatan: Membuat dropdown nama personel (`personil_id`), jabatan atasan/koordinator (`parent_id`), dan periode/kegiatan menjadi sepenuhnya dapat dicari (searchable) demi mempermudah manajemen saat data membesar.
+- Sinkronisasi Select2 AJAX Callback: Menambahkan event listener `trigger('change')` pada Select2 setelah pendaftaran personel instan sukses, sehingga opsi baru yang ditambahkan secara otomatis terpilih secara visual.
+
 ## [v0.4.3] - 2026-06-19
 ### ✨ Added
 - Fitur Input Personel Instan (Inline Creation) pada Form Pengurus & Panitia: Menambahkan tombol tambah personel baru langsung di samping dropdown pilihan personel pada formulir Tambah/Ubah Pengurus dan Panitia.
