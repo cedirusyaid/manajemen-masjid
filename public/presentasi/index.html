@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposal Digitalisasi Manajemen - Masjid Agung Nujumul Ittihad Sinjai</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS RESET & CUSTOM PROPERTIES */
+        :root {
+            --primary: #0a4028;
+            --primary-dark: #052617;
+            --primary-light: #125e3b;
+            --accent: #d4af37;
+            --accent-hover: #e5c158;
+            --accent-light: #fffbeb;
+            --text-light: #f3fdf9;
+            --text-muted: #a9cfc1;
+            --bg-gradient: radial-gradient(circle at 50% 50%, #0c3d27 0%, #04180f 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --card-radius: 16px;
+            --transition-speed: 0.5s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #04180f;
+            background-image: var(--bg-gradient);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+        }
+
+        /* BACKGROUND PATTERN */
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            pointer-events: none;
+            background-image: radial-gradient(var(--accent) 1px, transparent 0), radial-gradient(var(--accent) 1px, transparent 0);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            z-index: 1;
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(10, 64, 40, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            filter: blur(40px);
+        }
+        .glow-1 { top: -10%; left: -10%; }
+        .glow-2 { bottom: -10%; right: -10%; }
+
+        /* DECK CONTAINER */
+        .deck-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* SLIDES */
+        .slide {
+            position: absolute;
+            width: 85%;
+            height: 80%;
+            max-width: 1200px;
+            max-height: 700px;
+            padding: 3rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            box-shadow: var(--glass-shadow);
+            opacity: 0;
+            transform: scale(0.9) translateY(30px);
+            transition: all var(--transition-speed) cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-light) transparent;
+        }
+
+        /* Scrollbar styles for inner slide contents */
+        .slide::-webkit-scrollbar {
+            width: 6px;
+        }
+        .slide::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .slide::-webkit-scrollbar-thumb {
+            background-color: var(--primary-light);
+            border-radius: 3px;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+            z-index: 20;
+        }
+
+        .slide.previous {
+            opacity: 0;
+            transform: scale(0.9) translateY(-30px);
+        }
+
+        /* HEADER & FOOTER OF SLIDES */
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .slide-header .topic {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .slide-header .org {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .slide-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide-footer {
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* TYPOGRAPHY */
+        .title-large {
+            font-size: 2.8rem;
+            line-height: 1.2;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+        .title-large span {
+            color: var(--accent);
+            background: linear-gradient(135deg, var(--accent) 0%, #fff2ac 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle-large {
+            font-size: 1.25rem;
+            font-weight: 300;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .slide h2 {
+            font-size: 2rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .slide h2 i {
+            color: var(--accent);
+        }
+
+        .slide p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        /* GRID LAYOUTS */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        /* LIST STYLES */
+        .proposal-list {
+            list-style: none;
+        }
+
+        .proposal-list li {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .proposal-list li:hover {
+            color: var(--text-light);
+        }
+
+        .proposal-list li::before {
+            content: "\f058";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 2px;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        /* INTERACTIVE BUTTONS & CONTROLS */
+        .nav-controls {
+            position: absolute;
+            bottom: 2rem;
+            right: 3rem;
+            z-index: 100;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .nav-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 2.7rem;
+            left: 3rem;
+            z-index: 100;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .slide-counter span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* TOP ACTIONS */
+        .top-actions {
+            position: absolute;
+            top: 2rem;
+            right: 3rem;
+            z-index: 100;
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-light);
+            border-color: var(--text-light);
+        }
+
+        /* SLIDE PROGRESS BAR */
+        .progress-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent) 0%, #69db7c 100%);
+            transition: width 0.3s ease;
+        }
+
+        /* SLIDE SPECIFIC COMPONENTS */
+        /* Slide 1 - Cover page */
+        .cover-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .mosque-icon {
+            font-size: 3.5rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .btn-start {
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            color: var(--primary-dark);
+            border: none;
+            padding: 0.8rem 2rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+        }
+
+        /* Slide 2 - Problem Cards */
+        .problem-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .problem-card:hover {
+            background: rgba(255, 0, 0, 0.05);
+            border-color: rgba(255, 0, 0, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .problem-card h4 {
+            color: #ff6b6b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.05rem;
+        }
+
+        .problem-card p {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 0;
+        }
+
+        /* Slide 3 - System Flow Visualizer */
+        .interactive-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            position: relative;
+        }
+
+        .flow-node {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            width: 220px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .flow-node:hover, .flow-node.active {
+            background: rgba(10, 64, 40, 0.6);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .flow-node i {
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-node h4 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-node span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--accent);
+            font-size: 1.5rem;
+            animation: pulse-arrow 1.5s infinite alternate;
+        }
+
+        @keyframes pulse-arrow {
+            0% { opacity: 0.5; transform: translateX(0); }
+            100% { opacity: 1; transform: translateX(5px); }
+        }
+
+        .flow-description-box {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 4px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            min-height: 80px;
+        }
+
+        .flow-description-box h4 {
+            color: var(--accent);
+            font-size: 1.05rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-description-box p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        /* Slide 4 - Interactive Org Chart (Simplified) */
+        .org-chart-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .org-node {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            text-align: center;
+            min-width: 180px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .org-node:hover {
+            border-color: var(--accent);
+            background: rgba(10, 64, 40, 0.4);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.15);
+        }
+
+        .org-node.level-1 { border-color: var(--accent); background: rgba(212, 175, 55, 0.1); }
+        .org-node.level-2 { border-color: #69db7c; background: rgba(105, 219, 124, 0.08); }
+        .org-node.level-3 { border-color: #4dabf7; background: rgba(77, 171, 247, 0.08); }
+
+        .org-node h5 { font-size: 0.95rem; color: var(--text-light); }
+        .org-node span { font-size: 0.75rem; color: var(--text-muted); display: block; }
+        .org-node .wa-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.65rem;
+            background: rgba(37, 211, 102, 0.2);
+            color: #25d366;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-top: 4px;
+        }
+
+        .org-connector-v {
+            width: 2px;
+            height: 20px;
+            background: var(--glass-border);
+        }
+
+        .org-row {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        /* Slide 5 - Ledger Simulation */
+        .ledger-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .ledger-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            color: var(--text-light);
+            padding: 0.6rem;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+        }
+
+        .ledger-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.2rem;
+            text-align: center;
+        }
+
+        .summary-item h5 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .summary-item .value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .value.income { color: #69db7c; }
+        .value.expense { color: #ff6b6b; }
+        .value.balance { color: var(--accent); }
+
+        /* Slide 6 - Drag & Drop / Assign simulator */
+        .assign-simulator {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 1.5rem;
+            height: 250px;
+        }
+
+        .jamaah-list {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow-y: auto;
+        }
+
+        .jamaah-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .jamaah-item:hover {
+            border-color: var(--accent);
+            background: rgba(10, 64, 40, 0.3);
+            transform: translateX(3px);
+        }
+
+        .jamaah-item i {
+            color: var(--accent);
+            opacity: 0.7;
+        }
+
+        .groups-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .group-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .group-card h5 {
+            color: var(--accent);
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.3rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .group-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            align-content: flex-start;
+            flex-grow: 1;
+            min-height: 100px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 6px;
+            padding: 0.5rem;
+        }
+
+        .member-badge {
+            background: rgba(105, 219, 124, 0.15);
+            border: 1px solid rgba(105, 219, 124, 0.3);
+            color: #69db7c;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .member-badge span {
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        /* Slide 8 - Technical Box & Security */
+        .tech-badge {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            padding: 0.5rem 0.8rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .tech-badge i {
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        /* Slide 10 - Roadmap Timeline */
+        .roadmap-timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 2rem;
+            padding-bottom: 1rem;
+        }
+
+        .roadmap-timeline::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+
+        .roadmap-progress-line {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            width: 33.33%;
+            height: 2px;
+            background: var(--accent);
+            z-index: 2;
+            transition: width 0.5s ease;
+        }
+
+        .timeline-step {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 22%;
+            cursor: pointer;
+        }
+
+        .step-bubble {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #04180f;
+            border: 2px solid var(--glass-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-step.active .step-bubble {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            transform: scale(1.1);
+        }
+
+        .timeline-step.completed .step-bubble {
+            border-color: #69db7c;
+            color: #69db7c;
+            background: rgba(105, 219, 124, 0.1);
+        }
+
+        .step-label {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .timeline-step.active .step-label {
+            color: var(--text-light);
+        }
+
+        .roadmap-desc {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 1.2rem;
+            margin-top: 1.5rem;
+            min-height: 90px;
+        }
+
+        .roadmap-desc h4 {
+            color: var(--accent);
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .roadmap-desc p {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        /* PRINT MEDIA STYLES */
+        @media print {
+            body {
+                background: #fff !important;
+                color: #000 !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            .bg-pattern, .bg-glow, .nav-controls, .top-actions, .progress-bar-container, .slide-counter {
+                display: none !important;
+            }
+            .deck-container {
+                display: block !important;
+                height: auto !important;
+                width: 100% !important;
+            }
+            .slide {
+                position: relative !important;
+                opacity: 1 !important;
+                transform: none !important;
+                display: flex !important;
+                width: 100% !important;
+                height: 100vh !important;
+                page-break-after: always !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: transparent !important;
+                color: #000 !important;
+                padding: 2rem !important;
+                border-bottom: 1px solid #ddd !important;
+            }
+            .slide-header .topic, .slide-header .org, .slide h2, .slide h2 i, .mosque-icon {
+                color: #000 !important;
+            }
+            .slide-content p, .proposal-list li {
+                color: #333 !important;
+            }
+            .proposal-list li::before {
+                color: #000 !important;
+            }
+            .flow-node, .org-node, .problem-card, .ledger-box, .jamaah-list, .group-card, .tech-badge, .step-bubble, .roadmap-desc {
+                border: 1px solid #000 !important;
+                background: #fff !important;
+                color: #000 !important;
+                box-shadow: none !important;
+            }
+            .value.income, .value.expense, .value.balance {
+                color: #000 !important;
+                font-weight: bold;
+            }
+            .roadmap-progress-line {
+                display: none;
+            }
+        }
+
+        /* MODAL LIST SLIDES Quick View */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: #0c3d27;
+            border: 1px solid var(--accent);
+            border-radius: var(--card-radius);
+            width: 90%;
+            max-width: 600px;
+            padding: 2rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+        .slide-link-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .slide-link-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+        }
+        .slide-link-item:hover {
+            background: var(--accent);
+            color: var(--primary-dark);
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-pattern"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+
+    <!-- Top Action Menu Bar -->
+    <div class="top-actions">
+        <button class="action-btn" onclick="openMenu()"><i class="fa-solid fa-list"></i> Daftar Slide</button>
+        <button class="action-btn" onclick="toggleFullscreen()"><i class="fa-solid fa-expand"></i> Layar Penuh</button>
+        <button class="action-btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Cetak Proposal</button>
+    </div>
+
+    <!-- Presentation Progress Bar -->
+    <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+
+    <!-- Number Counter -->
+    <div class="slide-counter">
+        Slide <span id="currentSlideNum">1</span> / <span id="totalSlidesNum">11</span>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <!-- MAIN SLIDE CONTAINER -->
+    <div class="deck-container">
+
+        <!-- SLIDE 1: COVER -->
+        <div class="slide active" id="slide-1">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-mosque"></i> Proposal Digitalisasi</span>
+                <span class="org">Masjid Agung Nujumul Ittihad Sinjai</span>
+            </div>
+            <div class="slide-content">
+                <div class="cover-content">
+                    <div class="mosque-icon"><i class="fa-solid fa-mosque"></i></div>
+                    <h1 class="title-large">Menuju Masjid Modern Berbasis<br><span>Transparansi & Pelayanan Digital</span></h1>
+                    <p class="subtitle-large">Proposal Implementasi Manajemen Operasional & Pelayanan Jemaah Terintegrasi</p>
+                    <button class="btn-start" onclick="nextSlide()">Mulai Presentasi <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Penyusun: Alexa (AI Assistant)</span>
+                <span>Rapat Pengurus 2026</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: LATAR BELAKANG -->
+        <div class="slide" id="slide-2">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-triangle-exclamation"></i> Latar Belakang</span>
+                <span class="org">Tantangan Pengelolaan</span>
+            </div>
+            <div class="slide-content">
+                <h2>Tantangan Manajemen Masjid Tradisional</h2>
+                <p>Mengapa sistem administrasi, keuangan, dan publikasi saat ini memerlukan pembaruan menyeluruh?</p>
+                <div class="grid-2" style="margin-top: 1rem; align-items: stretch;">
+                    <div class="grid-3" style="grid-template-columns: 1fr; gap: 0.8rem; flex-grow: 1;">
+                        <div class="problem-card">
+                            <h4><i class="fa-solid fa-wallet"></i> Transparansi Keuangan Terbatas</h4>
+                            <p>Jemaah hanya mengetahui saldo kas lewat papan tulis jumat, tanpa rincian kas harian per kegiatan.</p>
+                        </div>
+                        <div class="problem-card">
+                            <h4><i class="fa-solid fa-users-gear"></i> Koordinasi Kepanitiaan Manual</h4>
+                            <p>Susunan kepanitiaan Ramadhan, Qurban, & Hari Besar Islam (PHBI) rentan tumpang tindih tugas.</p>
+                        </div>
+                    </div>
+                    <div class="grid-3" style="grid-template-columns: 1fr; gap: 0.8rem; flex-grow: 1;">
+                        <div class="problem-card">
+                            <h4><i class="fa-solid fa-clipboard-list"></i> Pencatatan Kertas Berisiko</h4>
+                            <p>Pemberkasan santri TPA, pengelompokan shohibul qurban, & data logistik rawan hilang/rusak.</p>
+                        </div>
+                        <div class="problem-card">
+                            <h4><i class="fa-solid fa-globe"></i> Publikasi Syiar Terbatas</h4>
+                            <p>Jadwal kajian harian, pembangunan fisik, dan info kegiatan kurang terpublikasi luas secara online.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Latar Belakang</span>
+                <span>Halaman 2 / 11</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: SOLUSI INTEGRASI -->
+        <div class="slide" id="slide-3">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-lightbulb"></i> Solusi Platform</span>
+                <span class="org">Arsitektur Terintegrasi</span>
+            </div>
+            <div class="slide-content">
+                <h2>Platform Manajemen Masjid Agung Terintegrasi</h2>
+                <p>Satu ekosistem website resmi sebagai pusat administrasi internal pengurus sekaligus pelayanan publik jemaah.</p>
+                
+                <!-- Interactive Flow Diagrams -->
+                <div class="interactive-flow">
+                    <div class="flow-node active" onclick="showFlowDesc('admin')">
+                        <i class="fa-solid fa-user-tie"></i>
+                        <h4>Panel Administrasi</h4>
+                        <span>Internal Pengurus</span>
+                    </div>
+                    <div class="flow-arrow"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+                    <div class="flow-node" onclick="showFlowDesc('system')">
+                        <i class="fa-solid fa-server"></i>
+                        <h4>Core System</h4>
+                        <span>Basis Data & Logika</span>
+                    </div>
+                    <div class="flow-arrow"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+                    <div class="flow-node" onclick="showFlowDesc('public')">
+                        <i class="fa-solid fa-users"></i>
+                        <h4>Portal Jemaah</h4>
+                        <span>Layanan Publik Online</span>
+                    </div>
+                </div>
+
+                <div class="flow-description-box" id="flowDescBox">
+                    <h4 id="flowDescTitle">Panel Administrasi (Internal Pengurus)</h4>
+                    <p id="flowDescContent">Pusat kendali operasional pengurus. Mengelola data personil kepengurusan, bagan organisasi, persetujuan pendaftaran santri TPA, inventaris barang, pelaporan kas keuangan, hingga pembagian kelompok qurban.</p>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Interaktif: Klik kotak diagram untuk detail</span>
+                <span>Halaman 3 / 11</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: KEPANITIAAN & ORG CHART -->
+        <div class="slide" id="slide-4">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-sitemap"></i> Struktur Organisasi</span>
+                <span class="org">Interactive Org Chart</span>
+            </div>
+            <div class="slide-content">
+                <div class="grid-2">
+                    <div>
+                        <h2>Visualisasi Struktur & Kepanitiaan Dinamis</h2>
+                        <ul class="proposal-list">
+                            <li><strong>Relasi Jabatan Terstruktur:</strong> Mendukung jabatan berjenjang (Ketua, Bendahara, Seksi-Seksi).</li>
+                            <li><strong>Interactive Org Chart:</strong> Struktur kepengurusan digambar otomatis dalam bentuk pohon bagan interaktif di dashboard.</li>
+                            <li><strong>Integrasi WA Direct:</strong> Cukup klik kartu pengurus untuk langsung menghubungi via WhatsApp.</li>
+                            <li><strong>Uraian Tugas Tertarget:</strong> Setiap jabatan dibekali daftar tanggung jawab untuk menghindari ketidakjelasan peran.</li>
+                        </ul>
+                    </div>
+                    <div class="ledger-box">
+                        <h4 style="color:var(--accent); font-size:1.1rem; margin-bottom:1rem; text-align:center;">Demo Bagan Organisasi</h4>
+                        <div class="org-chart-preview">
+                            <div class="org-node level-1" onclick="alert('Ketua Panitia\nTugas: Mengoordinasikan seluruh seksi & bertanggung jawab penuh.')">
+                                <h5>Muhammad Rusyaid</h5>
+                                <span>Ketua Panitia</span>
+                                <div class="wa-badge"><i class="fa-brands fa-whatsapp"></i> Hubungi</div>
+                            </div>
+                            <div class="org-connector-v"></div>
+                            <div class="org-row">
+                                <div class="org-node level-2" onclick="alert('Seksi Acara\nTugas: Menyusun jadwal kajian, penceramah, dan rundown acara.')">
+                                    <h5>Ust. Kirana</h5>
+                                    <span>Koord. Acara</span>
+                                </div>
+                                <div class="org-node level-3" onclick="alert('Seksi Perlengkapan\nTugas: Menyiapkan sound system, tenda, dan konsumsi.')">
+                                    <h5>Aura Amanda</h5>
+                                    <span>Perlengkapan</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-top:0.8rem; margin-bottom:0;">*Klik kartu jabatan untuk melihat pembagian tugas/Jobdesc.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Manajemen SDM & Panitia</span>
+                <span>Halaman 4 / 11</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: KEUANGAN KEGIATAN -->
+        <div class="slide" id="slide-5">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-coins"></i> Keuangan Mandiri</span>
+                <span class="org">Buku Kas Kegiatan</span>
+            </div>
+            <div class="slide-content">
+                <div class="grid-2">
+                    <div class="ledger-box">
+                        <h4 style="color: var(--accent); margin-bottom:1rem;"><i class="fa-solid fa-calculator"></i> Simulasi Kas Kegiatan</h4>
+                        <div class="ledger-inputs">
+                            <div class="input-group">
+                                <label>Donasi/Pemasukan (Rp)</label>
+                                <input type="number" id="simIncome" value="25000000" oninput="calculateSimBalance()">
+                            </div>
+                            <div class="input-group">
+                                <label>Belanja/Pengeluaran (Rp)</label>
+                                <input type="number" id="simExpense" value="18500000" oninput="calculateSimBalance()">
+                            </div>
+                        </div>
+                        <div class="ledger-summary">
+                            <div class="summary-item">
+                                <h5>Total Masuk</h5>
+                                <div class="value income" id="lblIncome">Rp 25.000.000</div>
+                            </div>
+                            <div class="summary-item">
+                                <h5>Total Keluar</h5>
+                                <div class="value expense" id="lblExpense">Rp 18.500.000</div>
+                            </div>
+                            <div class="summary-item">
+                                <h5>Saldo Bersih</h5>
+                                <div class="value balance" id="lblBalance">Rp 6.500.000</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Transparansi Finansial Per Kegiatan</h2>
+                        <ul class="proposal-list">
+                            <li><strong>Sub-Buku Kas Mandiri:</strong> Kas kegiatan (seperti Panitia Qurban atau Ramadhan) dipisah dari Kas Umum agar tidak tercampur.</li>
+                            <li><strong>Upload Bukti Digital (E-Receipt):</strong> Foto kuitansi belanja diunggah langsung di panel, otomatis dikonversi ke WebP untuk menghemat server.</li>
+                            <li><strong>Publikasi Realtime:</strong> Laporan ringkasan kas per kegiatan dipublikasikan di halaman utama agar donatur dapat memantau kapan saja.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Interaktif: Ubah nilai simulasi kas kegiatan</span>
+                <span>Halaman 5 / 11</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: KELOMPOK KERJA -->
+        <div class="slide" id="slide-6">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-users-viewfinder"></i> Kelompok Kerja</span>
+                <span class="org">Quick Assignment</span>
+            </div>
+            <div class="slide-content">
+                <h2>Digitalisasi Kelompok Kerja (Qurban & PHBI)</h2>
+                <p>Proses penugasan anggota atau pengelompokan shohibul qurban dilakukan via AJAX tanpa reload halaman.</p>
+                <div class="assign-simulator">
+                    <div class="jamaah-list">
+                        <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-bottom:4px;">DAFTAR JEMAAH</span>
+                        <div class="jamaah-item" onclick="assignJemaah('Ahmad Fauzi')">Ahmad Fauzi <i class="fa-solid fa-plus"></i></div>
+                        <div class="jamaah-item" onclick="assignJemaah('Budi Santoso')">Budi Santoso <i class="fa-solid fa-plus"></i></div>
+                        <div class="jamaah-item" onclick="assignJemaah('Fatimah Zahra')">Fatimah Zahra <i class="fa-solid fa-plus"></i></div>
+                    </div>
+                    <div class="groups-container">
+                        <div class="group-card">
+                            <h5>Kelompok Qurban Sapi 01 <span style="font-size:0.7rem; color:var(--text-muted);" id="countG1">0/7 Shohibul</span></h5>
+                            <div class="group-members" id="group1">
+                                <!-- Members badge will be added here -->
+                            </div>
+                        </div>
+                        <div class="group-card">
+                            <h5>Kelompok Qurban Sapi 02 <span style="font-size:0.7rem; color:var(--text-muted);" id="countG2">0/7 Shohibul</span></h5>
+                            <div class="group-members" id="group2">
+                                <!-- Members badge will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Interaktif: Klik nama Jemaah untuk memasukkannya ke kelompok secara asinkron (AJAX Sim)</span>
+                <span>Halaman 6 / 11</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: AGENDA & RUNDOWN -->
+        <div class="slide" id="slide-7">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-calendar-day"></i> Agenda Acara</span>
+                <span class="org">Rundown Dinamis</span>
+            </div>
+            <div class="slide-content">
+                <div class="grid-2">
+                    <div>
+                        <h2>Rundown Acara & Penjadwalan Dinamis</h2>
+                        <ul class="proposal-list">
+                            <li><strong>Rundown Terikat Kegiatan:</strong> Setiap sub-kegiatan memiliki lini masa (rundown) jam ke jam yang teratur.</li>
+                            <li><strong>Relasi Master Personel:</strong> Menghubungkan pembicara/Ustadz langsung ke data database masjid untuk menampilkan profil biografi singkat.</li>
+                            <li><strong>Countdown Papan Agenda:</strong> Halaman utama jemaah menampilkan hitung mundur waktu kajian atau kegiatan terdekat secara dinamis.</li>
+                        </ul>
+                    </div>
+                    <div class="ledger-box" style="padding: 1rem;">
+                        <h4 style="color:var(--accent); font-size:1rem; margin-bottom:0.8rem;"><i class="fa-solid fa-clock"></i> Rundown: Tabligh Akbar</h4>
+                        <div style="display:flex; flex-direction:column; gap: 0.6rem; font-size:0.85rem;">
+                            <div style="display:flex; gap:0.8rem; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:0.4rem;">
+                                <span style="color:var(--accent); font-weight:600; min-width:80px;">19.30 - 20.00</span>
+                                <div>
+                                    <strong style="display:block; color:var(--text-light);">Registrasi Jemaah</strong>
+                                    <span style="color:var(--text-muted); font-size:0.75rem;">Panitia Masjid Agung</span>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:0.8rem; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:0.4rem;">
+                                <span style="color:var(--accent); font-weight:600; min-width:80px;">20.00 - 20.15</span>
+                                <div>
+                                    <strong style="display:block; color:var(--text-light);">Pembacaan Ayat Suci</strong>
+                                    <span style="color:var(--text-muted); font-size:0.75rem;">Qari Masjid Agung</span>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:0.8rem; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:0.4rem;">
+                                <span style="color:var(--accent); font-weight:600; min-width:80px;">20.15 - 21.30</span>
+                                <div>
+                                    <strong style="display:block; color:var(--text-light);">Tausiyah Utama</strong>
+                                    <span style="color:var(--text-muted); font-size:0.75rem;">Penceramah: Ustadz Dr. H. Kirana, M.A.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Rundown & Jadwal Agenda</span>
+                <span>Halaman 7 / 11</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: TEKNIS & KEAMANAN -->
+        <div class="slide" id="slide-8">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-shield-halved"></i> Teknis & Keamanan</span>
+                <span class="org">Arsitektur Handal</span>
+            </div>
+            <div class="slide-content">
+                <h2>Spesifikasi Teknis & Keamanan Sistem</h2>
+                <p>Mengikuti standar pengembangan v2.5 & v2.6 untuk menjamin kestabilan dan keamanan data masjid.</p>
+                <div class="grid-3" style="margin-top: 1rem;">
+                    <div class="tech-badge">
+                        <i class="fa-brands fa-laravel" style="color:#ff2d20;"></i>
+                        <div>
+                            <strong style="display:block;">CodeIgniter 4</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Framework PHP Handal & Cepat</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <i class="fa-solid fa-lock"></i>
+                        <div>
+                            <strong style="display:block;">BCRYPT & CSRF</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Proteksi Form & Enkripsi Sandi</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <div>
+                            <strong style="display:block;">Audit Trail (Log)</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Perekaman Perubahan Data</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <i class="fa-brands fa-telegram" style="color:#0088cc;"></i>
+                        <div>
+                            <strong style="display:block;">Telegram Alert</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Notifikasi Error Kritis Instan</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <i class="fa-solid fa-users-rectangle"></i>
+                        <div>
+                            <strong style="display:block;">Multi Auth Access</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Login Google OAuth & NIP</span>
+                        </div>
+                    </div>
+                    <div class="tech-badge">
+                        <i class="fa-solid fa-bolt"></i>
+                        <div>
+                            <strong style="display:block;">Auto WebP Converter</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Optimasi Gambar Otomatis</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Standar Keamanan v2.6</span>
+                <span>Halaman 8 / 11</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: WEBHOOK DEPLOY -->
+        <div class="slide" id="slide-9">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-terminal"></i> Auto-Deployment</span>
+                <span class="org">Deploy.php Webhook</span>
+            </div>
+            <div class="slide-content">
+                <div class="grid-2">
+                    <div>
+                        <h2>Sistem Auto-Deployment & Pemeliharaan</h2>
+                        <ul class="proposal-list">
+                            <li><strong>Debian 12 Server Ready:</strong> Siap dipasang pada infrastruktur server Diskominfo Kabupaten Sinjai.</li>
+                            <li><strong>Webhook Mandiri (`Deploy.php`):</strong> Memungkinkan pembaruan website langsung dari GitHub hanya dalam hitungan detik.</li>
+                            <li><strong>Bebas Hambatan CSRF:</strong> Berkas deploy diletakkan secara terpisah di luar filter CSRF global untuk menghindari error pemblokiran.</li>
+                            <li><strong>Keamanan Token:</strong> Dilengkapi kunci keamanan dinamis (secret token) agar server terhindar dari trigger liar pihak luar.</li>
+                        </ul>
+                    </div>
+                    <div class="ledger-box" style="background:#020f0a; font-family:'Courier New', monospace; font-size:0.8rem; border-color:#125e3b;">
+                        <span style="color:#69db7c;"># Melakukan Trigger Auto-Deploy...</span><br>
+                        <span style="color:var(--text-light);">[2026-06-20 19:40:02] Memulai Git Pull...</span><br>
+                        <span style="color:var(--text-light);">Updating d42bf02..f93a10e</span><br>
+                        <span style="color:var(--text-light);">Fast-forward</span><br>
+                        <span style="color:var(--text-light);"> app/Controllers/Kepanitiaan.php |  12 +++--</span><br>
+                        <span style="color:var(--text-light);"> 1 file changed, 8 insertions(+), 4 deletions(-)</span><br>
+                        <span style="color:#69db7c;">[SUCCESS] Deploy Selesai dalam 1.45 detik!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Infrastruktur & Maintenance</span>
+                <span>Halaman 9 / 11</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: ROADMAP IMPLEMENTASI -->
+        <div class="slide" id="slide-10">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-map-location-dot"></i> Rencana Kerja</span>
+                <span class="org">Roadmap Pengembangan</span>
+            </div>
+            <div class="slide-content">
+                <h2>Rencana Implementasi (Roadmap)</h2>
+                <p>Rencana pengembangan bertahap untuk memastikan platform berjalan stabil dan siap digunakan pengurus.</p>
+                
+                <!-- Interactive Roadmap Timeline -->
+                <div class="roadmap-timeline">
+                    <div class="roadmap-progress-line" id="roadmapProgress"></div>
+                    <div class="timeline-step completed" onclick="showRoadmapStep(1)">
+                        <div class="step-bubble">1</div>
+                        <div class="step-label">Tahap 1: Core</div>
+                    </div>
+                    <div class="timeline-step active" onclick="showRoadmapStep(2)">
+                        <div class="step-bubble">2</div>
+                        <div class="step-label">Tahap 2: Panitia</div>
+                    </div>
+                    <div class="timeline-step" onclick="showRoadmapStep(3)">
+                        <div class="step-bubble">3</div>
+                        <div class="step-label">Tahap 3: Layanan</div>
+                    </div>
+                    <div class="timeline-step" onclick="showRoadmapStep(4)">
+                        <div class="step-bubble">4</div>
+                        <div class="step-label">Tahap 4: Launch</div>
+                    </div>
+                </div>
+
+                <div class="roadmap-desc" id="roadmapDescBox">
+                    <h4 id="roadmapDescTitle">Tahap 2: Kepanitiaan & Keuangan Kegiatan</h4>
+                    <p id="roadmapDescContent">Pengembangan modul kepengurusan (Interactive Org Chart), manajemen kepanitiaan Ramadhan/Qurban, sub-buku kas kegiatan panitia, serta penyusunan jadwal/rundown acara dakwah terintegrasi.</p>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Interaktif: Klik nomor langkah untuk detail tahapan</span>
+                <span>Halaman 10 / 11</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: KESIMPULAN -->
+        <div class="slide" id="slide-11">
+            <div class="slide-header">
+                <span class="topic"><i class="fa-solid fa-circle-check"></i> Kesimpulan</span>
+                <span class="org">Masjid Agung Modern</span>
+            </div>
+            <div class="slide-content">
+                <h2>Mengapa Kita Harus Digitalisasi Sekarang?</h2>
+                <div class="grid-2" style="margin-top: 1rem;">
+                    <ul class="proposal-list">
+                        <li><strong>Kepercayaan Jemaah:</strong> Akuntabilitas kas detail menguatkan keyakinan donatur dalam menyalurkan infak.</li>
+                        <li><strong>Efisiensi 70%:</strong> Administrasi pendaftaran santri, kelompok qurban, & rundown terselesaikan secara digital tanpa kertas.</li>
+                        <li><strong>Aman & Terpusat:</strong> Seluruh arsip tersimpan aman secara digital di infrastruktur server Diskominfo Sinjai.</li>
+                    </ul>
+                    <div class="ledger-box" style="text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; border-color:var(--accent);">
+                        <i class="fa-solid fa-hands-praying" style="font-size:3rem; color:var(--accent); margin-bottom:1rem;"></i>
+                        <h4 style="color:var(--text-light); font-size:1.15rem; line-height:1.4;">"Mewujudkan Masjid Agung yang Mandiri, Transparan, dan Profesional!"</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span>Wassalamu'alaikum Warahmatullahi Wabarakatuh</span>
+                <span>Halaman 11 / 11</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- QUICK LIST MODAL -->
+    <div class="modal" id="menuModal" onclick="closeMenu()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3>Daftar Halaman Slide</h3>
+            <ul class="slide-link-list">
+                <li class="slide-link-item" onclick="goToSlide(1)"><span>Slide 1: Judul & Pengantar</span> <i class="fa-solid fa-mosque"></i></li>
+                <li class="slide-link-item" onclick="goToSlide(2)"><span>Slide 2: Tantangan & Masalah</span> <i class="fa-solid fa-triangle-exclamation"></i></li>
+                <li class="slide-link-item" onclick="goToSlide(3)"><span>Slide 3: Solusi Platform Integrasi</span> <i class="fa-solid fa-lightbulb"></i></li>
+                <li class="slide-link-item" onclick="goToSlide(4)"><span>Slide 4: Struktur & Kepanitiaan</span> <i class="fa-solid fa-sitemap"></i></li>
+                <li class="slide-link-item" onclick="goToSlide(5)"><span>Slide 5: Keuangan Kas Kegiatan</span> <i class="fa-solid fa-coins"></i></li>
+                <li class="slide-link-item" onclick="goToSlide(6)"><span>Slide 6: Kelompok Kerja Qurban</span> <i class="fa-solid fa-users-viewfinder"></i></li>
+                <li class="slide-link-item" onclick="goToSlide(7)"><span>Slide 7: Agenda & Rundown Acara</span> <i class="fa-solid fa-calendar-day"></i></li>
+                <li class="slide-link-item" onclick="goToSlide(8)"><span>Slide 8: Teknis & Keamanan</span> <i class="fa-solid fa-shield-halved"></i></li>
+                <li class="slide-link-item" onclick="goToSlide(9)"><span>Slide 9: Auto-Deployment Webhook</span> <i class="fa-solid fa-terminal"></i></li>
+                <li class="slide-link-item" onclick="goToSlide(10)"><span>Slide 10: Rencana Kerja & Roadmap</span> <i class="fa-solid fa-map-location-dot"></i></li>
+                <li class="slide-link-item" onclick="goToSlide(11)"><span>Slide 11: Kesimpulan & Penutup</span> <i class="fa-solid fa-circle-check"></i></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SCRIPTS FOR SLIDE NAVIGATION & INTERACTION -->
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 11;
+
+        // Initialize Elements
+        const slides = [];
+        for(let i=1; i<=totalSlides; i++) {
+            slides.push(document.getElementById(`slide-${i}`));
+        }
+
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideNum = document.getElementById('currentSlideNum');
+        const progressBar = document.getElementById('progressBar');
+
+        function updateSlideUI() {
+            slides.forEach((slide, index) => {
+                const slideNum = index + 1;
+                slide.classList.remove('active', 'previous');
+                
+                if (slideNum === currentSlide) {
+                    slide.classList.add('active');
+                } else if (slideNum < currentSlide) {
+                    slide.classList.add('previous');
+                }
+            });
+
+            // Update Counter & Controls
+            currentSlideNum.textContent = currentSlide;
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+
+            // Update Progress Bar
+            const percent = ((currentSlide - 1) / (totalSlides - 1)) * 100;
+            progressBar.style.width = `${percent}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlideUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlideUI();
+            }
+        }
+
+        function goToSlide(num) {
+            if (num >= 1 && num <= totalSlides) {
+                currentSlide = num;
+                updateSlideUI();
+                closeMenu();
+            }
+        }
+
+        // Keyboard Controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            } else if (e.key === 'Escape') {
+                closeMenu();
+            }
+        });
+
+        // Fullscreen Toggle
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Gagal mengaktifkan mode layar penuh: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Modal Daftar Slide
+        function openMenu() {
+            document.getElementById('menuModal').classList.add('active');
+        }
+
+        function closeMenu() {
+            document.getElementById('menuModal').classList.remove('active');
+        }
+
+        // INTERACTIVE ELEMENT SCRIPTS
+        // Slide 3: Flow node description trigger
+        const flowDescriptions = {
+            'admin': {
+                title: 'Panel Administrasi (Internal Pengurus)',
+                content: 'Pusat kendali operasional pengurus. Mengelola data personil kepengurusan, bagan organisasi, persetujuan pendaftaran santri TPA, inventaris barang, pelaporan kas keuangan, hingga pembagian kelompok qurban.'
+            },
+            'system': {
+                title: 'Core System (CI4 & Database)',
+                content: 'Otak dari platform yang memproses semua logika data, keamanan, dan audit trails. Memproses upload kuitansi WebP secara otomatis, verifikasi OAuth, trigger notifikasi bot Telegram jika terjadi error, serta mendukung auto-deploy.'
+            },
+            'public': {
+                title: 'Portal Jemaah (Layanan Publik Online)',
+                content: 'Halaman depan masjid yang diakses jemaah umum. Menyediakan jadwal sholat realtime, pengumuman kajian dakwah, form pendaftaran santri TPA, info rekening ZIS, serta transparansi laporan kas keuangan per kegiatan.'
+            }
+        };
+
+        function showFlowDesc(key) {
+            // Update active state in flow nodes
+            const nodes = document.querySelectorAll('.flow-node');
+            nodes.forEach(node => node.classList.remove('active'));
+            
+            // Find which node clicked
+            let clickedNode;
+            if (key === 'admin') clickedNode = nodes[0];
+            else if (key === 'system') clickedNode = nodes[1];
+            else if (key === 'public') clickedNode = nodes[2];
+            
+            if (clickedNode) clickedNode.classList.add('active');
+
+            // Update Text Box
+            document.getElementById('flowDescTitle').textContent = flowDescriptions[key].title;
+            document.getElementById('flowDescContent').textContent = flowDescriptions[key].content;
+        }
+
+        // Slide 5: Ledger Calculator
+        function calculateSimBalance() {
+            const income = parseFloat(document.getElementById('simIncome').value) || 0;
+            const expense = parseFloat(document.getElementById('simExpense').value) || 0;
+            const balance = income - expense;
+
+            // Formatter
+            const formatRupiah = (val) => {
+                return 'Rp ' + val.toLocaleString('id-ID');
+            };
+
+            document.getElementById('lblIncome').textContent = formatRupiah(income);
+            document.getElementById('lblExpense').textContent = formatRupiah(expense);
+            
+            const lblBalance = document.getElementById('lblBalance');
+            lblBalance.textContent = formatRupiah(balance);
+            if(balance < 0) {
+                lblBalance.style.color = '#ff6b6b';
+            } else {
+                lblBalance.style.color = 'var(--accent)';
+            }
+        }
+
+        // Slide 6: Quick Assignment Simulator
+        const assignedMembers = {
+            group1: [],
+            group2: []
+        };
+        let targetGroup = 'group1';
+
+        function assignJemaah(name) {
+            // Alternating assignments or check group capacities
+            if (assignedMembers.group1.length <= assignedMembers.group2.length && assignedMembers.group1.length < 7) {
+                targetGroup = 'group1';
+            } else if (assignedMembers.group2.length < 7) {
+                targetGroup = 'group2';
+            } else {
+                alert('Kedua kelompok qurban sudah penuh (Masing-masing maks 7 shohibul).');
+                return;
+            }
+
+            // Check if already assigned
+            if (assignedMembers.group1.includes(name) || assignedMembers.group2.includes(name)) {
+                alert(`${name} sudah masuk kelompok.`);
+                return;
+            }
+
+            assignedMembers[targetGroup].push(name);
+            renderGroupBadges();
+        }
+
+        function removeMember(groupKey, name) {
+            assignedMembers[groupKey] = assignedMembers[groupKey].filter(item => item !== name);
+            renderGroupBadges();
+        }
+
+        function renderGroupBadges() {
+            ['group1', 'group2'].forEach(groupKey => {
+                const container = document.getElementById(groupKey);
+                const countBadge = document.getElementById(`count${groupKey === 'group1' ? 'G1' : 'G2'}`);
+                
+                container.innerHTML = '';
+                assignedMembers[groupKey].forEach(name => {
+                    const badge = document.createElement('div');
+                    badge.className = 'member-badge';
+                    badge.innerHTML = `${name} <span onclick="removeMember('${groupKey}', '${name}')">&times;</span>`;
+                    container.appendChild(badge);
+                });
+
+                countBadge.textContent = `${assignedMembers[groupKey].length}/7 Shohibul`;
+            });
+        }
+
+        // Slide 10: Roadmap Steps Trigger
+        const roadmapSteps = {
+            1: {
+                title: 'Tahap 1: Core & Transparansi Utama',
+                desc: 'Fokus pada penyediaan website profil utama, integrasi API Jadwal Sholat regional, modul Buku Kas Umum Masjid, dan sistem login pengurus (Google Auth & NIP).'
+            },
+            2: {
+                title: 'Tahap 2: Kepanitiaan & Keuangan Kegiatan',
+                desc: 'Pengembangan modul kepengurusan (Interactive Org Chart), manajemen kepanitiaan Ramadhan/Qurban, sub-buku kas kegiatan panitia, serta penyusunan jadwal/rundown acara dakwah terintegrasi.'
+            },
+            3: {
+                title: 'Tahap 3: Layanan Publik Digital',
+                desc: 'Pembukaan pendaftaran Santri TPA online, modul pengajuan Zakat, Infaq, Shodaqoh (ZIS) digital disertai bukti transfer/QRIS, serta formulir peminjaman ruang masjid bagi jemaah.'
+            },
+            4: {
+                title: 'Tahap 4: Deployment & Training Pengurus',
+                desc: 'Proses pemindahan sistem ke server Debian 12 Diskominfo Sinjai, konfigurasi Webhook Auto-Deploy via GitHub, pelatihan intensif bagi pengurus masjid, dan peluncuran resmi ke publik.'
+            }
+        };
+
+        function showRoadmapStep(stepNum) {
+            // Update active states
+            const steps = document.querySelectorAll('.timeline-step');
+            steps.forEach((step, idx) => {
+                step.classList.remove('active', 'completed');
+                const num = idx + 1;
+                if (num < stepNum) {
+                    step.classList.add('completed');
+                } else if (num === stepNum) {
+                    step.classList.add('active');
+                }
+            });
+
+            // Update Progress Line width
+            const progressFill = document.getElementById('roadmapProgress');
+            const percent = ((stepNum - 1) / 3) * 100;
+            progressFill.style.width = `${percent}%`;
+
+            // Update Description Box
+            document.getElementById('roadmapDescTitle').textContent = roadmapSteps[stepNum].title;
+            document.getElementById('roadmapDescContent').textContent = roadmapSteps[stepNum].desc;
+        }
+
+        // Initialize UI on load
+        updateSlideUI();
+    </script>
+</body>
+</html>

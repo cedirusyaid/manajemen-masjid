@@ -1,5 +1,11 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.15] - 2026-06-20
+### ✨ Added
+- **Interactive Presentation Proposal**: Menambahkan proposal digitalisasi manajemen masjid interaktif bertema mewah (deep-emerald & gold) di [public/presentasi/index.html](file:///apps/masjidagung/public/presentasi/index.html) untuk diajukan pada rapat pengurus.
+- **Fitur Interaktif Deck**: Dilengkapi simulasi diagram alir arsitektur sistem, bagan organisasi interaktif, kalkulator simulasi kas panitia kegiatan, simulator asinkron penugasan anggota kelompok (AJAX simulation), dan roadmap implementasi yang responsif.
+- **Dukungan Print & Layar Penuh**: Mendukung media cetak yang dioptimalkan via CSS `@media print` dan mode layar penuh (fullscreen) untuk kenyamanan presentasi rapat.
+
 ## [v0.4.14] - 2026-06-20
 ### ✨ Added
 - **Fitur Rundown & Jadwal Acara Kegiatan**: Menambahkan kolom relasi `kegiatan_id` pada tabel `mst_agenda` untuk menghubungkan agenda/kajian ke kegiatan tertentu.
