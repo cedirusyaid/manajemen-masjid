@@ -6,6 +6,9 @@
 - **Fitur Interaktif Deck**: Dilengkapi simulasi diagram alir arsitektur sistem, bagan organisasi interaktif, kalkulator simulasi kas panitia kegiatan, simulator asinkron penugasan anggota kelompok (AJAX simulation), dan roadmap implementasi yang responsif.
 - **Dukungan Print & Layar Penuh**: Mendukung media cetak yang dioptimalkan via CSS `@media print` dan mode layar penuh (fullscreen) untuk kenyamanan presentasi rapat.
 
+### 🔄 Changed
+- **Pembersihan Konteks TPA**: Menghilangkan seluruh komponen pendaftaran santri TPA pada proposal markdown dan slide presentasi HTML, menggantinya dengan fokus peminjaman ruang, logistik inventaris, dan pendaftaran acara jemaah umum.
+
 ## [v0.4.14] - 2026-06-20
 ### ✨ Added
 - **Fitur Rundown & Jadwal Acara Kegiatan**: Menambahkan kolom relasi `kegiatan_id` pada tabel `mst_agenda` untuk menghubungkan agenda/kajian ke kegiatan tertentu.

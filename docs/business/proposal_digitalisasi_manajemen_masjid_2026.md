@@ -19,7 +19,7 @@
 ### **Tantangan Pengelolaan Masjid Tradisional**
 1. **Transparansi Keuangan Terbatas**: Jemaah hanya mengetahui total kas lewat papan tulis jumat, tanpa rincian kas masuk/keluar harian.
 2. **Koordinasi Kepanitiaan Manual**: Susunan panitia Ramadhan, Idul Adha, dan PHBI sering kali tumpang tindih dan sulit berkoordinasi secara terpusat.
-3. **Pencatatan Kelompok Kerja Lambat**: Pembagian kelompok qurban, petugas buka puasa, dan pendaftaran santri TPA masih berbasis kertas (risiko hilang/rusak tinggi).
+3. **Pencatatan Kelompok Kerja Lambat**: Pembagian kelompok qurban, petugas buka puasa, dan data logistik inventaris masjid masih berbasis kertas (risiko hilang/rusak tinggi).
 4. **Minimnya Dokumentasi Publik**: Berita kegiatan dakwah, kajian rutin, dan laporan pembangunan fisik belum terpublikasi secara luas di era internet.
 
 ---
@@ -35,11 +35,11 @@ graph TD
     
     Admin --> Keuangan[Buku Kas & Anggaran Kegiatan]
     Admin --> SDM[Kepengurusan & Kepanitiaan]
-    Admin --> Kelompok[Kelompok Qurban/Santri TPA]
+    Admin --> Kelompok[Kelompok Qurban & Kerja]
     
     Public --> Infak[Infak Digital QRIS]
     Public --> Info[Jadwal Sholat & Info Kajian]
-    Public --> Layanan[Pendaftaran Santri & Acara]
+    Public --> Layanan[Booking Ruangan & Acara]
 ```
 
 ---
@@ -113,7 +113,7 @@ graph TD
 | --- | --- | --- |
 | **Tahap 1** (MVP) | Core & Transparansi | Website profil, Jadwal Sholat API, Kas Umum Masjid, Google Auth |
 | **Tahap 2** (Pelayanan) | Kepanitiaan & Keuangan Kegiatan | Struktur Jabatan, Org Chart, Kelompok Kegiatan (Qurban/PHBI), Buku Kas Panitia, Rundown |
-| **Tahap 3** (Interaktif) | Layanan Publik Digital | Pendaftaran TPA Online, ZIS Online (Verifikasi Bukti), Form Booking Ruangan / Acara Jemaah |
+| **Tahap 3** (Interaktif) | Layanan Publik Digital | ZIS Online (Verifikasi Bukti), Layanan Booking Ruangan / Inventaris, Form Pendaftaran Acara Jemaah |
 | **Tahap 4** (Rilis) | Deployment & Pelatihan | Konfigurasi VPS Debian 12 (Diskominfo), Setup Webhook Auto-Deploy, Training Pengurus |
 
 ---
@@ -121,7 +121,7 @@ graph TD
 ## SLIDE 11: KESIMPULAN & NILAI LEBIH
 ### **Mengapa Masjid Agung Harus Melakukan Digitalisasi Sekarang?**
 1. **Meningkatkan Kepercayaan Jemaah**: Laporan kas yang transparan hingga level kuitansi menepis keraguan jemaah atas pengelolaan dana masjid.
-2. **Efisiensi Kinerja Pengurus**: Pengurus menghemat waktu administrasi panitia dan pendaftaran TPA/Qurban hingga 70%.
+2. **Efisiensi Kinerja Pengurus**: Pengurus menghemat waktu administrasi kepanitiaan, inventaris, dan kelompok qurban hingga 70%.
 3. **Data Terpusat & Aman**: Seluruh data operasional masjid tersimpan rapi secara digital, terhindar dari kerusakan fisik berkas kertas.
 4. **Reputasi Masjid Modern**: Menjadikan Masjid Agung Nujumul Ittihad Sinjai sebagai pelopor masjid ramah digital di Kabupaten Sinjai.
 
