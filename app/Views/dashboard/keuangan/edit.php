@@ -355,7 +355,7 @@
 
                 <div class="row">
                     <!-- Kategori Kas -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-4 mb-4">
                         <label for="kategori" class="form-label">Kategori Alokasi</label>
                         <select class="form-select" id="kategori" name="kategori" required>
                             <option value="">-- Pilih Kategori --</option>
@@ -367,9 +367,22 @@
                     </div>
 
                     <!-- Nominal -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-4 mb-4">
                         <label for="nominal" class="form-label">Nominal Transaksi (Rp)</label>
                         <input type="number" class="form-control" id="nominal" name="nominal" placeholder="Contoh: 1500000" value="<?= old('nominal', intval($kas['nominal'])) ?>" required>
+                    </div>
+
+                    <!-- Hubungkan ke Kegiatan (Kepanitiaan) -->
+                    <div class="col-md-4 mb-4">
+                        <label for="kegiatan_id" class="form-label">Hubungkan ke Kegiatan</label>
+                        <select class="form-select" id="kegiatan_id" name="kegiatan_id">
+                            <option value="">-- Bukan Kegiatan (Umum) --</option>
+                            <?php foreach ($kegiatan_list as $keg) : ?>
+                                <option value="<?= esc($keg['id']) ?>" <?= old('kegiatan_id', $kas['kegiatan_id'] ?? '') === $keg['id'] ? 'selected' : '' ?>>
+                                    <?= esc($keg['nama_kegiatan']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                 </div>
 
@@ -408,9 +421,17 @@
                     </div>
                 </div>
 
+                <?php if (!empty($redirect_kegiatan_id)) : ?>
+                    <input type="hidden" name="redirect_kegiatan_id" value="<?= esc($redirect_kegiatan_id) ?>">
+                <?php endif; ?>
+
                 <!-- Buttons -->
                 <div class="d-flex gap-3 justify-content-end">
-                    <a href="<?= base_url('dashboard/keuangan') ?>" class="btn btn-cancel">Batal</a>
+                    <?php if (!empty($redirect_kegiatan_id)) : ?>
+                        <a href="<?= base_url('dashboard/kepanitiaan/detail/' . esc($redirect_kegiatan_id)) ?>" class="btn btn-cancel">Batal</a>
+                    <?php else : ?>
+                        <a href="<?= base_url('dashboard/keuangan') ?>" class="btn btn-cancel">Batal</a>
+                    <?php endif; ?>
                     <button type="submit" class="btn btn-submit">Simpan Perubahan <i class="fa-solid fa-save ms-2"></i></button>
                 </div>
             </form>

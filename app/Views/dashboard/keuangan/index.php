@@ -489,13 +489,20 @@
                                     </td>
                                     <td>
                                         <div class="text-dark fw-semibold mb-1"><?= esc($row['keterangan']) ?></div>
-                                        <small class="text-muted">
-                                            <?php if ($row['tipe'] === 'masuk') : ?>
-                                                <span class="text-success"><i class="fa-solid fa-circle-arrow-down me-1"></i> Kas Masuk</span>
-                                            <?php else : ?>
-                                                <span class="text-danger"><i class="fa-solid fa-circle-arrow-up me-1"></i> Kas Keluar</span>
+                                        <div class="d-flex flex-wrap gap-2 align-items-center mt-1">
+                                            <small class="text-muted">
+                                                <?php if ($row['tipe'] === 'masuk') : ?>
+                                                    <span class="text-success"><i class="fa-solid fa-circle-arrow-down me-1"></i> Kas Masuk</span>
+                                                <?php else : ?>
+                                                    <span class="text-danger"><i class="fa-solid fa-circle-arrow-up me-1"></i> Kas Keluar</span>
+                                                <?php endif; ?>
+                                            </small>
+                                            <?php if (!empty($row['nama_kegiatan'])) : ?>
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 rounded-pill font-heading px-2 py-0.5" style="font-size: 0.725rem;">
+                                                    <i class="fa-solid fa-people-group me-1"></i> <?= esc($row['nama_kegiatan']) ?>
+                                                </span>
                                             <?php endif; ?>
-                                        </small>
+                                        </div>
                                     </td>
                                     <td><?= esc($row['penanggung_jawab']) ?: '-' ?></td>
                                     <td class="text-center">

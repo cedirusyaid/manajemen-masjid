@@ -1,5 +1,11 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.13] - 2026-06-20
+### ✨ Added
+- **Fitur Keuangan Khusus Kegiatan**: Menambahkan kolom relasi `kegiatan_id` pada tabel transaksi keuangan `trn_keuangan` untuk mengaitkan catatan kas masuk/keluar ke kegiatan panitia tertentu.
+- **Form CRUD Keuangan Kontekstual**: Menyediakan input dropdown pilihan kegiatan pada form catat/ubah transaksi keuangan, dilengkapi deteksi query string dan input tersembunyi `redirect_kegiatan_id` agar alur pengisian kembali ke detail kegiatan asal.
+- **Tab Laporan Keuangan Kegiatan**: Mengintegrasikan tab keuangan baru pada halaman Detail Kegiatan yang menampilkan ringkasan performa keuangan kegiatan (Total Pemasukan, Total Pengeluaran, Saldo Bersih) dan tabel log transaksi terkait.
+
 ## [v0.4.12] - 2026-06-20
 ### ✨ Added
 - **Script Auto-Deployment (Deploy.php)**: Menyediakan berkas `public/Deploy.php` sebagai gerbang otomatisasi penarikan kode program (git pull & composer install) melalui GitHub Webhook yang aman berbasis token.

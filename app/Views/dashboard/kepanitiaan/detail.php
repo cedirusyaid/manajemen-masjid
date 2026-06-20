@@ -645,6 +645,11 @@
                     <i class="fa-solid fa-users-viewfinder me-2"></i>Kelompok Kegiatan
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="keuangan-tab" data-bs-toggle="tab" data-bs-target="#keuangan" type="button" role="tab" aria-controls="keuangan" aria-selected="false">
+                    <i class="fa-solid fa-wallet me-2"></i>Laporan Keuangan
+                </button>
+            </li>
         </ul>
 
         <!-- Tab content -->
@@ -850,6 +855,131 @@
                                         <td colspan="4" class="text-center py-5 text-muted">
                                             <i class="fa-solid fa-users-viewfinder fs-1 mb-3 d-block text-secondary"></i>
                                             Belum ada kelompok kegiatan dibuat pada kegiatan ini.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB LAPORAN KEUANGAN -->
+            <div class="tab-pane fade" id="keuangan" role="tabpanel" aria-labelledby="keuangan-tab">
+                <!-- Keuangan Summary Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-4 p-4" style="background-color: #f0fdf4; border: 1px solid #bbf7d0 !important;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-muted small fw-semibold d-block mb-1">Total Pemasukan</span>
+                                    <strong class="fs-4 text-success font-heading">Rp <?= number_format($total_masuk, 0, ',', '.') ?></strong>
+                                </div>
+                                <div class="p-3 bg-success bg-opacity-10 text-success rounded-3">
+                                    <i class="fa-solid fa-arrow-trend-up fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-4 p-4" style="background-color: #fef2f2; border: 1px solid #fecaca !important;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-muted small fw-semibold d-block mb-1">Total Pengeluaran</span>
+                                    <strong class="fs-4 text-danger font-heading">Rp <?= number_format($total_keluar, 0, ',', '.') ?></strong>
+                                </div>
+                                <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3">
+                                    <i class="fa-solid fa-arrow-trend-down fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-4 p-4" style="background-color: #f0f9ff; border: 1px solid #bae6fd !important;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-muted small fw-semibold d-block mb-1">Saldo Kas Bersih</span>
+                                    <strong class="fs-4 text-primary font-heading">Rp <?= number_format($saldo_kegiatan, 0, ',', '.') ?></strong>
+                                </div>
+                                <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3">
+                                    <i class="fa-solid fa-scale-balanced fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card bg-white border-0 shadow-sm rounded-4">
+                    <div class="panel-title d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <span class="fw-bold text-dark fs-5">Buku Kas & Transaksi Kegiatan</span>
+                        <a href="<?= base_url('dashboard/keuangan/create?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
+                            <i class="fa-solid fa-plus me-2"></i>Catat Kas Kegiatan
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Kategori</th>
+                                    <th>Keterangan</th>
+                                    <th>P.Jawab</th>
+                                    <th class="text-center" style="width: 80px;">Bukti</th>
+                                    <th class="text-end">Nominal</th>
+                                    <th class="text-center" style="width: 120px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($keuangan_list)) : ?>
+                                    <?php foreach ($keuangan_list as $row) : ?>
+                                        <tr>
+                                            <td class="fw-semibold text-dark"><?= esc(date('d/m/Y', strtotime($row['tanggal']))) ?></td>
+                                            <td>
+                                                <span class="badge bg-light text-dark text-capitalize border px-2.5 py-1.5 rounded-3">
+                                                    <?= esc($row['kategori']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="text-dark fw-semibold mb-1"><?= esc($row['keterangan']) ?></div>
+                                                <small class="text-muted">
+                                                    <?php if ($row['tipe'] === 'masuk') : ?>
+                                                        <span class="text-success"><i class="fa-solid fa-circle-arrow-down me-1"></i> Masuk</span>
+                                                    <?php else : ?>
+                                                        <span class="text-danger"><i class="fa-solid fa-circle-arrow-up me-1"></i> Keluar</span>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </td>
+                                            <td><?= esc($row['penanggung_jawab']) ?: '-' ?></td>
+                                            <td class="text-center">
+                                                <?php if (!empty($row['bukti_transaksi'])) : ?>
+                                                    <a href="<?= base_url('uploads/keuangan/' . $row['bukti_transaksi']) ?>" target="_blank" class="btn-action btn-edit" title="Lihat Bukti Transaksi" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                                        <i class="fa-solid <?= str_ends_with($row['bukti_transaksi'], '.pdf') ? 'fa-file-pdf' : 'fa-image' ?>"></i>
+                                                    </a>
+                                                <?php else : ?>
+                                                    <span class="text-muted">-</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-end fw-bold font-heading <?= $row['tipe'] === 'masuk' ? 'text-success' : 'text-danger' ?>">
+                                                <?= $row['tipe'] === 'masuk' ? '+' : '-' ?> Rp <?= number_format($row['nominal'], 0, ',', '.') ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <a href="<?= base_url('dashboard/keuangan/edit/' . $row['id'] . '?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn-action btn-edit" title="Ubah">
+                                                        <i class="fa-solid fa-pencil"></i>
+                                                    </a>
+                                                    <a href="<?= base_url('dashboard/keuangan/delete/' . $row['id'] . '?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus catatan kas ini?');" title="Hapus">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5 text-muted">
+                                            <i class="fa-solid fa-wallet fs-1 mb-3 d-block text-secondary"></i>
+                                            Belum ada pencatatan kas untuk kegiatan ini.
                                         </td>
                                     </tr>
                                 <?php endif; ?>

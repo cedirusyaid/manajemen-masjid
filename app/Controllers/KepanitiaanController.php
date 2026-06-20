@@ -81,6 +81,25 @@ class KepanitiaanController extends BaseController
             $kelompok['anggota'] = $this->anggotaKelompokModel->getAnggotaByKelompok($kelompok['id']);
         }
 
+        // Load keuangan khusus kegiatan
+        $keuanganModel = new \App\Models\KeuanganModel();
+        $keuanganList = $keuanganModel->where('kegiatan_id', $id)
+                                      ->where('deleted_at', null)
+                                      ->orderBy('tanggal', 'DESC')
+                                      ->orderBy('created_at', 'DESC')
+                                      ->findAll();
+
+        $totalMasuk = 0;
+        $totalKeluar = 0;
+        foreach ($keuanganList as $k) {
+            if ($k['tipe'] === 'masuk') {
+                $totalMasuk += $k['nominal'];
+            } else {
+                $totalKeluar += $k['nominal'];
+            }
+        }
+        $saldoKegiatan = $totalMasuk - $totalKeluar;
+
         return view('dashboard/kepanitiaan/detail', [
             'username'          => $this->session->get('username'),
             'role_name'         => $this->session->get('role_name'),
@@ -89,6 +108,10 @@ class KepanitiaanController extends BaseController
             'panitia_list'      => $panitiaList,
             'jabatan_list'      => $jabatanList,
             'kelompok_list'     => $kelompokList,
+            'keuangan_list'     => $keuanganList,
+            'total_masuk'       => $totalMasuk,
+            'total_keluar'      => $totalKeluar,
+            'saldo_kegiatan'    => $saldoKegiatan,
             'validation'        => \Config\Services::validation()
         ]);
     }

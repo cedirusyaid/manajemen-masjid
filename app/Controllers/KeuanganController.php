@@ -26,8 +26,13 @@ class KeuanganController extends BaseController
             return $redirect;
         }
 
-        // Ambil data kas diurutkan berdasarkan tanggal terbaru
-        $kasList = $this->keuanganModel->where('deleted_at', null)->orderBy('tanggal', 'DESC')->orderBy('created_at', 'DESC')->findAll();
+        // Ambil data kas diurutkan berdasarkan tanggal terbaru dengan join ke master kegiatan
+        $kasList = $this->keuanganModel->select('trn_keuangan.*, mst_kegiatan.nama_kegiatan')
+                                        ->join('mst_kegiatan', 'mst_kegiatan.id = trn_keuangan.kegiatan_id', 'left')
+                                        ->where('trn_keuangan.deleted_at', null)
+                                        ->orderBy('trn_keuangan.tanggal', 'DESC')
+                                        ->orderBy('trn_keuangan.created_at', 'DESC')
+                                        ->findAll();
 
         // Hitung total kas masuk, keluar, dan saldo akhir
         $totalMasuk  = 0;
@@ -63,11 +68,17 @@ class KeuanganController extends BaseController
             return $redirect;
         }
 
+        $kegiatanModel = new \App\Models\KegiatanModel();
+        $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
+        $selectedKegiatanId = $this->request->getGet('kegiatan_id');
+
         return view('dashboard/keuangan/create', [
-            'username'   => $this->session->get('username'),
-            'role_name'  => $this->session->get('role_name'),
-            'avatar'     => $this->session->get('avatar'),
-            'validation' => \Config\Services::validation()
+            'username'             => $this->session->get('username'),
+            'role_name'            => $this->session->get('role_name'),
+            'avatar'               => $this->session->get('avatar'),
+            'kegiatan_list'        => $kegiatanList,
+            'selected_kegiatan_id' => $selectedKegiatanId,
+            'validation'           => \Config\Services::validation()
         ]);
     }
 
@@ -81,6 +92,7 @@ class KeuanganController extends BaseController
         }
 
         $rules = [
+            'kegiatan_id'      => 'permit_empty|max_length[36]',
             'tanggal'          => 'required|valid_date[Y-m-d]',
             'kategori'         => 'required|in_list[operasional,pembangunan,zis,sosial]',
             'tipe'             => 'required|in_list[masuk,keluar]',
@@ -156,7 +168,11 @@ class KeuanganController extends BaseController
             }
         }
 
+        $kegiatanId = $this->request->getPost('kegiatan_id');
+        $redirectKegiatanId = $this->request->getPost('redirect_kegiatan_id');
+
         $data = [
+            'kegiatan_id'      => !empty($kegiatanId) ? $kegiatanId : null,
             'tanggal'          => $this->request->getPost('tanggal'),
             'kategori'         => $this->request->getPost('kategori'),
             'tipe'             => $this->request->getPost('tipe'),
@@ -172,6 +188,10 @@ class KeuanganController extends BaseController
             
             // Catat Audit Trail
             log_activity('INSERT', 'trn_keuangan', $newId ?: 'UUID', null, $data);
+
+            if (!empty($redirectKegiatanId)) {
+                return redirect()->to('/dashboard/kepanitiaan/detail/' . $redirectKegiatanId)->with('success', 'Transaksi kas berhasil dicatat.');
+            }
 
             return redirect()->to('/dashboard/keuangan')->with('success', 'Transaksi kas berhasil dicatat.');
         } catch (Exception $e) {
@@ -195,12 +215,18 @@ class KeuanganController extends BaseController
             return redirect()->to('/dashboard/keuangan')->with('error', 'Data transaksi kas tidak ditemukan.');
         }
 
+        $kegiatanModel = new \App\Models\KegiatanModel();
+        $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
+        $redirectKegiatanId = $this->request->getGet('kegiatan_id');
+
         return view('dashboard/keuangan/edit', [
-            'username'   => $this->session->get('username'),
-            'role_name'  => $this->session->get('role_name'),
-            'avatar'     => $this->session->get('avatar'),
-            'kas'        => $kas,
-            'validation' => \Config\Services::validation()
+            'username'             => $this->session->get('username'),
+            'role_name'            => $this->session->get('role_name'),
+            'avatar'               => $this->session->get('avatar'),
+            'kas'                  => $kas,
+            'kegiatan_list'        => $kegiatanList,
+            'redirect_kegiatan_id' => $redirectKegiatanId,
+            'validation'           => \Config\Services::validation()
         ]);
     }
 
@@ -220,6 +246,7 @@ class KeuanganController extends BaseController
         }
 
         $rules = [
+            'kegiatan_id'      => 'permit_empty|max_length[36]',
             'tanggal'          => 'required|valid_date[Y-m-d]',
             'kategori'         => 'required|in_list[operasional,pembangunan,zis,sosial]',
             'tipe'             => 'required|in_list[masuk,keluar]',
@@ -300,7 +327,11 @@ class KeuanganController extends BaseController
             }
         }
 
+        $kegiatanId = $this->request->getPost('kegiatan_id');
+        $redirectKegiatanId = $this->request->getPost('redirect_kegiatan_id');
+
         $data = [
+            'kegiatan_id'      => !empty($kegiatanId) ? $kegiatanId : null,
             'tanggal'          => $this->request->getPost('tanggal'),
             'kategori'         => $this->request->getPost('kategori'),
             'tipe'             => $this->request->getPost('tipe'),
@@ -315,6 +346,10 @@ class KeuanganController extends BaseController
             
             // Catat Audit Trail
             log_activity('UPDATE', 'trn_keuangan', $id, $kas, array_merge($kas, $data));
+
+            if (!empty($redirectKegiatanId)) {
+                return redirect()->to('/dashboard/kepanitiaan/detail/' . $redirectKegiatanId)->with('success', 'Transaksi kas berhasil diperbarui.');
+            }
 
             return redirect()->to('/dashboard/keuangan')->with('success', 'Transaksi kas berhasil diperbarui.');
         } catch (Exception $e) {
@@ -338,11 +373,17 @@ class KeuanganController extends BaseController
             return redirect()->to('/dashboard/keuangan')->with('error', 'Data transaksi kas tidak ditemukan.');
         }
 
+        $redirectKegiatanId = $this->request->getGet('kegiatan_id');
+
         try {
             $this->keuanganModel->delete($id);
             
             // Catat Audit Trail
             log_activity('DELETE', 'trn_keuangan', $id, $kas, null);
+
+            if (!empty($redirectKegiatanId)) {
+                return redirect()->to('/dashboard/kepanitiaan/detail/' . $redirectKegiatanId)->with('success', 'Transaksi kas berhasil dihapus.');
+            }
 
             return redirect()->to('/dashboard/keuangan')->with('success', 'Transaksi kas berhasil dihapus.');
         } catch (Exception $e) {

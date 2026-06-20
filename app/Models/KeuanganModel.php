@@ -13,7 +13,7 @@ class KeuanganModel extends Model
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id', 'tanggal', 'kategori', 'tipe', 
+        'id', 'kegiatan_id', 'tanggal', 'kategori', 'tipe', 
         'nominal', 'keterangan', 'penanggung_jawab', 'bukti_transaksi'
     ];
 
@@ -29,6 +29,7 @@ class KeuanganModel extends Model
 
     // Validation Rules
     protected $validationRules = [
+        'kegiatan_id'      => 'permit_empty|max_length[36]',
         'tanggal'          => 'required|valid_date[Y-m-d]',
         'kategori'         => 'required|in_list[operasional,pembangunan,zis,sosial]',
         'tipe'             => 'required|in_list[masuk,keluar]',
