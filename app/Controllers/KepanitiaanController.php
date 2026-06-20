@@ -100,6 +100,16 @@ class KepanitiaanController extends BaseController
         }
         $saldoKegiatan = $totalMasuk - $totalKeluar;
 
+        // Load agenda/rundown khusus kegiatan
+        $agendaModel = new \App\Models\AgendaModel();
+        $agendaList = $agendaModel->select('mst_agenda.*, mst_personil.nama as nama_ustadz, mst_personil.foto as foto_ustadz')
+                                  ->join('mst_personil', 'mst_personil.id = mst_agenda.narasumber_id', 'left')
+                                  ->where('mst_agenda.kegiatan_id', $id)
+                                  ->where('mst_agenda.deleted_at', null)
+                                  ->orderBy('mst_agenda.tanggal', 'ASC')
+                                  ->orderBy('mst_agenda.waktu', 'ASC')
+                                  ->findAll();
+
         return view('dashboard/kepanitiaan/detail', [
             'username'          => $this->session->get('username'),
             'role_name'         => $this->session->get('role_name'),
@@ -112,6 +122,7 @@ class KepanitiaanController extends BaseController
             'total_masuk'       => $totalMasuk,
             'total_keluar'      => $totalKeluar,
             'saldo_kegiatan'    => $saldoKegiatan,
+            'agenda_list'       => $agendaList,
             'validation'        => \Config\Services::validation()
         ]);
     }

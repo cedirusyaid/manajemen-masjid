@@ -399,7 +399,12 @@
                                     </td>
                                     <td>
                                         <div class="fw-bold text-dark mb-1"><?= esc($row['judul']) ?></div>
-                                        <small class="text-muted d-block text-truncate" style="max-width: 250px;"><?= esc(strip_tags($row['deskripsi'])) ?></small>
+                                        <small class="text-muted d-block text-truncate mb-1" style="max-width: 250px;"><?= esc(strip_tags($row['deskripsi'])) ?></small>
+                                        <?php if (!empty($row['nama_kegiatan'])) : ?>
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 rounded-pill font-heading px-2 py-0.5" style="font-size: 0.725rem;">
+                                                <i class="fa-solid fa-people-group me-1"></i> <?= esc($row['nama_kegiatan']) ?>
+                                            </span>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <?php if ($row['narasumber_id']) : ?>

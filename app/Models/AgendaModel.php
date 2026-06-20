@@ -13,7 +13,7 @@ class AgendaModel extends Model
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id', 'judul', 'deskripsi', 'tanggal', 'waktu', 
+        'id', 'kegiatan_id', 'judul', 'deskripsi', 'tanggal', 'waktu', 
         'lokasi', 'narasumber_id', 'narasumber', 'banner'
     ];
 
@@ -29,11 +29,12 @@ class AgendaModel extends Model
 
     // Validation Rules
     protected $validationRules = [
-        'judul'     => 'required|min_length[5]|max_length[255]',
-        'deskripsi' => 'required',
-        'tanggal'   => 'required|valid_date[Y-m-d]',
-        'waktu'     => 'required',
-        'lokasi'    => 'permit_empty|max_length[255]',
+        'kegiatan_id'   => 'permit_empty|max_length[36]',
+        'judul'         => 'required|min_length[5]|max_length[255]',
+        'deskripsi'     => 'required',
+        'tanggal'       => 'required|valid_date[Y-m-d]',
+        'waktu'         => 'required',
+        'lokasi'        => 'permit_empty|max_length[255]',
         'narasumber_id' => 'permit_empty',
         'narasumber'    => 'permit_empty|max_length[150]',
         'banner'        => 'permit_empty'
@@ -60,12 +61,13 @@ class AgendaModel extends Model
     }
 
     /**
-     * Mengambil daftar agenda lengkap dengan nama narasumber (baik dinamis dari personil maupun teks fallback)
+     * Mengambil daftar agenda lengkap dengan nama narasumber dan nama kegiatan
      */
     public function getAgendaLengkap()
     {
-        return $this->select('mst_agenda.*, mst_personil.nama as nama_ustadz, mst_personil.foto as foto_ustadz')
+        return $this->select('mst_agenda.*, mst_personil.nama as nama_ustadz, mst_personil.foto as foto_ustadz, mst_kegiatan.nama_kegiatan')
                     ->join('mst_personil', 'mst_personil.id = mst_agenda.narasumber_id', 'left')
+                    ->join('mst_kegiatan', 'mst_kegiatan.id = mst_agenda.kegiatan_id', 'left')
                     ->where('mst_agenda.deleted_at', null)
                     ->orderBy('mst_agenda.tanggal', 'DESC')
                     ->orderBy('mst_agenda.waktu', 'ASC')
@@ -73,12 +75,13 @@ class AgendaModel extends Model
     }
 
     /**
-     * Dapatkan agenda mendatang/terdekat
+     * Dapatkan agenda mendatang/terdekat dengan detail kegiatan
      */
     public function getAgendaTerdekat(int $limit = 3)
     {
-        return $this->select('mst_agenda.*, mst_personil.nama as nama_ustadz, mst_personil.foto as foto_ustadz')
+        return $this->select('mst_agenda.*, mst_personil.nama as nama_ustadz, mst_personil.foto as foto_ustadz, mst_kegiatan.nama_kegiatan')
                     ->join('mst_personil', 'mst_personil.id = mst_agenda.narasumber_id', 'left')
+                    ->join('mst_kegiatan', 'mst_kegiatan.id = mst_agenda.kegiatan_id', 'left')
                     ->where('mst_agenda.tanggal >=', date('Y-m-d'))
                     ->where('mst_agenda.deleted_at', null)
                     ->orderBy('mst_agenda.tanggal', 'ASC')

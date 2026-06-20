@@ -1,5 +1,12 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.14] - 2026-06-20
+### ✨ Added
+- **Fitur Rundown & Jadwal Acara Kegiatan**: Menambahkan kolom relasi `kegiatan_id` pada tabel `mst_agenda` untuk menghubungkan agenda/kajian ke kegiatan tertentu.
+- **Form CRUD Agenda Kontekstual**: Mengintegrasikan pilihan kegiatan (dropdown select) pada form catat dan ubah agenda, serta mendukung input parameter `redirect_kegiatan_id` untuk redirect kembali ke halaman detail kegiatan asal.
+- **Tab Rundown & Jadwal Kegiatan**: Menyediakan tab baru pada detail kegiatan yang menampilkan daftar agenda/rundown acara terikat, detail waktu, brosur/banner, pengisi/narasumber, dan lokasi secara teratur.
+- **Badge Kegiatan di Daftar Agenda**: Menampilkan indikator badge hijau berlogo grup panitia jika agenda dikaitkan dengan suatu kegiatan pada daftar agenda utama.
+
 ## [v0.4.13] - 2026-06-20
 ### ✨ Added
 - **Fitur Keuangan Khusus Kegiatan**: Menambahkan kolom relasi `kegiatan_id` pada tabel transaksi keuangan `trn_keuangan` untuk mengaitkan catatan kas masuk/keluar ke kegiatan panitia tertentu.

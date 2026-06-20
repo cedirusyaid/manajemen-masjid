@@ -373,22 +373,36 @@
                     </div>
 
                     <!-- Tanggal & Waktu -->
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="tanggal" class="form-label mb-2">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
                         <input type="date" class="form-control <?= ($validation->hasError('tanggal')) ? 'is-invalid' : '' ?>" id="tanggal" name="tanggal" value="<?= old('tanggal', $agenda['tanggal']) ?>" required>
                         <div class="invalid-feedback"><?= $validation->getError('tanggal') ?></div>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="waktu" class="form-label mb-2">Waktu Mulai <span class="text-danger">*</span></label>
                         <input type="time" class="form-control <?= ($validation->hasError('waktu')) ? 'is-invalid' : '' ?>" id="waktu" name="waktu" value="<?= old('waktu', $agenda['waktu']) ?>" required>
                         <div class="invalid-feedback"><?= $validation->getError('waktu') ?></div>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="lokasi" class="form-label mb-2">Lokasi Pengajian</label>
                         <input type="text" class="form-control <?= ($validation->hasError('lokasi')) ? 'is-invalid' : '' ?>" id="lokasi" name="lokasi" value="<?= old('lokasi', $agenda['lokasi']) ?>" placeholder="Lokasi kegiatan">
                         <div class="invalid-feedback"><?= $validation->getError('lokasi') ?></div>
+                    </div>
+
+                    <!-- Hubungkan ke Kegiatan -->
+                    <div class="col-md-3">
+                        <label for="kegiatan_id" class="form-label mb-2">Hubungkan ke Kegiatan</label>
+                        <select class="form-select <?= ($validation->hasError('kegiatan_id')) ? 'is-invalid' : '' ?>" id="kegiatan_id" name="kegiatan_id">
+                            <option value="">-- Bukan Kegiatan (Umum) --</option>
+                            <?php foreach ($kegiatan_list as $keg) : ?>
+                                <option value="<?= esc($keg['id']) ?>" <?= old('kegiatan_id', $agenda['kegiatan_id']) == $keg['id'] ? 'selected' : '' ?>>
+                                    <?= esc($keg['nama_kegiatan']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="invalid-feedback"><?= $validation->getError('kegiatan_id') ?></div>
                     </div>
 
                     <!-- Deskripsi Detail / Materi Kajian -->
@@ -419,11 +433,21 @@
                     </div>
                 </div>
 
+                <?php if (!empty($redirect_kegiatan_id)) : ?>
+                    <input type="hidden" name="redirect_kegiatan_id" value="<?= esc($redirect_kegiatan_id) ?>">
+                <?php endif; ?>
+
                 <!-- Aksi Form -->
                 <div class="d-flex justify-content-end gap-3 border-top pt-4">
-                    <a href="<?= base_url('dashboard/agenda') ?>" class="btn btn-cancel">
-                        <i class="fa-solid fa-arrow-left me-2"></i> Batal / Kembali
-                    </a>
+                    <?php if (!empty($redirect_kegiatan_id)) : ?>
+                        <a href="<?= base_url('dashboard/kepanitiaan/detail/' . esc($redirect_kegiatan_id)) ?>" class="btn btn-cancel">
+                            <i class="fa-solid fa-arrow-left me-2"></i> Batal / Kembali
+                        </a>
+                    <?php else : ?>
+                        <a href="<?= base_url('dashboard/agenda') ?>" class="btn btn-cancel">
+                            <i class="fa-solid fa-arrow-left me-2"></i> Batal / Kembali
+                        </a>
+                    <?php endif; ?>
                     <button type="submit" class="btn btn-submit">
                         <i class="fa-solid fa-floppy-disk me-2"></i> Simpan Perubahan
                     </button>

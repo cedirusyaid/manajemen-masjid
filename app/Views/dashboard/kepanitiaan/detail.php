@@ -650,6 +650,11 @@
                     <i class="fa-solid fa-wallet me-2"></i>Laporan Keuangan
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="rundown-tab" data-bs-toggle="tab" data-bs-target="#rundown" type="button" role="tab" aria-controls="rundown" aria-selected="false">
+                    <i class="fa-solid fa-calendar-days me-2"></i>Rundown & Jadwal
+                </button>
+            </li>
         </ul>
 
         <!-- Tab content -->
@@ -980,6 +985,83 @@
                                         <td colspan="7" class="text-center py-5 text-muted">
                                             <i class="fa-solid fa-wallet fs-1 mb-3 d-block text-secondary"></i>
                                             Belum ada pencatatan kas untuk kegiatan ini.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB RUNDOWN & JADWAL ACARA -->
+            <div class="tab-pane fade" id="rundown" role="tabpanel" aria-labelledby="rundown-tab">
+                <div class="panel-card bg-white border-0 shadow-sm rounded-4">
+                    <div class="panel-title d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <span class="fw-bold text-dark fs-5">Rundown & Jadwal Acara Kegiatan</span>
+                        <a href="<?= base_url('dashboard/agenda/create?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn btn-sm btn-success" style="background-color: var(--primary); border: none; padding: 8px 16px; border-radius: 8px;">
+                            <i class="fa-solid fa-plus me-2"></i>Jadwalkan Acara Baru
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Brosur</th>
+                                    <th>Tema / Acara</th>
+                                    <th>Narasumber/Ustadz</th>
+                                    <th>Tanggal & Waktu</th>
+                                    <th>Lokasi</th>
+                                    <th class="text-center" style="width: 120px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($agenda_list)) : ?>
+                                    <?php foreach ($agenda_list as $row) : ?>
+                                        <tr>
+                                            <td>
+                                                <?php if ($row['banner']) : ?>
+                                                    <img src="<?= base_url('uploads/images/' . $row['banner']) ?>" class="rounded" style="width: 70px; height: 45px; object-fit: cover;" alt="Brosur">
+                                                <?php else : ?>
+                                                    <span class="badge bg-light text-muted border py-1.5 px-2.5" style="font-size: 0.75rem;">No Image</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <strong class="text-dark d-block mb-1"><?= esc($row['judul']) ?></strong>
+                                                <small class="text-muted d-block text-truncate" style="max-width: 250px;"><?= esc(strip_tags($row['deskripsi'])) ?></small>
+                                            </td>
+                                            <td>
+                                                <?php if ($row['narasumber_id']) : ?>
+                                                    <span class="text-dark fw-medium"><i class="fa-solid fa-user-tie text-success me-1"></i><?= esc($row['nama_ustadz']) ?></span>
+                                                <?php else : ?>
+                                                    <span class="text-dark"><i class="fa-regular fa-user text-muted me-1"></i><?= esc($row['narasumber'] ?: '-') ?></span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <div class="mb-1"><i class="fa-solid fa-calendar-day text-muted me-2" style="font-size: 0.8rem;"></i><?= esc(date('d/m/Y', strtotime($row['tanggal']))) ?></div>
+                                                <div><i class="fa-solid fa-clock text-muted me-2" style="font-size: 0.8rem;"></i><?= esc(date('H:i', strtotime($row['waktu']))) ?> WITA</div>
+                                            </td>
+                                            <td>
+                                                <i class="fa-solid fa-location-dot text-danger me-1"></i><?= esc($row['lokasi']) ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <a href="<?= base_url('dashboard/agenda/edit/' . $row['id'] . '?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn-action btn-edit" title="Ubah">
+                                                        <i class="fa-solid fa-pencil"></i>
+                                                    </a>
+                                                    <a href="<?= base_url('dashboard/agenda/delete/' . $row['id'] . '?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn-action btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus jadwal acara ini?');" title="Hapus">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5 text-muted">
+                                            <i class="fa-regular fa-calendar-minus fs-1 mb-3 d-block text-secondary"></i>
+                                            Belum ada jadwal acara khusus kegiatan ini.
                                         </td>
                                     </tr>
                                 <?php endif; ?>

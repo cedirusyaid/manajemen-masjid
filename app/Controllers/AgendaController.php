@@ -49,13 +49,19 @@ class AgendaController extends BaseController
         }
 
         $personilList = $this->personilModel->where('deleted_at', null)->orderBy('nama', 'ASC')->findAll();
+        
+        $kegiatanModel = new \App\Models\KegiatanModel();
+        $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
+        $selectedKegiatanId = $this->request->getGet('kegiatan_id');
 
         return view('dashboard/agenda/create', [
-            'username'      => $this->session->get('username'),
-            'role_name'     => $this->session->get('role_name'),
-            'avatar'        => $this->session->get('avatar'),
-            'personil_list' => $personilList,
-            'validation'    => \Config\Services::validation()
+            'username'             => $this->session->get('username'),
+            'role_name'            => $this->session->get('role_name'),
+            'avatar'               => $this->session->get('avatar'),
+            'personil_list'        => $personilList,
+            'kegiatan_list'        => $kegiatanList,
+            'selected_kegiatan_id' => $selectedKegiatanId,
+            'validation'           => \Config\Services::validation()
         ]);
     }
 
@@ -69,14 +75,15 @@ class AgendaController extends BaseController
         }
 
         $rules = [
-            'judul'     => 'required|min_length[5]|max_length[255]',
-            'deskripsi' => 'required',
-            'tanggal'   => 'required|valid_date[Y-m-d]',
-            'waktu'     => 'required',
-            'lokasi'    => 'permit_empty|max_length[255]',
+            'kegiatan_id'   => 'permit_empty|max_length[36]',
+            'judul'         => 'required|min_length[5]|max_length[255]',
+            'deskripsi'     => 'required',
+            'tanggal'       => 'required|valid_date[Y-m-d]',
+            'waktu'         => 'required',
+            'lokasi'        => 'permit_empty|max_length[255]',
             'narasumber_id' => 'permit_empty',
             'narasumber'    => 'permit_empty|max_length[150]',
-            'banner'    => 'permit_empty|uploaded[banner]|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]'
+            'banner'        => 'permit_empty|uploaded[banner]|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]'
         ];
 
         if (!$this->validate($rules)) {
@@ -120,7 +127,11 @@ class AgendaController extends BaseController
             }
         }
 
+        $kegiatanId = $this->request->getPost('kegiatan_id');
+        $redirectKegiatanId = $this->request->getPost('redirect_kegiatan_id');
+
         $data = [
+            'kegiatan_id'   => !empty($kegiatanId) ? $kegiatanId : null,
             'judul'         => $this->request->getPost('judul'),
             'deskripsi'     => $this->request->getPost('deskripsi'),
             'tanggal'       => $this->request->getPost('tanggal'),
@@ -137,6 +148,10 @@ class AgendaController extends BaseController
             
             // Catat Audit Trail
             log_activity('INSERT', 'mst_agenda', $newId ?: 'UUID', null, $data);
+
+            if (!empty($redirectKegiatanId)) {
+                return redirect()->to('/dashboard/kepanitiaan/detail/' . $redirectKegiatanId)->with('success', 'Agenda pengajian baru berhasil diterbitkan.');
+            }
 
             return redirect()->to('/dashboard/agenda')->with('success', 'Agenda pengajian baru berhasil diterbitkan.');
         } catch (Exception $e) {
@@ -161,14 +176,20 @@ class AgendaController extends BaseController
         }
 
         $personilList = $this->personilModel->where('deleted_at', null)->orderBy('nama', 'ASC')->findAll();
+        
+        $kegiatanModel = new \App\Models\KegiatanModel();
+        $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
+        $redirectKegiatanId = $this->request->getGet('kegiatan_id');
 
         return view('dashboard/agenda/edit', [
-            'username'      => $this->session->get('username'),
-            'role_name'     => $this->session->get('role_name'),
-            'avatar'        => $this->session->get('avatar'),
-            'agenda'        => $agenda,
-            'personil_list' => $personilList,
-            'validation'    => \Config\Services::validation()
+            'username'             => $this->session->get('username'),
+            'role_name'            => $this->session->get('role_name'),
+            'avatar'               => $this->session->get('avatar'),
+            'agenda'               => $agenda,
+            'personil_list'        => $personilList,
+            'kegiatan_list'        => $kegiatanList,
+            'redirect_kegiatan_id' => $redirectKegiatanId,
+            'validation'           => \Config\Services::validation()
         ]);
     }
 
@@ -188,14 +209,15 @@ class AgendaController extends BaseController
         }
 
         $rules = [
-            'judul'     => 'required|min_length[5]|max_length[255]',
-            'deskripsi' => 'required',
-            'tanggal'   => 'required|valid_date[Y-m-d]',
-            'waktu'     => 'required',
-            'lokasi'    => 'permit_empty|max_length[255]',
+            'kegiatan_id'   => 'permit_empty|max_length[36]',
+            'judul'         => 'required|min_length[5]|max_length[255]',
+            'deskripsi'     => 'required',
+            'tanggal'       => 'required|valid_date[Y-m-d]',
+            'waktu'         => 'required',
+            'lokasi'        => 'permit_empty|max_length[255]',
             'narasumber_id' => 'permit_empty',
             'narasumber'    => 'permit_empty|max_length[150]',
-            'banner'    => 'permit_empty|uploaded[banner]|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]'
+            'banner'        => 'permit_empty|uploaded[banner]|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]'
         ];
 
         if (!$this->validate($rules)) {
@@ -244,7 +266,11 @@ class AgendaController extends BaseController
             }
         }
 
+        $kegiatanId = $this->request->getPost('kegiatan_id');
+        $redirectKegiatanId = $this->request->getPost('redirect_kegiatan_id');
+
         $data = [
+            'kegiatan_id'   => !empty($kegiatanId) ? $kegiatanId : null,
             'judul'         => $this->request->getPost('judul'),
             'deskripsi'     => $this->request->getPost('deskripsi'),
             'tanggal'       => $this->request->getPost('tanggal'),
@@ -260,6 +286,10 @@ class AgendaController extends BaseController
             
             // Catat Audit Trail
             log_activity('UPDATE', 'mst_agenda', $id, $agenda, $data);
+
+            if (!empty($redirectKegiatanId)) {
+                return redirect()->to('/dashboard/kepanitiaan/detail/' . $redirectKegiatanId)->with('success', 'Agenda pengajian berhasil diperbarui.');
+            }
 
             return redirect()->to('/dashboard/agenda')->with('success', 'Agenda pengajian berhasil diperbarui.');
         } catch (Exception $e) {
@@ -283,11 +313,17 @@ class AgendaController extends BaseController
             return redirect()->to('/dashboard/agenda')->with('error', 'Data agenda tidak ditemukan.');
         }
 
+        $redirectKegiatanId = $this->request->getGet('kegiatan_id');
+
         try {
             $this->agendaModel->delete($id);
 
             // Catat Audit Trail
             log_activity('DELETE', 'mst_agenda', $id, $agenda, null);
+
+            if (!empty($redirectKegiatanId)) {
+                return redirect()->to('/dashboard/kepanitiaan/detail/' . $redirectKegiatanId)->with('success', 'Agenda pengajian berhasil dihapus.');
+            }
 
             return redirect()->to('/dashboard/agenda')->with('success', 'Agenda pengajian berhasil dihapus.');
         } catch (Exception $e) {
