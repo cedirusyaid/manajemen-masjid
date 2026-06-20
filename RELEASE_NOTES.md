@@ -1,5 +1,10 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.4.12] - 2026-06-20
+### ✨ Added
+- **Script Auto-Deployment (Deploy.php)**: Menyediakan berkas `public/Deploy.php` sebagai gerbang otomatisasi penarikan kode program (git pull & composer install) melalui GitHub Webhook yang aman berbasis token.
+- **Dokumentasi Instalasi Produksi**: Menyusun berkas panduan deploy `docs_dev/setup/panduan_deploy_produksi_2026.md` untuk memandu proses konfigurasi server Debian 12 dan sistem CI/CD produksi.
+
 ## [v0.4.11] - 2026-06-20
 ### ✨ Added
 - **Visualisasi Bagan Struktur (Org Chart)**: Menambahkan tab baru "Bagan Struktur (Org Chart)" pada halaman detail Kepengurusan dan Kepanitiaan.
