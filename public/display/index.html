@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV Display - Masjid Agung Nujumul Ittihad</title>
+  <style>
+    :root {
+      --bg-dark: #0a192f;
+      --card-bg: #112240;
+      --accent-cyan: #64ffda;
+      --text-white: #e6f1ff;
+      --text-gold: #ffd166;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: background-color 2.5s ease-in-out, color 2.5s ease-in-out;
+    }
+
+    header {
+      background: var(--card-bg);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--accent-cyan);
+      transition: background-color 2.5s ease-in-out, border-color 2.5s ease-in-out;
+    }
+
+    .masjid-title {
+      font-size: 2.2rem;
+      color: var(--accent-cyan);
+      font-weight: bold;
+      transition: color 2.5s ease-in-out;
+    }
+    .masjid-sub { font-size: 1.1rem; color: #8892b0; }
+
+    .clock-box { text-align: right; }
+    .clock-time { font-size: 3.2rem; font-weight: bold; color: var(--text-gold); font-family: monospace; }
+    .clock-date { font-size: 1.1rem; color: #8892b0; }
+
+    main {
+      flex: 1;
+      padding: 20px 40px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background-color 2.5s ease-in-out;
+    }
+
+    .card h2 {
+      color: var(--accent-cyan);
+      margin-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 8px;
+      transition: color 2.5s ease-in-out;
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+      padding: 0 40px 15px 40px;
+    }
+
+    .schedule-box {
+      background: var(--card-bg);
+      padding: 15px 10px;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background-color 2.5s ease-in-out;
+    }
+
+    .schedule-box h3 { font-size: 1.1rem; text-transform: uppercase; margin-bottom: 5px; }
+    .schedule-box .time { font-size: 1.8rem; font-weight: bold; color: var(--text-gold); font-family: monospace; }
+
+    footer {
+      background: #000;
+      color: #fff;
+      padding: 12px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      font-size: 1.3rem;
+      border-top: 2px solid var(--accent-cyan);
+      transition: border-color 2.5s ease-in-out;
+    }
+
+    .marquee {
+      display: inline-block;
+      padding-left: 100%;
+      animation: marquee 30s linear infinite;
+    }
+
+    @keyframes marquee {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-100%, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <div class="masjid-title" id="disp-nama-masjid">MASJID AGUNG NUJUMUL ITTIHAD</div>
+      <div class="masjid-sub" id="disp-alamat-masjid">Kabupaten Sinjai</div>
+    </div>
+    <div class="clock-box">
+      <div class="clock-time" id="disp-clock">00:00:00</div>
+      <div class="clock-date" id="disp-date">Memuat Tanggal...</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>PENGUMUMAN & AGENDA</h2>
+      <div id="disp-agenda-content">Memuat agenda masjid...</div>
+    </div>
+    <div class="card">
+      <h2>PETUGAS JUMAT</h2>
+      <div id="disp-jumat-content">Memuat jadwal Jumat...</div>
+    </div>
+  </main>
+
+  <div class="schedule-grid">
+    <div class="schedule-box"><h3>Imsak</h3><div class="time">04:30</div></div>
+    <div class="schedule-box"><h3>Subuh</h3><div class="time">04:40</div></div>
+    <div class="schedule-box"><h3>Syuruq</h3><div class="time">06:00</div></div>
+    <div class="schedule-box"><h3>Dzuhur</h3><div class="time">12:15</div></div>
+    <div class="schedule-box"><h3>Ashar</h3><div class="time">15:30</div></div>
+    <div class="schedule-box"><h3>Maghrib</h3><div class="time">18:20</div></div>
+    <div class="schedule-box"><h3>Isya</h3><div class="time">19:35</div></div>
+  </div>
+
+  <footer>
+    <div class="marquee" id="disp-running-text">
+      Selamat Datang di Masjid Agung Nujumul Ittihad Sinjai. Mohon menonaktifkan suara HP saat di dalam masjid.
+    </div>
+  </footer>
+
+  <script>
+    // 1. Realtime Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('disp-clock').textContent = now.toLocaleTimeString('id-ID', { hour12: false });
+      document.getElementById('disp-date').textContent = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 2. Dynamic Theme Rotator (Menjaga kesehatan panel TV / Burn-in Prevention & Menyegarkan visual)
+    const themes = [
+      { bg: '#0a192f', card: '#112240', accent: '#64ffda' }, // Deep Ocean Blue
+      { bg: '#062c1e', card: '#0d402d', accent: '#50e3c2' }, // Emerald Islamic Green
+      { bg: '#1a0e2e', card: '#281746', accent: '#a78bfa' }, // Royal Midnight Purple
+      { bg: '#241808', card: '#38260f', accent: '#fbbf24' }, // Bronze Warm Amber
+      { bg: '#0f172a', card: '#1e293b', accent: '#38bdf8' }  // Slate Dark Blue
+    ];
+    let currentThemeIndex = 0;
+
+    function rotateTheme() {
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      const t = themes[currentThemeIndex];
+      document.documentElement.style.setProperty('--bg-dark', t.bg);
+      document.documentElement.style.setProperty('--card-bg', t.card);
+      document.documentElement.style.setProperty('--accent-cyan', t.accent);
+    }
+    // Ganti tema secara halus setiap 3 menit (180.000 ms)
+    setInterval(rotateTheme, 180000);
+
+    // 3. Fetch API Data dari CodeIgniter 4
+    async function fetchDisplayData() {
+      try {
+        const response = await fetch('/api/display');
+        const res = await response.json();
+
+        if (res.status) {
+          const d = res.data;
+          
+          document.getElementById('disp-nama-masjid').textContent = d.masjid.nama;
+          document.getElementById('disp-alamat-masjid').textContent = d.masjid.alamat;
+
+          // Render Petugas Jumat (Memanfaatkan relasi mst_personil)
+          if (d.jadwal_jumat) {
+            document.getElementById('disp-jumat-content').innerHTML = `
+              <p style="margin-bottom: 8px;"><strong>Tanggal:</strong> ${d.jadwal_jumat.tanggal}</p>
+              <p style="margin-bottom: 6px;"><strong>Khatib:</strong> ${d.jadwal_jumat.khatib}</p>
+              <p style="margin-bottom: 6px;"><strong>Imam:</strong> ${d.jadwal_jumat.imam}</p>
+              <p style="margin-bottom: 6px;"><strong>Muadzin:</strong> ${d.jadwal_jumat.muadzin}</p>
+              ${d.jadwal_jumat.judul_khotbah ? `<p style="margin-top: 10px; font-style: italic; color: var(--text-gold);">"${d.jadwal_jumat.judul_khotbah}"</p>` : ''}
+            `;
+          } else {
+            document.getElementById('disp-jumat-content').textContent = 'Belum ada jadwal petugas Jumat.';
+          }
+
+          // Render Agenda Kegiatan
+          if (d.agenda && d.agenda.length > 0) {
+            let agendaHtml = '<ul style="list-style: none;">';
+            d.agenda.forEach(item => {
+              agendaHtml += `<li style="margin-bottom: 12px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 6px;">
+                <strong style="color: var(--text-gold);">${item.judul}</strong><br>
+                <small>📅 ${item.tanggal} | ⏰ ${item.waktu} | 📍 ${item.lokasi || 'Masjid'}</small>
+              </li>`;
+            });
+            agendaHtml += '</ul>';
+            document.getElementById('disp-agenda-content').innerHTML = agendaHtml;
+          } else {
+            document.getElementById('disp-agenda-content').textContent = 'Tidak ada agenda mendatang.';
+          }
+
+          // Render Running Text Kas & Agenda
+          const saldo = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(d.keuangan.saldo);
+          let runningText = `Laporan Kas Masjid: ${saldo} | `;
+          if (d.agenda && d.agenda.length > 0) {
+            d.agenda.forEach(item => {
+              runningText += `${item.judul} (${item.tanggal}) | `;
+            });
+          }
+          runningText += 'Selamat Datang di Masjid Agung Nujumul Ittihad Sinjai. Mohon menonaktifkan suara HP saat berada di dalam masjid.';
+          document.getElementById('disp-running-text').textContent = runningText;
+        }
+      } catch (err) {
+        console.error("Gagal sinkronisasi data API:", err);
+      }
+    }
+
+    // Auto Refresh Data tiap 30 Detik
+    fetchDisplayData();
+    setInterval(fetchDisplayData, 30000);
+
+    // Mencegah Screen Saver TV (Wake Lock API)
+    if ('wakeLock' in navigator) {
+      navigator.wakeLock.request('screen').catch(console.error);
+    }
+  </script>
+</body>
+</html>

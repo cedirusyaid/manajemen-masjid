@@ -145,3 +145,7 @@ $routes->group('dashboard/rekening', ['namespace' => 'App\Controllers'], functio
     $routes->get('delete/(:segment)', 'RekeningController::delete/$1');
 });
 
+// Rute REST API TV Display Masjid
+$routes->get('/api/display', 'Api\DisplayController::index');
+
+
