@@ -73,24 +73,7 @@
       transition: color 2.5s ease-in-out;
     }
 
-    .schedule-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 12px;
-      padding: 0 40px 15px 40px;
-    }
 
-    .schedule-box {
-      background: var(--card-bg);
-      padding: 15px 10px;
-      border-radius: 10px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: background-color 2.5s ease-in-out;
-    }
-
-    .schedule-box h3 { font-size: 1.1rem; text-transform: uppercase; margin-bottom: 5px; }
-    .schedule-box .time { font-size: 1.8rem; font-weight: bold; color: var(--text-gold); font-family: monospace; }
 
     footer {
       background: #000;
@@ -139,15 +122,7 @@
     </div>
   </main>
 
-  <div class="schedule-grid">
-    <div class="schedule-box"><h3>Imsak</h3><div class="time">04:30</div></div>
-    <div class="schedule-box"><h3>Subuh</h3><div class="time">04:40</div></div>
-    <div class="schedule-box"><h3>Syuruq</h3><div class="time">06:00</div></div>
-    <div class="schedule-box"><h3>Dzuhur</h3><div class="time">12:15</div></div>
-    <div class="schedule-box"><h3>Ashar</h3><div class="time">15:30</div></div>
-    <div class="schedule-box"><h3>Maghrib</h3><div class="time">18:20</div></div>
-    <div class="schedule-box"><h3>Isya</h3><div class="time">19:35</div></div>
-  </div>
+
 
   <footer>
     <div class="marquee" id="disp-running-text">
@@ -156,11 +131,23 @@
   </footer>
 
   <script>
-    // 1. Realtime Clock
+    // 1. Realtime Clock (Waktu Makassar / WITA)
     function updateClock() {
       const now = new Date();
-      document.getElementById('disp-clock').textContent = now.toLocaleTimeString('id-ID', { hour12: false });
-      document.getElementById('disp-date').textContent = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('disp-clock').textContent = now.toLocaleTimeString('id-ID', {
+        timeZone: 'Asia/Makassar',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      document.getElementById('disp-date').textContent = now.toLocaleDateString('id-ID', {
+        timeZone: 'Asia/Makassar',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
     }
     setInterval(updateClock, 1000);
     updateClock();

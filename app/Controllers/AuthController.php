@@ -217,6 +217,15 @@ class AuthController extends BaseController
     {
         try {
             $client = $this->getGoogleClient();
+
+            // Set state parameter (Base64 JSON) untuk kompatibilitas OAuth Relay Proxy
+            $statePayload = json_encode([
+                'return_url' => base_url('auth/google/callback'),
+                'csrf_token' => bin2hex(random_bytes(16)),
+                'app_name'   => 'MASJID-AGUNG'
+            ]);
+            $client->setState(base64_encode($statePayload));
+
             return $client->createAuthUrl();
         } catch (Exception $e) {
             log_message('error', 'Google Auth URL Generation Failed: ' . $e->getMessage());
