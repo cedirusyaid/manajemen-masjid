@@ -29,10 +29,10 @@ class JadwalJumatModel extends Model
 
     // Validation Rules
     protected $validationRules = [
-        'tanggal'    => 'required|valid_date[Y-m-d]',
-        'khatib_id'  => 'required|alpha_dash|min_length[36]|max_length[36]',
-        'imam_id'    => 'required|alpha_dash|min_length[36]|max_length[36]',
-        'muadzin_id' => 'required|alpha_dash|min_length[36]|max_length[36]',
+        'tanggal'       => 'required|valid_date[Y-m-d]',
+        'khatib_id'     => 'required|alpha_dash|min_length[36]|max_length[36]',
+        'imam_id'       => 'required|alpha_dash|min_length[36]|max_length[36]',
+        'muadzin_id'    => 'permit_empty|max_length[36]',
         'judul_khotbah' => 'permit_empty|max_length[255]'
     ];
     protected $validationMessages = [];
@@ -85,7 +85,7 @@ class JadwalJumatModel extends Model
     }
 
     /**
-     * Dapatkan jadwal Jumat terdekat/mendatang
+     * Dapatkan jadwal Jumat terdekat/mendatang (single)
      */
     public function getJadwalTerdekat()
     {
@@ -95,15 +95,38 @@ class JadwalJumatModel extends Model
             imam_p.nama as imam_nama, imam_p.foto as imam_foto,
             muadzin_p.nama as muadzin_nama, muadzin_p.foto as muadzin_foto
         ')
-        ->join('mst_imam_khatib as khatib', 'khatib.id = trn_jadwal_jumat.khatib_id')
-        ->join('mst_personil as khatib_p', 'khatib_p.id = khatib.personil_id')
-        ->join('mst_imam_khatib as imam', 'imam.id = trn_jadwal_jumat.imam_id')
-        ->join('mst_personil as imam_p', 'imam_p.id = imam.personil_id')
-        ->join('mst_imam_khatib as muadzin', 'muadzin.id = trn_jadwal_jumat.muadzin_id')
-        ->join('mst_personil as muadzin_p', 'muadzin_p.id = muadzin.personil_id')
+        ->join('mst_imam_khatib as khatib', 'khatib.id = trn_jadwal_jumat.khatib_id', 'left')
+        ->join('mst_personil as khatib_p', 'khatib_p.id = khatib.personil_id', 'left')
+        ->join('mst_imam_khatib as imam', 'imam.id = trn_jadwal_jumat.imam_id', 'left')
+        ->join('mst_personil as imam_p', 'imam_p.id = imam.personil_id', 'left')
+        ->join('mst_imam_khatib as muadzin', 'muadzin.id = trn_jadwal_jumat.muadzin_id', 'left')
+        ->join('mst_personil as muadzin_p', 'muadzin_p.id = muadzin.personil_id', 'left')
         ->where('trn_jadwal_jumat.tanggal >=', date('Y-m-d'))
         ->where('trn_jadwal_jumat.deleted_at', null)
         ->orderBy('trn_jadwal_jumat.tanggal', 'ASC')
         ->first();
+    }
+
+    /**
+     * Dapatkan daftar jadwal Jumat mendatang (default 3 pekan ke depan)
+     */
+    public function getJadwalMendatang(int $limit = 3)
+    {
+        return $this->select('
+            trn_jadwal_jumat.*,
+            khatib_p.nama as khatib_nama, khatib_p.foto as khatib_foto, khatib.bio as khatib_bio,
+            imam_p.nama as imam_nama, imam_p.foto as imam_foto,
+            muadzin_p.nama as muadzin_nama, muadzin_p.foto as muadzin_foto
+        ')
+        ->join('mst_imam_khatib as khatib', 'khatib.id = trn_jadwal_jumat.khatib_id', 'left')
+        ->join('mst_personil as khatib_p', 'khatib_p.id = khatib.personil_id', 'left')
+        ->join('mst_imam_khatib as imam', 'imam.id = trn_jadwal_jumat.imam_id', 'left')
+        ->join('mst_personil as imam_p', 'imam_p.id = imam.personil_id', 'left')
+        ->join('mst_imam_khatib as muadzin', 'muadzin.id = trn_jadwal_jumat.muadzin_id', 'left')
+        ->join('mst_personil as muadzin_p', 'muadzin_p.id = muadzin.personil_id', 'left')
+        ->where('trn_jadwal_jumat.tanggal >=', date('Y-m-d'))
+        ->where('trn_jadwal_jumat.deleted_at', null)
+        ->orderBy('trn_jadwal_jumat.tanggal', 'ASC')
+        ->findAll($limit);
     }
 }

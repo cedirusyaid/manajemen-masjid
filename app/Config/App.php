@@ -16,7 +16,18 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    public string $baseURL = 'https://apps.sinjaikab.go.id/masjidagung/';
+    public string $baseURL = 'http://cedev/masjidagung/';
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? 'https' : 'http';
+            $scriptDir = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/\\');
+            $this->baseURL = $protocol . '://' . $_SERVER['HTTP_HOST'] . $scriptDir . '/';
+        }
+    }
 
     /**
      * Nama website / masjid resmi terpusat

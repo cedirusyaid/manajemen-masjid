@@ -18,11 +18,16 @@ class DisplayController extends ResourceController
         $settingModel = new SettingModel();
         $settings     = $settingModel->getSettings();
 
-        // 2. Fetch Active Agenda via AgendaModel
+        // 2. Fetch Active Agenda via AgendaModel & Published Pengumuman via BeritaModel
         $agendaModel = new AgendaModel();
         $agenda      = $agendaModel->where('tanggal >=', date('Y-m-d'))
             ->orderBy('tanggal', 'ASC')
             ->findAll(5);
+
+        $beritaModel = new \App\Models\BeritaModel();
+        $pengumuman  = $beritaModel->where('status', 'published')
+            ->orderBy('created_at', 'DESC')
+            ->findAll(3);
 
         // 3. Fetch Kas Summary via KeuanganModel
         $keuanganModel = new KeuanganModel();
@@ -37,23 +42,32 @@ class DisplayController extends ResourceController
             ->first();
         $kasKeluar = (float) ($rowKeluar['nominal'] ?? 0);
 
-        // 4. Fetch Nearest Friday Schedule via JadwalJumatModel
-        $jadwalJumatModel = new JadwalJumatModel();
-        $jadwalJumatRaw   = $jadwalJumatModel->getJadwalTerdekat();
+        $lastRow = $keuanganModel->orderBy('tanggal', 'DESC')->first();
+        $lastUpdateKeuangan = $lastRow['tanggal'] ?? null;
 
-        $jadwalJumat = null;
-        if ($jadwalJumatRaw) {
-            $jadwalJumat = [
-                'tanggal'       => $jadwalJumatRaw['tanggal'],
-                'judul_khotbah' => $jadwalJumatRaw['judul_khotbah'] ?? '-',
-                'khatib'        => $jadwalJumatRaw['khatib_nama'] ?? '-',
-                'khatib_foto'   => $jadwalJumatRaw['khatib_foto'] ?? null,
-                'imam'          => $jadwalJumatRaw['imam_nama'] ?? '-',
-                'imam_foto'     => $jadwalJumatRaw['imam_foto'] ?? null,
-                'muadzin'       => $jadwalJumatRaw['muadzin_nama'] ?? '-',
-                'muadzin_foto'  => $jadwalJumatRaw['muadzin_foto'] ?? null,
+        // 4. Fetch 3 Upcoming Friday Schedules via JadwalJumatModel
+        $jadwalJumatModel  = new JadwalJumatModel();
+        $jadwalJumatRawList = $jadwalJumatModel->getJadwalMendatang(3);
+
+        $jadwalJumatList = [];
+        foreach ($jadwalJumatRawList as $j) {
+            $jadwalJumatList[] = [
+                'tanggal'       => $j['tanggal'],
+                'judul_khotbah' => $j['judul_khotbah'] ?? null,
+                'khatib'        => $j['khatib_nama'] ?? null,
+                'khatib_foto'   => $j['khatib_foto'] ?? null,
+                'imam'          => $j['imam_nama'] ?? null,
+                'imam_foto'     => $j['imam_foto'] ?? null,
+                'muadzin'       => $j['muadzin_nama'] ?? null,
+                'muadzin_foto'  => $j['muadzin_foto'] ?? null,
             ];
         }
+
+        $jadwalJumatSingle = $jadwalJumatList[0] ?? null;
+
+        // 5. Fetch Active Donation Channels via RekeningModel
+        $rekeningModel = new \App\Models\RekeningModel();
+        $donasiList    = $rekeningModel->getActiveChannels();
 
         $appConfig = config('App');
 
@@ -61,6 +75,7 @@ class DisplayController extends ResourceController
             'status'  => true,
             'message' => 'Data display berhasil dimuat',
             'data'    => [
+                'display_type' => $settings['display_type'] ?? 'slideshow',
                 'masjid' => [
                     'nama'      => $settings['nama_masjid'] ?? $appConfig->siteName ?? 'MASJID AGUNG NUJUMUL ITTIHAD',
                     'alamat'    => $settings['alamat_masjid'] ?? $appConfig->siteAddress ?? 'Kabupaten Sinjai',
@@ -70,10 +85,15 @@ class DisplayController extends ResourceController
                 'keuangan' => [
                     'total_masuk'  => $kasMasuk,
                     'total_keluar' => $kasKeluar,
-                    'saldo'        => ($kasMasuk - $kasKeluar)
+                    'saldo'        => ($kasMasuk - $kasKeluar),
+                    'last_update'  => $lastUpdateKeuangan
                 ],
-                'jadwal_jumat' => $jadwalJumat,
-                'agenda'       => $agenda ?? []
+                'jadwal_jumat'      => $jadwalJumatSingle,
+                'jadwal_jumat_list' => $jadwalJumatList,
+                'agenda'            => $agenda ?? [],
+                'pengumuman'        => $pengumuman ?? [],
+                'donasi'            => $donasiList ?? [],
+                'qris_data'         => $settings['qris_data'] ?? 'MasjidAgungSinjaiQRIS'
             ]
         ];
 

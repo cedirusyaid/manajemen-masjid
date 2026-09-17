@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV Display - Masjid Agung Nujumul Ittihad (Tampilan Fullscreen Slideshow)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #0a192f;
+      --card-bg: #112240;
+      --accent-cyan: #64ffda;
+      --text-white: #e6f1ff;
+      --text-gold: #ffd166;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: background-color 2.5s ease-in-out, color 2.5s ease-in-out;
+    }
+
+    header {
+      background: var(--card-bg);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--accent-cyan);
+      transition: background-color 2.5s ease-in-out, border-color 2.5s ease-in-out;
+    }
+
+    .masjid-title {
+      font-size: 2.2rem;
+      color: var(--accent-cyan);
+      font-weight: bold;
+      transition: color 2.5s ease-in-out;
+    }
+    .masjid-sub { font-size: 1.1rem; color: #8892b0; }
+
+    .clock-box { text-align: right; }
+    .clock-time { font-size: 3.2rem; font-weight: bold; color: var(--text-gold); font-family: monospace; }
+    .clock-date { font-size: 1.1rem; color: #8892b0; }
+
+    /* Minimal Corner Buttons */
+    .btn-blank-minimal {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 10000;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.4);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-blank-minimal:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: scale(1.1);
+    }
+
+    .btn-restore-minimal {
+      position: absolute;
+      bottom: 25px;
+      right: 25px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.5);
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .btn-restore-minimal:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    main {
+      flex: 1;
+      padding: 20px 40px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .slideshow-container {
+      flex: 1;
+      position: relative;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 35px 45px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      transition: background-color 2.5s ease-in-out;
+    }
+
+    .slide {
+      display: none;
+      opacity: 0;
+      transform: scale(0.98);
+      transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+      height: 100%;
+      flex-direction: column;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .slide-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+    }
+
+    .slide-title {
+      font-size: 2rem;
+      color: var(--accent-cyan);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .slide-badge {
+      background: rgba(100, 255, 218, 0.1);
+      color: var(--accent-cyan);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1px solid var(--accent-cyan);
+    }
+
+    .slide-body {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Grid Styles for Slide Contents */
+    .pengumuman-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 20px;
+    }
+
+    .pengumuman-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 4px solid var(--text-gold);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .pengumuman-card h3 {
+      color: var(--text-gold);
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .pengumuman-card p {
+      color: var(--text-white);
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .agenda-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .agenda-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      padding: 18px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 5px solid var(--accent-cyan);
+    }
+
+    .agenda-item-info h3 {
+      font-size: 1.35rem;
+      color: var(--text-gold);
+      margin-bottom: 6px;
+    }
+
+    .agenda-item-meta {
+      font-size: 1.1rem;
+      color: #8892b0;
+      display: flex;
+      gap: 25px;
+    }
+
+    .keuangan-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+      margin-top: 15px;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 14px;
+      padding: 30px 25px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stat-label {
+      font-size: 1.15rem;
+      color: #8892b0;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      font-family: monospace;
+    }
+
+    .stat-value.masuk { color: var(--accent-green); }
+    .stat-value.keluar { color: var(--accent-red); }
+    .stat-value.saldo { color: var(--text-gold); }
+
+    .jumat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 14px;
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .jumat-detail p {
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+    }
+
+    .jumat-detail strong {
+      color: var(--accent-cyan);
+      min-width: 120px;
+      display: inline-block;
+    }
+
+    .khotbah-banner {
+      background: rgba(255, 209, 102, 0.08);
+      border: 1px dashed var(--text-gold);
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .khotbah-banner h4 {
+      color: #8892b0;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .khotbah-banner p {
+      color: var(--text-gold);
+      font-size: 1.4rem;
+      font-style: italic;
+      font-weight: 600;
+    }
+
+    /* Indicator Navigation & Progress Bar */
+    .indicator-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .indicator-pill {
+      padding: 8px 20px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #8892b0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .indicator-pill.active {
+      background: var(--accent-cyan);
+      color: #0a192f;
+      font-weight: 700;
+      box-shadow: 0 0 15px rgba(100, 255, 218, 0.4);
+    }
+
+    .progress-bar-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--accent-cyan);
+      transition: width 0.1s linear;
+    }
+
+    footer {
+      background: #000;
+      color: #fff;
+      padding: 12px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      font-size: 1.3rem;
+      border-top: 2px solid var(--accent-cyan);
+      transition: border-color 2.5s ease-in-out;
+    }
+
+    .marquee {
+      display: inline-block;
+      padding-left: 100%;
+      animation: marquee 30s linear infinite;
+    }
+
+    @keyframes marquee {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-100%, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <div class="masjid-title" id="disp-nama-masjid">MASJID AGUNG NUJUMUL ITTIHAD</div>
+    </div>
+    <div class="clock-box">
+      <div class="clock-time" id="disp-clock">00:00</div>
+      <div class="clock-date" id="disp-date">Memuat Tanggal...</div>
+    </div>
+  </header>
+
+  <!-- Tombol Minimalis Layar Blank (Sudut Kanan Atas) -->
+  <button type="button" class="btn-blank-minimal" onclick="toggleManualBlank()" title="Matikan Layar Sementara (Blank)">
+    <i class="fa-solid fa-moon"></i>
+  </button>
+
+  <main>
+    <div class="slideshow-container">
+      
+      <!-- Slide 1: Pengumuman -->
+      <div class="slide active" id="slide-0">
+        <div class="slide-header">
+          <div class="slide-title">📢 PENGUMUMAN MASJID</div>
+        </div>
+        <div class="slide-body" id="slide-pengumuman-content">
+          Memuat pengumuman...
+        </div>
+      </div>
+
+      <!-- Slide 2: Agenda Kegiatan -->
+      <div class="slide" id="slide-1">
+        <div class="slide-header">
+          <div class="slide-title">📅 AGENDA & KEGIATAN MENDATANG</div>
+        </div>
+        <div class="slide-body" id="slide-agenda-content">
+          Memuat agenda mendatang...
+        </div>
+      </div>
+
+      <!-- Slide 3: Laporan Keuangan -->
+      <div class="slide" id="slide-2">
+        <div class="slide-header">
+          <div class="slide-title">💰 LAPORAN KAS & KEUANGAN MASJID</div>
+        </div>
+        <div class="slide-body" id="slide-keuangan-content">
+          Memuat laporan keuangan...
+        </div>
+      </div>
+
+      <!-- Slide 4: Petugas Jumat -->
+      <div class="slide" id="slide-3">
+        <div class="slide-header">
+          <div class="slide-title">🕌 PETUGAS SALAT JUMAT</div>
+        </div>
+        <div class="slide-body" id="slide-jumat-content">
+          Memuat petugas salat Jumat...
+        </div>
+      </div>
+
+      <!-- Slide 5: Donasi & Infaq Digital -->
+      <div class="slide" id="slide-4">
+        <div class="slide-header">
+          <div class="slide-title">💳 INFAQ, SEDEKAH & DONASI DIGITAL</div>
+        </div>
+        <div class="slide-body" id="slide-donasi-content">
+          Memuat informasi donasi & QR Code...
+        </div>
+      </div>
+
+      <!-- Slide Indicators -->
+      <div class="indicator-container">
+        <div class="indicator-pill active" id="pill-0">📢 Pengumuman</div>
+        <div class="indicator-pill" id="pill-1">📅 Agenda</div>
+        <div class="indicator-pill" id="pill-2">💰 Keuangan</div>
+        <div class="indicator-pill" id="pill-3">🕌 Petugas Jumat</div>
+        <div class="indicator-pill" id="pill-4">💳 Donasi & QRIS</div>
+      </div>
+
+      <!-- Auto Progress Bar -->
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="slide-progress"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- OVERLAY PURE BLANK SCREEN (GELAP TOTAL) -->
+  <div id="prayer-overlay" onclick="restoreDisplay()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; cursor: pointer;">
+    <!-- Tombol Minimalis Restore Display (Sudut Kanan Bawah) -->
+    <button type="button" onclick="event.stopPropagation(); restoreDisplay();" class="btn-restore-minimal" title="Tampilkan Kembali Display">
+      <i class="fa-solid fa-tv"></i> Tampilkan Display
+    </button>
+  </div>
+
+  <footer>
+    <div class="marquee" id="disp-running-text">
+      Selamat Datang di Masjid Agung Nujumul Ittihad Sinjai. Mohon menonaktifkan suara HP saat di dalam masjid.
+    </div>
+  </footer>
+
+  <script>
+    // 1. Realtime Clock (Waktu Makassar / WITA)
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('disp-clock').textContent = now.toLocaleTimeString('id-ID', {
+        timeZone: 'Asia/Makassar',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).replace(/\./g, ':');
+      document.getElementById('disp-date').textContent = now.toLocaleDateString('id-ID', {
+        timeZone: 'Asia/Makassar',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).replace(/Minggu/g, 'Ahad');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 2. Dynamic Theme Rotator (Burn-in Prevention & Visual Refresh)
+    const themes = [
+      { bg: '#0a192f', card: '#112240', accent: '#64ffda' },
+      { bg: '#062c1e', card: '#0d402d', accent: '#50e3c2' },
+      { bg: '#1a0e2e', card: '#281746', accent: '#a78bfa' },
+      { bg: '#241808', card: '#38260f', accent: '#fbbf24' },
+      { bg: '#0f172a', card: '#1e293b', accent: '#38bdf8' }
+    ];
+    let currentThemeIndex = 0;
+
+    function rotateTheme() {
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      const t = themes[currentThemeIndex];
+      document.documentElement.style.setProperty('--bg-dark', t.bg);
+      document.documentElement.style.setProperty('--card-bg', t.card);
+      document.documentElement.style.setProperty('--accent-cyan', t.accent);
+    }
+    setInterval(rotateTheme, 180000);
+
+    // 3. Slideshow Rotation Controller
+    let currentSlide = 0;
+    const totalSlides = 5;
+    const slideDuration = 10000; // 10 Detik per Slide
+    let slideTimer = null;
+    let progressInterval = null;
+    let progressPercent = 0;
+
+    function showSlide(index) {
+      currentSlide = index;
+      for (let i = 0; i < totalSlides; i++) {
+        const slideEl = document.getElementById(`slide-${i}`);
+        const pillEl = document.getElementById(`pill-${i}`);
+        if (slideEl) slideEl.classList.remove('active');
+        if (pillEl) pillEl.classList.remove('active');
+      }
+
+      const activeSlide = document.getElementById(`slide-${currentSlide}`);
+      const activePill = document.getElementById(`pill-${currentSlide}`);
+      if (activeSlide) activeSlide.classList.add('active');
+      if (activePill) activePill.classList.add('active');
+
+      resetProgressBar();
+    }
+
+    function resetProgressBar() {
+      progressPercent = 0;
+      const bar = document.getElementById('slide-progress');
+      if (bar) bar.style.width = '0%';
+    }
+
+    function startSlideshow() {
+      if (slideTimer) clearInterval(slideTimer);
+      if (progressInterval) clearInterval(progressInterval);
+
+      progressInterval = setInterval(() => {
+        progressPercent += 1;
+        const bar = document.getElementById('slide-progress');
+        if (bar) bar.style.width = `${progressPercent}%`;
+      }, slideDuration / 100);
+
+      slideTimer = setInterval(() => {
+        const nextSlide = (currentSlide + 1) % totalSlides;
+        showSlide(nextSlide);
+      }, slideDuration);
+    }
+
+    // 4. Helper Formatting
+    const formatIndoDate = (dateStr) => {
+      if (!dateStr) return '-';
+      const p = dateStr.split('-');
+      if (p.length === 3) {
+        const dt = new Date(p[0], p[1] - 1, p[2]);
+        return dt.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(/Minggu/g, 'Ahad');
+      }
+      return dateStr;
+    };
+
+    const formatTimeShort = (timeStr) => {
+      if (!timeStr) return '-';
+      const p = timeStr.split(':');
+      return p.length >= 2 ? `${p[0]}:${p[1]}` : timeStr;
+    };
+
+    const formatRupiah = (nominal) => {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(nominal);
+    };
+
+    // 5. Fetch API Data dari CodeIgniter 4
+    async function fetchDisplayData() {
+      try {
+        let path = window.location.pathname;
+        if (path.endsWith('.html') || path.endsWith('.php')) {
+          path = path.substring(0, path.lastIndexOf('/'));
+        }
+        if (!path.endsWith('/')) {
+          path += '/';
+        }
+        const basePath = path.replace(/\/display\/$/, '/');
+
+        let response;
+        try {
+          response = await fetch(basePath + 'api/display');
+          if (!response.ok) {
+            response = await fetch(basePath + 'index.php/api/display');
+          }
+        } catch (e) {
+          response = await fetch(basePath + 'index.php/api/display');
+        }
+
+        const res = await response.json();
+
+        if (res.status) {
+          const d = res.data;
+
+          document.getElementById('disp-nama-masjid').textContent = d.masjid.nama;
+
+          // Render Slide 1: Pengumuman
+          if (d.pengumuman && d.pengumuman.length > 0) {
+            let html = '<div class="pengumuman-grid">';
+            d.pengumuman.forEach(p => {
+              const ringkasan = p.konten ? p.konten.replace(/<[^>]*>/g, '') : '';
+              html += `
+                <div class="pengumuman-card">
+                  <h3>📢 ${p.judul}</h3>
+                  <p>${ringkasan}</p>
+                </div>
+              `;
+            });
+            html += '</div>';
+            document.getElementById('slide-pengumuman-content').innerHTML = html;
+          } else {
+            document.getElementById('slide-pengumuman-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Tidak ada pengumuman terbaru.</p>';
+          }
+
+          // Render Slide 2: Agenda Kegiatan
+          if (d.agenda && d.agenda.length > 0) {
+            let html = '<div class="agenda-list">';
+            d.agenda.forEach(item => {
+              html += `
+                <div class="agenda-item">
+                  <div class="agenda-item-info">
+                    <h3>${item.judul}</h3>
+                    <div class="agenda-item-meta">
+                      <span>📅 ${formatIndoDate(item.tanggal)}</span>
+                      <span>⏰ ${formatTimeShort(item.waktu)} WITA</span>
+                      <span>📍 ${item.lokasi || 'Masjid'}</span>
+                      ${item.narasumber ? `<span>🎙️ ${item.narasumber}</span>` : ''}
+                    </div>
+                  </div>
+                </div>
+              `;
+            });
+            html += '</div>';
+            document.getElementById('slide-agenda-content').innerHTML = html;
+          } else {
+            document.getElementById('slide-agenda-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Tidak ada agenda mendatang.</p>';
+          }
+
+          // Render Slide 3: Keuangan
+          if (d.keuangan) {
+            const lastUpdateTxt = d.keuangan.last_update ? `<p style="text-align: right; color: #8892b0; font-size: 1.05rem; margin-bottom: 15px;">🕒 Update Terakhir Kas: <strong style="color: var(--text-gold);">${formatIndoDate(d.keuangan.last_update)}</strong></p>` : '';
+            document.getElementById('slide-keuangan-content').innerHTML = `
+              ${lastUpdateTxt}
+              <div class="keuangan-stats">
+                <div class="stat-box">
+                  <div class="stat-label">Total Pemasukan Kas</div>
+                  <div class="stat-value masuk">${formatRupiah(d.keuangan.total_masuk)}</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-label">Total Pengeluaran Kas</div>
+                  <div class="stat-value keluar">${formatRupiah(d.keuangan.total_keluar)}</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-label">Saldo Akhir Kas Masjid</div>
+                  <div class="stat-value saldo">${formatRupiah(d.keuangan.saldo)}</div>
+                </div>
+              </div>
+            `;
+          }
+
+          // Render Slide 4: Petugas Jumat (3 Jumat ke Depan)
+          const listJumat = d.jadwal_jumat_list && d.jadwal_jumat_list.length > 0 ? d.jadwal_jumat_list : (d.jadwal_jumat ? [d.jadwal_jumat] : []);
+
+          if (listJumat.length > 0) {
+            let jumatHtml = `<div style="display: grid; grid-template-columns: repeat(${Math.min(listJumat.length, 3)}, 1fr); gap: 20px;">`;
+            
+            listJumat.forEach((j) => {
+              const muadzinHtml = (j.muadzin && j.muadzin !== '-') 
+                ? `<p style="font-size: 1.1rem; margin-bottom: 8px;"><strong style="color: var(--accent-cyan);">Muadzin</strong>: ${j.muadzin}</p>` 
+                : '';
+
+              const khotbahHtml = (j.judul_khotbah && j.judul_khotbah !== '-') 
+                ? `<div style="background: rgba(255, 209, 102, 0.08); border: 1px dashed var(--text-gold); border-radius: 8px; padding: 12px; margin-top: 12px; text-align: center;">
+                    <small style="color: #8892b0; font-size: 0.85rem; text-transform: uppercase;">Judul Khotbah</small>
+                    <p style="color: var(--text-gold); font-size: 1.05rem; font-style: italic; font-weight: 600; margin-top: 4px;">"${j.judul_khotbah}"</p>
+                  </div>` 
+                : '';
+
+              jumatHtml += `
+                <div style="background: rgba(255, 255, 255, 0.03); border-radius: 12px; padding: 22px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; justify-content: space-between;">
+                  <div>
+                    <div style="background: rgba(100, 255, 218, 0.1); color: var(--accent-cyan); padding: 4px 12px; border-radius: 15px; font-size: 0.9rem; font-weight: 700; display: inline-block; margin-bottom: 12px; border: 1px solid var(--accent-cyan);">
+                      🗓️ ${formatIndoDate(j.tanggal)}
+                    </div>
+                    <p style="font-size: 1.1rem; margin-bottom: 8px;"><strong style="color: var(--accent-cyan);">Khatib</strong>: ${j.khatib && j.khatib !== '-' ? j.khatib : '-'}</p>
+                    <p style="font-size: 1.1rem; margin-bottom: 8px;"><strong style="color: var(--accent-cyan);">Imam</strong>: ${j.imam && j.imam !== '-' ? j.imam : '-'}</p>
+                    ${muadzinHtml}
+                  </div>
+                  ${khotbahHtml}
+                </div>
+              `;
+            });
+
+            jumatHtml += '</div>';
+            document.getElementById('slide-jumat-content').innerHTML = jumatHtml;
+          } else {
+            document.getElementById('slide-jumat-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Belum ada jadwal petugas Jumat.</p>';
+          }
+
+          // Render Slide 5: Donasi & Infaq Digital
+          const qrisVal = d.qris_data || 'MasjidAgungSinjaiQRIS';
+          const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrisVal)}`;
+
+          let rekeningHtml = '';
+          if (d.donasi && d.donasi.length > 0) {
+            d.donasi.forEach(rek => {
+              rekeningHtml += `
+                <div style="background: rgba(255, 255, 255, 0.03); border-radius: 12px; padding: 16px 22px; margin-bottom: 10px; border-left: 4px solid var(--text-gold);">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--accent-cyan); font-weight: 700; font-size: 1.15rem;">${rek.nama_bank}</span>
+                    <span style="background: rgba(255, 209, 102, 0.1); color: var(--text-gold); padding: 3px 10px; border-radius: 10px; font-size: 0.8rem; text-transform: uppercase;">${rek.jenis}</span>
+                  </div>
+                  <div style="font-size: 1.6rem; font-weight: bold; color: var(--text-gold); font-family: monospace; margin: 4px 0;">
+                    ${rek.nomor_rekening}
+                  </div>
+                  <div style="color: #8892b0; font-size: 0.95rem;">a.n. ${rek.atas_nama}</div>
+                </div>
+              `;
+            });
+          } else {
+            rekeningHtml = '<p style="color: #8892b0;">Transfer Bank: Kas Masjid & Panitia Pembangunan</p>';
+          }
+
+          document.getElementById('slide-donasi-content').innerHTML = `
+            <div style="display: grid; grid-template-columns: 260px 1fr; gap: 30px; align-items: center;">
+              <div style="text-align: center; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="background: #fff; padding: 10px; border-radius: 12px; display: inline-block;">
+                  <img src="${qrCodeUrl}" alt="QRIS Masjid" style="width: 200px; height: 200px; display: block;" />
+                </div>
+                <div style="color: var(--accent-cyan); font-weight: 700; font-size: 1.05rem; margin-top: 10px;">SCAN QRIS MASJID</div>
+                <small style="color: #8892b0; font-size: 0.8rem; display: block; margin-top: 2px;">GoPay, OVO, DANA, LinkAja & Mobile Banking</small>
+              </div>
+              <div>
+                <h3 style="color: var(--accent-cyan); font-size: 1.3rem; margin-bottom: 12px;">💳 Rekening Transfer Bank Resmi</h3>
+                ${rekeningHtml}
+              </div>
+            </div>
+          `;
+
+          // Render Running Text
+          const saldo = formatRupiah(d.keuangan.saldo);
+          const tglUpdateKas = d.keuangan.last_update ? ` (Per ${formatIndoDate(d.keuangan.last_update)})` : '';
+          let runningText = `Laporan Kas Masjid${tglUpdateKas}: ${saldo} | `;
+
+          if (d.pengumuman && d.pengumuman.length > 0) {
+            d.pengumuman.forEach(p => {
+              runningText += `📢 ${p.judul} | `;
+            });
+          }
+
+          if (d.agenda && d.agenda.length > 0) {
+            d.agenda.forEach(item => {
+              runningText += `📅 ${item.judul} (${formatIndoDate(item.tanggal)}) | `;
+            });
+          }
+
+          runningText += 'Selamat Datang di Masjid Agung Nujumul Ittihad Sinjai. Mohon menonaktifkan suara HP saat berada di dalam masjid.';
+          document.getElementById('disp-running-text').textContent = runningText;
+        }
+      } catch (err) {
+        console.error("Gagal sinkronisasi data API:", err);
+      }
+    }
+
+    // 6. Prayer Times & Automatic Pure Blank Engine (10 Menit Sebelum s.d 10 Menit Setelah Waktu Salat)
+    let prayerTimes = {
+      subuh: "04:45",
+      dzuhur: "12:12",
+      ashar: "15:20",
+      maghrib: "18:15",
+      isya: "19:24"
+    };
+
+    let isManualBlank = false;
+    let userOverriddenWindow = false;
+
+    async function fetchPrayerTimes() {
+      try {
+        const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Sinjai&country=Indonesia&method=20");
+        const json = await res.json();
+        if (json && json.data && json.data.timings) {
+          const t = json.data.timings;
+          prayerTimes = {
+            subuh: t.Fajr,
+            dzuhur: t.Dhuhr,
+            ashar: t.Asr,
+            maghrib: t.Maghrib,
+            isya: t.Isha
+          };
+        }
+      } catch (err) {
+        console.log("Menggunakan jadwal shalat default.");
+      }
+    }
+    fetchPrayerTimes();
+
+    function timeToMinutes(tStr) {
+      if (!tStr) return 0;
+      const p = tStr.split(':');
+      return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+    }
+
+    function isWithinPrayerWindow(nowMinutes, prayerTimeStr) {
+      if (!prayerTimeStr) return false;
+      const pMin = timeToMinutes(prayerTimeStr);
+      const startMin = pMin - 10;
+      const endMin = pMin + 10;
+      return nowMinutes >= startMin && nowMinutes <= endMin;
+    }
+
+    function checkPrayerBlankTrigger() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('id-ID', {
+        timeZone: 'Asia/Makassar',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).replace(/\./g, ':');
+
+      const nowMin = timeToMinutes(timeStr);
+
+      let inWindow = false;
+      for (const key in prayerTimes) {
+        if (isWithinPrayerWindow(nowMin, prayerTimes[key])) {
+          inWindow = true;
+          break;
+        }
+      }
+
+      if (!inWindow) {
+        userOverriddenWindow = false;
+      }
+
+      if (isManualBlank || (inWindow && !userOverriddenWindow)) {
+        showBlankScreen();
+      } else {
+        hideBlankScreen();
+      }
+    }
+    setInterval(checkPrayerBlankTrigger, 1000);
+
+    function showBlankScreen() {
+      document.getElementById('prayer-overlay').style.display = 'flex';
+    }
+
+    function hideBlankScreen() {
+      document.getElementById('prayer-overlay').style.display = 'none';
+    }
+
+    function toggleManualBlank() {
+      isManualBlank = true;
+      showBlankScreen();
+    }
+
+    function restoreDisplay() {
+      isManualBlank = false;
+      userOverriddenWindow = true;
+      hideBlankScreen();
+    }
+
+    // Keyboard Shortcuts (B = Blank Manual, Esc = Restore Display)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'b' || e.key === 'B') {
+        toggleManualBlank();
+      } else if (e.key === 'Escape') {
+        restoreDisplay();
+      }
+    });
+
+    // Init & Start
+    fetchDisplayData();
+    setInterval(fetchDisplayData, 30000);
+    startSlideshow();
+
+    if ('wakeLock' in navigator) {
+      navigator.wakeLock.request('screen').catch(console.error);
+    }
+  </script>
+</body>
+</html>

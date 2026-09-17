@@ -345,7 +345,7 @@
 
                     <!-- Judul Khotbah -->
                     <div class="col-md-6 mb-4">
-                        <label for="judul_khotbah" class="form-label">Rencana Judul Khotbah</label>
+                        <label for="judul_khotbah" class="form-label">Rencana Judul Khotbah <span class="text-muted fw-normal">(Opsional)</span></label>
                         <input type="text" class="form-control" id="judul_khotbah" name="judul_khotbah" placeholder="Masukkan judul/tema khotbah (opsional)" value="<?= old('judul_khotbah') ?>">
                     </div>
                 </div>
@@ -353,41 +353,56 @@
                 <div class="row">
                     <!-- Khatib -->
                     <div class="col-md-4 mb-4">
-                        <label for="khatib_id" class="form-label">Khatib</label>
-                        <select class="form-select" id="khatib_id" name="khatib_id" required>
-                            <option value="">-- Pilih Khatib --</option>
-                            <?php foreach ($khatib_list as $khatib) : ?>
-                                <option value="<?= esc($khatib['id']) ?>" <?= old('khatib_id') == $khatib['id'] ? 'selected' : '' ?>>
-                                    <?= esc($khatib['nama']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label for="khatib_id" class="form-label">Khatib <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <select class="form-select select2-petugas" id="khatib_id" name="khatib_id" required>
+                                <option value="">-- Pilih / Cari Khatib --</option>
+                                <?php foreach ($khatib_list as $khatib) : ?>
+                                    <option value="<?= esc($khatib['id']) ?>" <?= old('khatib_id') == $khatib['id'] ? 'selected' : '' ?>>
+                                        <?= esc($khatib['nama']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="btn btn-outline-success btn-quick-add" data-target="khatib_id" data-jabatan="khatib" title="Tambah Khatib Baru">
+                                <i class="fa-solid fa-user-plus"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Imam -->
                     <div class="col-md-4 mb-4">
-                        <label for="imam_id" class="form-label">Imam Salat</label>
-                        <select class="form-select" id="imam_id" name="imam_id" required>
-                            <option value="">-- Pilih Imam --</option>
-                            <?php foreach ($imam_list as $imam) : ?>
-                                <option value="<?= esc($imam['id']) ?>" <?= old('imam_id') == $imam['id'] ? 'selected' : '' ?>>
-                                    <?= esc($imam['nama']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label for="imam_id" class="form-label">Imam Salat <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <select class="form-select select2-petugas" id="imam_id" name="imam_id" required>
+                                <option value="">-- Pilih / Cari Imam --</option>
+                                <?php foreach ($imam_list as $imam) : ?>
+                                    <option value="<?= esc($imam['id']) ?>" <?= old('imam_id') == $imam['id'] ? 'selected' : '' ?>>
+                                        <?= esc($imam['nama']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="btn btn-outline-success btn-quick-add" data-target="imam_id" data-jabatan="imam" title="Tambah Imam Baru">
+                                <i class="fa-solid fa-user-plus"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Muadzin -->
+                    <!-- Muadzin (Opsional) -->
                     <div class="col-md-4 mb-4">
-                        <label for="muadzin_id" class="form-label">Muadzin</label>
-                        <select class="form-select" id="muadzin_id" name="muadzin_id" required>
-                            <option value="">-- Pilih Muadzin --</option>
-                            <?php foreach ($muadzin_list as $muadzin) : ?>
-                                <option value="<?= esc($muadzin['id']) ?>" <?= old('muadzin_id') == $muadzin['id'] ? 'selected' : '' ?>>
-                                    <?= esc($muadzin['nama']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label for="muadzin_id" class="form-label">Muadzin <span class="text-muted fw-normal">(Opsional)</span></label>
+                        <div class="input-group">
+                            <select class="form-select select2-petugas" id="muadzin_id" name="muadzin_id">
+                                <option value="">-- Pilih / Cari Muadzin (Opsional) --</option>
+                                <?php foreach ($muadzin_list as $muadzin) : ?>
+                                    <option value="<?= esc($muadzin['id']) ?>" <?= old('muadzin_id') == $muadzin['id'] ? 'selected' : '' ?>>
+                                        <?= esc($muadzin['nama']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="btn btn-outline-success btn-quick-add" data-target="muadzin_id" data-jabatan="muadzin" title="Tambah Muadzin Baru">
+                                <i class="fa-solid fa-user-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -406,7 +421,128 @@
         </div>
     </main>
 
+    <!-- MODAL TAMBAH PETUGAS BARU (QUICK ADD) -->
+    <div class="modal fade" id="modalQuickAddPetugas" tabindex="-1" aria-labelledby="modalQuickAddLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content style-modal" style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-heading fw-bold" id="modalQuickAddLabel"><i class="fa-solid fa-user-plus text-success me-2"></i>Tambah Petugas Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <form id="formQuickAddPetugas">
+                        <input type="hidden" id="target_select_id" value="">
+                        
+                        <div class="mb-3">
+                            <label for="new_nama_petugas" class="form-label">Nama Lengkap Petugas <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="new_nama_petugas" placeholder="Contoh: Ust. H. Abd. Kadir, Lc." required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="new_jabatan_petugas" class="form-label">Peran Utama Petugas <span class="text-danger">*</span></label>
+                            <select class="form-select" id="new_jabatan_petugas" required>
+                                <option value="khatib">Khatib</option>
+                                <option value="imam">Imam Salat</option>
+                                <option value="muadzin">Muadzin</option>
+                                <option value="imam_khatib">Imam & Khatib</option>
+                            </select>
+                        </div>
+
+                        <div id="quickAddAlert" class="alert alert-danger d-none mb-0" role="alert"></div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal" style="border-radius: 10px;">Batal</button>
+                    <button type="button" class="btn btn-success px-4" id="btnSaveQuickAdd" style="border-radius: 10px;">Simpan & Pilih <i class="fa-solid fa-check ms-1"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Select2 CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- Bootstrap 5.3 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Inisialisasi Select2 dengan fitur pencarian
+            $('#khatib_id, #imam_id, #muadzin_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- Pilih / Cari Petugas --',
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Buka modal Quick Add Petugas
+            $('.btn-quick-add').on('click', function() {
+                const target = $(this).data('target');
+                const defaultRole = $(this).data('jabatan');
+                
+                $('#target_select_id').val(target);
+                $('#new_nama_petugas').val('');
+                $('#new_jabatan_petugas').val(defaultRole || 'khatib');
+                $('#quickAddAlert').addClass('d-none').text('');
+                
+                const modal = new bootstrap.Modal(document.getElementById('modalQuickAddPetugas'));
+                modal.show();
+            });
+
+            // Simpan Petugas Baru via AJAX
+            $('#btnSaveQuickAdd').on('click', function() {
+                const nama = $('#new_nama_petugas').val().trim();
+                const jabatan = $('#new_jabatan_petugas').val();
+                const targetSelectId = $('#target_select_id').val();
+
+                if (!nama) {
+                    $('#quickAddAlert').removeClass('d-none').text('Nama petugas wajib diisi.');
+                    return;
+                }
+
+                const btn = $(this);
+                btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin me-1"></i> Menyimpan...');
+
+                $.ajax({
+                    url: '<?= base_url('dashboard/jadwal-jumat/ajax-add-petugas') ?>',
+                    type: 'POST',
+                    data: {
+                        '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
+                        nama: nama,
+                        jabatan: jabatan
+                    },
+                    dataType: 'json',
+                    success: function(res) {
+                        btn.prop('disabled', false).html('Simpan & Pilih <i class="fa-solid fa-check ms-1"></i>');
+                        if (res.status) {
+                            const newOption = new Option(res.data.nama, res.data.id, true, true);
+                            
+                            // Tambahkan ke target select dan pilih
+                            $('#' + targetSelectId).append(newOption).trigger('change');
+                            
+                            // Tambahkan juga ke select petugas lainnya jika belum ada
+                            ['khatib_id', 'imam_id', 'muadzin_id'].forEach(function(sId) {
+                                if (sId !== targetSelectId && $('#' + sId + ' option[value="' + res.data.id + '"]').length === 0) {
+                                    $('#' + sId).append(new Option(res.data.nama, res.data.id, false, false)).trigger('change.select2');
+                                }
+                            });
+
+                            const modalEl = document.getElementById('modalQuickAddPetugas');
+                            const modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) modal.hide();
+                        } else {
+                            $('#quickAddAlert').removeClass('d-none').text(res.message || 'Gagal menyimpan data.');
+                        }
+                    },
+                    error: function() {
+                        btn.prop('disabled', false).html('Simpan & Pilih <i class="fa-solid fa-check ms-1"></i>');
+                        $('#quickAddAlert').removeClass('d-none').text('Terjadi kesalahan koneksi server.');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

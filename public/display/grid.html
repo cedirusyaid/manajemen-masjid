@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV Display - Masjid Agung Nujumul Ittihad (Tampilan Split Grid)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #0a192f;
+      --card-bg: #112240;
+      --accent-cyan: #64ffda;
+      --text-white: #e6f1ff;
+      --text-gold: #ffd166;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: background-color 2.5s ease-in-out, color 2.5s ease-in-out;
+    }
+
+    header {
+      background: var(--card-bg);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--accent-cyan);
+      transition: background-color 2.5s ease-in-out, border-color 2.5s ease-in-out;
+    }
+
+    .masjid-title {
+      font-size: 2.2rem;
+      color: var(--accent-cyan);
+      font-weight: bold;
+      transition: color 2.5s ease-in-out;
+    }
+    .masjid-sub { font-size: 1.1rem; color: #8892b0; }
+
+    .clock-box { text-align: right; }
+    .clock-time { font-size: 3.2rem; font-weight: bold; color: var(--text-gold); font-family: monospace; }
+    .clock-date { font-size: 1.1rem; color: #8892b0; }
+
+    /* Minimal Corner Buttons */
+    .btn-blank-minimal {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 10000;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.4);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-blank-minimal:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: scale(1.1);
+    }
+
+    .btn-restore-minimal {
+      position: absolute;
+      bottom: 25px;
+      right: 25px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.5);
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .btn-restore-minimal:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    main {
+      flex: 1;
+      padding: 20px 40px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background-color 2.5s ease-in-out;
+    }
+
+    .card h2 {
+      color: var(--accent-cyan);
+      margin-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 8px;
+      transition: color 2.5s ease-in-out;
+    }
+
+    footer {
+      background: #000;
+      color: #fff;
+      padding: 12px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      font-size: 1.3rem;
+      border-top: 2px solid var(--accent-cyan);
+      transition: border-color 2.5s ease-in-out;
+    }
+
+    .marquee {
+      display: inline-block;
+      padding-left: 100%;
+      animation: marquee 30s linear infinite;
+    }
+
+    @keyframes marquee {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-100%, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <div class="masjid-title" id="disp-nama-masjid">MASJID AGUNG NUJUMUL ITTIHAD</div>
+    </div>
+    <div class="clock-box">
+      <div class="clock-time" id="disp-clock">00:00</div>
+      <div class="clock-date" id="disp-date">Memuat Tanggal...</div>
+    </div>
+  </header>
+
+  <!-- Tombol Minimalis Layar Blank (Sudut Kanan Atas) -->
+  <button type="button" class="btn-blank-minimal" onclick="toggleManualBlank()" title="Matikan Layar Sementara (Blank)">
+    <i class="fa-solid fa-moon"></i>
+  </button>
+
+  <main>
+    <div class="card">
+      <h2>PENGUMUMAN & AGENDA</h2>
+      <div id="disp-agenda-content">Memuat agenda masjid...</div>
+    </div>
+    <div class="card">
+      <h2>PETUGAS JUMAT</h2>
+      <div id="disp-jumat-content">Memuat jadwal Jumat...</div>
+    </div>
+  </main>
+
+  <!-- OVERLAY PURE BLANK SCREEN (GELAP TOTAL) -->
+  <div id="prayer-overlay" onclick="restoreDisplay()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; cursor: pointer;">
+    <!-- Tombol Minimalis Restore Display (Sudut Kanan Bawah) -->
+    <button type="button" onclick="event.stopPropagation(); restoreDisplay();" class="btn-restore-minimal" title="Tampilkan Kembali Display">
+      <i class="fa-solid fa-tv"></i> Tampilkan Display
+    </button>
+  </div>
+
+  <footer>
+    <div class="marquee" id="disp-running-text">
+      Selamat Datang di Masjid Agung Nujumul Ittihad Sinjai. Mohon menonaktifkan suara HP saat di dalam masjid.
+    </div>
+  </footer>
+
+  <script>
+    // 1. Realtime Clock (Waktu Makassar / WITA)
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('disp-clock').textContent = now.toLocaleTimeString('id-ID', {
+        timeZone: 'Asia/Makassar',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).replace(/\./g, ':');
+      document.getElementById('disp-date').textContent = now.toLocaleDateString('id-ID', {
+        timeZone: 'Asia/Makassar',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).replace(/Minggu/g, 'Ahad');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 2. Dynamic Theme Rotator
+    const themes = [
+      { bg: '#0a192f', card: '#112240', accent: '#64ffda' },
+      { bg: '#062c1e', card: '#0d402d', accent: '#50e3c2' },
+      { bg: '#1a0e2e', card: '#281746', accent: '#a78bfa' },
+      { bg: '#241808', card: '#38260f', accent: '#fbbf24' },
+      { bg: '#0f172a', card: '#1e293b', accent: '#38bdf8' }
+    ];
+    let currentThemeIndex = 0;
+
+    function rotateTheme() {
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      const t = themes[currentThemeIndex];
+      document.documentElement.style.setProperty('--bg-dark', t.bg);
+      document.documentElement.style.setProperty('--card-bg', t.card);
+      document.documentElement.style.setProperty('--accent-cyan', t.accent);
+    }
+    setInterval(rotateTheme, 180000);
+
+    // 3. Fetch API Data dari CodeIgniter 4
+    async function fetchDisplayData() {
+      try {
+        let path = window.location.pathname;
+        if (path.endsWith('.html') || path.endsWith('.php')) {
+          path = path.substring(0, path.lastIndexOf('/'));
+        }
+        if (!path.endsWith('/')) {
+          path += '/';
+        }
+        const basePath = path.replace(/\/display\/$/, '/');
+
+        let response;
+        try {
+          response = await fetch(basePath + 'api/display');
+          if (!response.ok) {
+            response = await fetch(basePath + 'index.php/api/display');
+          }
+        } catch (e) {
+          response = await fetch(basePath + 'index.php/api/display');
+        }
+
+        const res = await response.json();
+
+        if (res.status) {
+          const d = res.data;
+          
+          document.getElementById('disp-nama-masjid').textContent = d.masjid.nama;
+
+          // Helper Format Tanggal & Jam
+          const formatIndoDate = (dateStr) => {
+            if (!dateStr) return '-';
+            const p = dateStr.split('-');
+            if (p.length === 3) {
+              const dt = new Date(p[0], p[1] - 1, p[2]);
+              return dt.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(/Minggu/g, 'Ahad');
+            }
+            return dateStr;
+          };
+
+          const formatTimeShort = (timeStr) => {
+            if (!timeStr) return '-';
+            const p = timeStr.split(':');
+            return p.length >= 2 ? `${p[0]}:${p[1]}` : timeStr;
+          };
+
+          // Render Petugas Jumat
+          if (d.jadwal_jumat) {
+            const muadzinHtml = (d.jadwal_jumat.muadzin && d.jadwal_jumat.muadzin !== '-') 
+              ? `<p style="margin-bottom: 6px;"><strong>Muadzin:</strong> ${d.jadwal_jumat.muadzin}</p>` 
+              : '';
+
+            const khotbahHtml = (d.jadwal_jumat.judul_khotbah && d.jadwal_jumat.judul_khotbah !== '-') 
+              ? `<p style="margin-top: 10px; font-style: italic; color: var(--text-gold);">"${d.jadwal_jumat.judul_khotbah}"</p>` 
+              : '';
+
+            document.getElementById('disp-jumat-content').innerHTML = `
+              <p style="margin-bottom: 8px;"><strong>Tanggal:</strong> ${formatIndoDate(d.jadwal_jumat.tanggal)}</p>
+              <p style="margin-bottom: 6px;"><strong>Khatib:</strong> ${d.jadwal_jumat.khatib && d.jadwal_jumat.khatib !== '-' ? d.jadwal_jumat.khatib : '-'}</p>
+              <p style="margin-bottom: 6px;"><strong>Imam:</strong> ${d.jadwal_jumat.imam && d.jadwal_jumat.imam !== '-' ? d.jadwal_jumat.imam : '-'}</p>
+              ${muadzinHtml}
+              ${khotbahHtml}
+            `;
+          } else {
+            document.getElementById('disp-jumat-content').textContent = 'Belum ada jadwal petugas Jumat.';
+          }
+
+          // Render Pengumuman & Agenda Kegiatan
+          let contentHtml = '';
+          
+          if (d.pengumuman && d.pengumuman.length > 0) {
+            contentHtml += '<div style="margin-bottom: 15px;"><strong style="color: var(--accent-cyan); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">📢 Pengumuman Masjid</strong><ul style="list-style: none; margin-top: 6px;">';
+            d.pengumuman.forEach(p => {
+              const ringkasan = p.konten ? p.konten.replace(/<[^>]*>/g, '') : '';
+              contentHtml += `<li style="margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 6px;">
+                <strong style="color: var(--text-gold); font-size: 0.95rem;">${p.judul}</strong><br>
+                <small style="color: #8892b0; display: inline-block; margin-top: 2px;">${ringkasan}</small>
+              </li>`;
+            });
+            contentHtml += '</ul></div>';
+          }
+
+          if (d.agenda && d.agenda.length > 0) {
+            contentHtml += '<div><strong style="color: var(--accent-cyan); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">📅 Agenda Mendatang</strong><ul style="list-style: none; margin-top: 6px;">';
+            d.agenda.forEach(item => {
+              contentHtml += `<li style="margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 6px;">
+                <strong style="color: var(--text-gold); font-size: 0.95rem;">${item.judul}</strong><br>
+                <small style="color: #8892b0; display: inline-block; margin-top: 2px;">📅 ${formatIndoDate(item.tanggal)} | ⏰ ${formatTimeShort(item.waktu)} | 📍 ${item.lokasi || 'Masjid'}</small>
+              </li>`;
+            });
+            contentHtml += '</ul></div>';
+          }
+
+          if (!contentHtml) {
+            contentHtml = 'Tidak ada pengumuman atau agenda mendatang.';
+          }
+
+          document.getElementById('disp-agenda-content').innerHTML = contentHtml;
+
+          // Render Running Text
+          const saldo = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(d.keuangan.saldo);
+          const tglUpdateKas = d.keuangan.last_update ? ` (Per ${formatIndoDate(d.keuangan.last_update)})` : '';
+          let runningText = `Laporan Kas Masjid${tglUpdateKas}: ${saldo} | `;
+
+          if (d.pengumuman && d.pengumuman.length > 0) {
+            d.pengumuman.forEach(p => {
+              runningText += `📢 ${p.judul} | `;
+            });
+          }
+
+          if (d.agenda && d.agenda.length > 0) {
+            d.agenda.forEach(item => {
+              runningText += `📅 ${item.judul} (${formatIndoDate(item.tanggal)}) | `;
+            });
+          }
+
+          runningText += 'Selamat Datang di Masjid Agung Nujumul Ittihad Sinjai. Mohon menonaktifkan suara HP saat berada di dalam masjid.';
+          document.getElementById('disp-running-text').textContent = runningText;
+        }
+      } catch (err) {
+        console.error("Gagal sinkronisasi data API:", err);
+      }
+    }
+
+    // 4. Prayer Times & Automatic Pure Blank Engine (10 Menit Sebelum s.d 10 Menit Setelah Waktu Salat)
+    let prayerTimes = {
+      subuh: "04:45",
+      dzuhur: "12:12",
+      ashar: "15:20",
+      maghrib: "18:15",
+      isya: "19:24"
+    };
+
+    let isManualBlank = false;
+    let userOverriddenWindow = false;
+
+    async function fetchPrayerTimes() {
+      try {
+        const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Sinjai&country=Indonesia&method=20");
+        const json = await res.json();
+        if (json && json.data && json.data.timings) {
+          const t = json.data.timings;
+          prayerTimes = {
+            subuh: t.Fajr,
+            dzuhur: t.Dhuhr,
+            ashar: t.Asr,
+            maghrib: t.Maghrib,
+            isya: t.Isha
+          };
+        }
+      } catch (err) {
+        console.log("Menggunakan jadwal shalat default.");
+      }
+    }
+    fetchPrayerTimes();
+
+    function timeToMinutes(tStr) {
+      if (!tStr) return 0;
+      const p = tStr.split(':');
+      return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+    }
+
+    function isWithinPrayerWindow(nowMinutes, prayerTimeStr) {
+      if (!prayerTimeStr) return false;
+      const pMin = timeToMinutes(prayerTimeStr);
+      const startMin = pMin - 10;
+      const endMin = pMin + 10;
+      return nowMinutes >= startMin && nowMinutes <= endMin;
+    }
+
+    function checkPrayerBlankTrigger() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('id-ID', {
+        timeZone: 'Asia/Makassar',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).replace(/\./g, ':');
+
+      const nowMin = timeToMinutes(timeStr);
+
+      let inWindow = false;
+      for (const key in prayerTimes) {
+        if (isWithinPrayerWindow(nowMin, prayerTimes[key])) {
+          inWindow = true;
+          break;
+        }
+      }
+
+      if (!inWindow) {
+        userOverriddenWindow = false;
+      }
+
+      if (isManualBlank || (inWindow && !userOverriddenWindow)) {
+        showBlankScreen();
+      } else {
+        hideBlankScreen();
+      }
+    }
+    setInterval(checkPrayerBlankTrigger, 1000);
+
+    function showBlankScreen() {
+      document.getElementById('prayer-overlay').style.display = 'flex';
+    }
+
+    function hideBlankScreen() {
+      document.getElementById('prayer-overlay').style.display = 'none';
+    }
+
+    function toggleManualBlank() {
+      isManualBlank = true;
+      showBlankScreen();
+    }
+
+    function restoreDisplay() {
+      isManualBlank = false;
+      userOverriddenWindow = true;
+      hideBlankScreen();
+    }
+
+    // Keyboard Shortcuts (B = Blank Manual, Esc = Restore Display)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'b' || e.key === 'B') {
+        toggleManualBlank();
+      } else if (e.key === 'Escape') {
+        restoreDisplay();
+      }
+    });
+
+    fetchDisplayData();
+    setInterval(fetchDisplayData, 30000);
+
+    if ('wakeLock' in navigator) {
+      navigator.wakeLock.request('screen').catch(console.error);
+    }
+  </script>
+</body>
+</html>

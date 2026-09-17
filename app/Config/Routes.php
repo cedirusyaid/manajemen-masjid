@@ -19,6 +19,7 @@ $routes->group('dashboard/jadwal-jumat', ['namespace' => 'App\Controllers'], fun
     $routes->get('/', 'JadwalJumatController::index');
     $routes->get('create', 'JadwalJumatController::create');
     $routes->post('store', 'JadwalJumatController::store');
+    $routes->post('ajax-add-petugas', 'JadwalJumatController::ajaxAddPetugas');
     $routes->get('edit/(:segment)', 'JadwalJumatController::edit/$1');
     $routes->post('update/(:segment)', 'JadwalJumatController::update/$1');
     $routes->get('delete/(:segment)', 'JadwalJumatController::delete/$1');

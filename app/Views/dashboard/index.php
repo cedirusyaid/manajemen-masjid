@@ -352,6 +352,11 @@
                 </a>
             </li>
             <li>
+                <a href="<?= base_url('display/index.html') ?>" target="_blank" class="menu-link">
+                    <i class="fa-solid fa-tv"></i> Display Digital <i class="fa-solid fa-arrow-up-right-from-square ms-auto text-muted" style="font-size: 0.75rem;"></i>
+                </a>
+            </li>
+            <li>
                 <a href="<?= base_url('dashboard/jadwal-jumat') ?>" class="menu-link">
                     <i class="fa-solid fa-calendar-week"></i> Jadwal Jumat
                 </a>
@@ -419,7 +424,7 @@
         </div>
 
         <!-- STATS WIDGET GRID -->
-        <div class="row g-4 mb-5">
+        <div class="row g-4 mb-4">
             <!-- Widget 1: Kas Keuangan -->
             <div class="col-md-6 col-lg-3">
                 <div class="stat-card">
@@ -468,6 +473,50 @@
                     </div>
                     <div class="stat-icon icon-blue">
                         <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DISPLAY DIGITAL QUICK ACCESS PANEL -->
+        <div class="panel-card mb-4">
+            <div class="panel-header border-0 pb-0 mb-3">
+                <div>
+                    <h5 class="panel-title fs-5"><i class="fa-solid fa-desktop text-success"></i> Display Digital TV Masjid</h5>
+                    <p class="text-muted small mb-0 mt-1">Akses cepat layar informasi digital untuk TV / Monitor Masjid</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 border bg-light d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-success text-white rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="fa-solid fa-sliders fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">Mode Slideshow (Rotasi)</h6>
+                                <p class="text-muted small mb-0">Tampilan fullscreen berotasi 5 slide</p>
+                            </div>
+                        </div>
+                        <a href="<?= base_url('display/index.html?type=slideshow') ?>" target="_blank" class="btn btn-success btn-sm px-3 fw-semibold text-nowrap">
+                            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Buka Display
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 border bg-light d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-teal text-white rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: #0f766e;">
+                                <i class="fa-solid fa-table-cells-large fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">Mode Grid (Split Screen)</h6>
+                                <p class="text-muted small mb-0">Tampilan klasik terbagi satu layar</p>
+                            </div>
+                        </div>
+                        <a href="<?= base_url('display/index.html?type=grid') ?>" target="_blank" class="btn btn-outline-success btn-sm px-3 fw-semibold text-nowrap">
+                            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Buka Display
+                        </a>
                     </div>
                 </div>
             </div>

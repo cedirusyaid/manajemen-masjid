@@ -78,7 +78,7 @@ class JadwalJumatController extends BaseController
             'tanggal'       => 'required|valid_date[Y-m-d]',
             'khatib_id'     => 'required',
             'imam_id'       => 'required',
-            'muadzin_id'    => 'required',
+            'muadzin_id'    => 'permit_empty',
             'judul_khotbah' => 'permit_empty|max_length[255]'
         ];
 
@@ -90,7 +90,7 @@ class JadwalJumatController extends BaseController
             'tanggal'       => $this->request->getPost('tanggal'),
             'khatib_id'     => $this->request->getPost('khatib_id'),
             'imam_id'       => $this->request->getPost('imam_id'),
-            'muadzin_id'    => $this->request->getPost('muadzin_id'),
+            'muadzin_id'    => $this->request->getPost('muadzin_id') ?: null,
             'judul_khotbah' => $this->request->getPost('judul_khotbah'),
             'keterangan'    => $this->request->getPost('keterangan')
         ];
@@ -129,7 +129,7 @@ class JadwalJumatController extends BaseController
         // Ambil data khatib, imam, dan muadzin untuk pilihan dropdown
         $khatibList  = $this->imamKhatibModel->getPetugasWithPersonil(['khatib', 'imam_khatib']);
         $imamList    = $this->imamKhatibModel->getPetugasWithPersonil(['imam', 'imam_khatib']);
-        $muadzinList = $this->imamKhatibModel->getPetugasWithPersonil('muadzin');
+        $muadzinList = $this->imamKhatibModel->getPetugasWithPersonil(['muadzin', 'imam', 'khatib', 'imam_khatib']);
 
         return view('dashboard/jadwal_jumat/edit', [
             'username'     => $this->session->get('username'),
@@ -162,7 +162,7 @@ class JadwalJumatController extends BaseController
             'tanggal'       => 'required|valid_date[Y-m-d]',
             'khatib_id'     => 'required',
             'imam_id'       => 'required',
-            'muadzin_id'    => 'required',
+            'muadzin_id'    => 'permit_empty',
             'judul_khotbah' => 'permit_empty|max_length[255]'
         ];
 
@@ -174,7 +174,7 @@ class JadwalJumatController extends BaseController
             'tanggal'       => $this->request->getPost('tanggal'),
             'khatib_id'     => $this->request->getPost('khatib_id'),
             'imam_id'       => $this->request->getPost('imam_id'),
-            'muadzin_id'    => $this->request->getPost('muadzin_id'),
+            'muadzin_id'    => $this->request->getPost('muadzin_id') ?: null,
             'judul_khotbah' => $this->request->getPost('judul_khotbah'),
             'keterangan'    => $this->request->getPost('keterangan')
         ];
@@ -189,6 +189,76 @@ class JadwalJumatController extends BaseController
         } catch (Exception $e) {
             telegram_log_error($e);
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Tambah Petugas (Khatib/Imam/Muadzin) Baru via AJAX (Quick Add)
+     */
+    public function ajaxAddPetugas()
+    {
+        if ($this->session->get('role_name') === 'Jemaah' || !$this->session->get('username')) {
+            return $this->response->setJSON([
+                'status'  => false,
+                'message' => 'Akses ditolak.'
+            ])->setStatusCode(403);
+        }
+
+        $rules = [
+            'nama'    => 'required|min_length[3]|max_length[150]',
+            'jabatan' => 'required|in_list[khatib,imam,muadzin,imam_khatib]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setJSON([
+                'status'  => false,
+                'message' => implode(' | ', $this->validator->getErrors())
+            ]);
+        }
+
+        $nama    = trim($this->request->getPost('nama'));
+        $jabatan = $this->request->getPost('jabatan');
+
+        try {
+            $db = \Config\Database::connect();
+            
+            // 1. Simpan ke mst_personil
+            $personilModel = new \App\Models\PersonilModel();
+            $personilData  = [
+                'nama'          => $nama,
+                'jenis_kelamin' => 'L',
+                'tipe_default'  => 'ustadz,petugas'
+            ];
+            $personilModel->insert($personilData);
+            $personilId = $personilModel->getInsertID() ?: $db->insertID();
+
+            // 2. Simpan ke mst_imam_khatib
+            $imamKhatibData = [
+                'personil_id' => $personilId,
+                'jabatan'     => $jabatan,
+                'bio'         => 'Petugas Tambahan'
+            ];
+            $this->imamKhatibModel->insert($imamKhatibData);
+            $newImamKhatibId = $this->imamKhatibModel->getInsertID() ?: $db->insertID();
+
+            // Catat Audit Trail
+            log_activity('INSERT', 'mst_imam_khatib', $newImamKhatibId, null, $imamKhatibData);
+
+            return $this->response->setJSON([
+                'status'  => true,
+                'message' => 'Petugas baru berhasil ditambahkan.',
+                'data'    => [
+                    'id'      => $newImamKhatibId,
+                    'nama'    => $nama,
+                    'jabatan' => $jabatan
+                ]
+            ]);
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return $this->response->setJSON([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ]);
         }
     }
 
