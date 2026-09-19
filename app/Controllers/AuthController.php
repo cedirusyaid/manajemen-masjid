@@ -90,23 +90,66 @@ class AuthController extends BaseController
         }
 
         try {
-            $client = $this->getGoogleClient();
-            $token  = $client->fetchAccessTokenWithAuthCode($code);
+            $clientId     = env('google.clientID');
+            $clientSecret = env('google.clientSecret');
+            $relayUrl     = env('google.redirectURI') ?: 'https://apps.sinjaikab.go.id/oauth-relay/';
 
-            if (isset($token['error'])) {
-                throw new Exception('Token Error: ' . $token['error_description']);
+            if (empty($clientId) || empty($clientSecret)) {
+                throw new Exception('Client ID atau Client Secret Google belum dikonfigurasi.');
             }
 
-            $client->setAccessToken($token['access_token']);
+            // 1. Tukar authorization code ke Access Token via OAuth Relay
+            $ch = curl_init('https://oauth2.googleapis.com/token');
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => http_build_query([
+                    'code'          => $code,
+                    'client_id'     => $clientId,
+                    'client_secret' => $clientSecret,
+                    'redirect_uri'  => $relayUrl,
+                    'grant_type'    => 'authorization_code',
+                ]),
+                CURLOPT_TIMEOUT        => 10,
+                CURLOPT_SSL_VERIFYPEER => false,
+            ]);
+            $tokenResponse = curl_exec($ch);
+            $tokenHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
 
-            // Dapatkan informasi profil pengguna dari Google
-            $googleService = new \Google\Service\Oauth2($client);
-            $userInfo      = $googleService->userinfo->get();
+            $tokenData = json_decode($tokenResponse, true);
 
-            $email    = $userInfo->email;
-            $googleId = $userInfo->id;
-            $avatar   = $userInfo->picture;
-            $name     = $userInfo->name;
+            if ($tokenHttpCode === 200 && isset($tokenData['access_token'])) {
+                $accessToken  = $tokenData['access_token'];
+                $userInfoJson = file_get_contents('https://www.googleapis.com/oauth2/v2/userinfo?access_token=' . $accessToken);
+                $userInfoObj  = json_decode($userInfoJson, true);
+
+                $email    = $userInfoObj['email'] ?? null;
+                $googleId = $userInfoObj['id'] ?? null;
+                $avatar   = $userInfoObj['picture'] ?? null;
+                $name     = $userInfoObj['name'] ?? $email;
+            } else {
+                // Fallback ke SDK Google Client
+                $client = $this->getGoogleClient();
+                $token  = $client->fetchAccessTokenWithAuthCode($code);
+
+                if (isset($token['error'])) {
+                    throw new Exception('Token Error: ' . ($token['error_description'] ?? 'Gagal menukar token'));
+                }
+
+                $client->setAccessToken($token['access_token']);
+                $googleService = new \Google\Service\Oauth2($client);
+                $userInfo      = $googleService->userinfo->get();
+
+                $email    = $userInfo->email;
+                $googleId = $userInfo->id;
+                $avatar   = $userInfo->picture;
+                $name     = $userInfo->name;
+            }
+
+            if (empty($email)) {
+                throw new Exception('Email pengguna tidak ditemukan dari akun Google.');
+            }
 
             // Cari user berdasarkan email
             $user = $this->userModel->where('email', $email)->first();
