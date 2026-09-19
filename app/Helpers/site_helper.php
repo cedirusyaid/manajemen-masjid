@@ -118,3 +118,42 @@ if (!function_exists('render_theme')) {
         return view("themes/default/{$viewName}", $data);
     }
 }
+
+if (!function_exists('terbilang')) {
+    /**
+     * Konversi angka nominal ke kalimat terbilang bahasa Indonesia
+     */
+    function terbilang($nilai): string
+    {
+        $nilai = abs((float)$nilai);
+        $huruf = [
+            '', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'
+        ];
+        $bagi = '';
+
+        if ($nilai < 12) {
+            $bagi = ' ' . $huruf[(int)$nilai];
+        } else if ($nilai < 20) {
+            $bagi = terbilang($nilai - 10) . ' Belas';
+        } else if ($nilai < 100) {
+            $bagi = terbilang((int)($nilai / 10)) . ' Puluh' . terbilang($nilai % 10);
+        } else if ($nilai < 200) {
+            $bagi = ' Seratus' . terbilang($nilai - 100);
+        } else if ($nilai < 1000) {
+            $bagi = terbilang((int)($nilai / 100)) . ' Ratus' . terbilang($nilai % 100);
+        } else if ($nilai < 2000) {
+            $bagi = ' Seribu' . terbilang($nilai - 1000);
+        } else if ($nilai < 1000000) {
+            $bagi = terbilang((int)($nilai / 1000)) . ' Ribu' . terbilang($nilai % 1000);
+        } else if ($nilai < 1000000000) {
+            $bagi = terbilang((int)($nilai / 1000000)) . ' Juta' . terbilang($nilai % 1000000);
+        } else if ($nilai < 1000000000000) {
+            $bagi = terbilang((int)($nilai / 1000000000)) . ' Miliar' . terbilang(fmod($nilai, 1000000000));
+        } else if ($nilai < 1000000000000000) {
+            $bagi = terbilang((int)($nilai / 1000000000000)) . ' Triliun' . terbilang(fmod($nilai, 1000000000000));
+        }
+
+        return trim($bagi);
+    }
+}
+

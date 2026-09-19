@@ -573,6 +573,9 @@
                     <a href="<?= base_url('dashboard/kepanitiaan') ?>" class="btn btn-sm btn-outline-secondary px-3 py-2 fw-semibold" style="border-radius: 8px;">
                         <i class="fa-solid fa-arrow-left me-2"></i>Kembali
                     </a>
+                    <a href="<?= base_url('dashboard/kepanitiaan/lpj/' . esc($kegiatan['id'])) ?>" target="_blank" class="btn btn-sm btn-success px-3 py-2 fw-semibold" style="background-color: var(--primary); border: none; border-radius: 8px;">
+                        <i class="fa-solid fa-file-invoice-dollar me-2"></i>Cetak LPJ Proyek
+                    </a>
                     <a href="<?= base_url('dashboard/kepanitiaan/kegiatan/edit/' . esc($kegiatan['id'])) ?>" class="btn btn-sm btn-primary px-3 py-2 fw-semibold" style="background-color: var(--primary-light); border: none; border-radius: 8px;">
                         <i class="fa-solid fa-edit me-2"></i>Ubah Kegiatan
                     </a>
@@ -646,8 +649,13 @@
                 </button>
             </li>
             <li class="nav-item" role="presentation">
+                <button class="nav-link" id="material-tab" data-bs-toggle="tab" data-bs-target="#material" type="button" role="tab" aria-controls="material" aria-selected="false">
+                    <i class="fa-solid fa-truck-ramp-box me-2"></i>Bantuan Material (Nontunai)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
                 <button class="nav-link" id="keuangan-tab" data-bs-toggle="tab" data-bs-target="#keuangan" type="button" role="tab" aria-controls="keuangan" aria-selected="false">
-                    <i class="fa-solid fa-wallet me-2"></i>Laporan Keuangan
+                    <i class="fa-solid fa-wallet me-2"></i>Laporan Kas Uang
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -868,6 +876,186 @@
                     </div>
                 </div>
             </div>
+
+            <!-- TAB BANTUAN MATERIAL / BARANG (NONTUNAI) -->
+            <div class="tab-pane fade" id="material" role="tabpanel" aria-labelledby="material-tab">
+                <!-- Summary Card Material -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 p-4" style="background-color: #fffbeb; border: 1px solid #fde68a !important;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-muted small fw-semibold d-block mb-1">Total Nilai Material & Barang (Nontunai)</span>
+                                    <strong class="fs-4 text-warning font-heading" style="color: #b45309 !important;">Rp <?= number_format($total_nilai_material, 0, ',', '.') ?></strong>
+                                </div>
+                                <div class="p-3 rounded-3" style="background-color: rgba(245, 158, 11, 0.15); color: #d97706;">
+                                    <i class="fa-solid fa-truck-ramp-box fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 p-4" style="background-color: #f0fdf4; border: 1px solid #bbf7d0 !important;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-muted small fw-semibold d-block mb-1">Grand Total (Material + Kas Masuk)</span>
+                                    <strong class="fs-4 text-success font-heading">Rp <?= number_format($grand_total_penerimaan, 0, ',', '.') ?></strong>
+                                </div>
+                                <div class="p-3 bg-success bg-opacity-10 text-success rounded-3">
+                                    <i class="fa-solid fa-calculator fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card bg-white border-0 shadow-sm rounded-4">
+                    <div class="panel-title d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <span class="fw-bold text-dark fs-5">Daftar Bantuan Material & Barang Proyek</span>
+                        <button type="button" class="btn btn-sm btn-warning text-dark fw-semibold" data-bs-toggle="modal" data-bs-target="#modalTambahMaterial" style="border: none; padding: 8px 16px; border-radius: 8px;">
+                            <i class="fa-solid fa-plus me-2"></i>Catat Bantuan Material
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Donatur / Sumber</th>
+                                    <th>Uraian Material / Barang</th>
+                                    <th>Kategori</th>
+                                    <th class="text-center">Volume</th>
+                                    <th class="text-end">Harga Satuan</th>
+                                    <th class="text-end">Total Nilai</th>
+                                    <th class="text-center" style="width: 80px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($material_list)) : ?>
+                                    <?php foreach ($material_list as $m) : ?>
+                                        <tr>
+                                            <td class="fw-semibold text-dark"><?= esc(date('d/m/Y', strtotime($m['tanggal']))) ?></td>
+                                            <td>
+                                                <strong class="text-dark d-block"><?= esc($m['nama_donatur']) ?></strong>
+                                                <?php if (!empty($m['keterangan'])): ?>
+                                                    <small class="text-muted"><?= esc($m['keterangan']) ?></small>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><strong class="text-dark"><?= esc($m['uraian_material']) ?></strong></td>
+                                            <td>
+                                                <span class="badge bg-light text-dark text-capitalize border px-2.5 py-1.5 rounded-3">
+                                                    <?= str_replace('_', ' ', esc($m['kategori_material'])) ?>
+                                                </span>
+                                            </td>
+                                            <td class="text-center fw-semibold">
+                                                <?= number_format($m['volume'], 0, ',', '.') ?> <?= esc($m['satuan']) ?>
+                                            </td>
+                                            <td class="text-end text-muted">
+                                                Rp <?= number_format($m['harga_satuan'], 0, ',', '.') ?>
+                                            </td>
+                                            <td class="text-end fw-bold font-heading text-dark">
+                                                Rp <?= number_format($m['total_nilai'], 0, ',', '.') ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="<?= base_url('dashboard/kepanitiaan/material/delete/' . $m['id']) ?>" class="btn-action btn-delete" onclick="return confirm('Hapus catatan bantuan material ini?');" title="Hapus">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <tr>
+                                        <td colspan="8" class="text-center py-5 text-muted">
+                                            <i class="fa-solid fa-truck-ramp-box fs-1 mb-3 d-block text-secondary"></i>
+                                            Belum ada pencatatan bantuan material/barang untuk kegiatan ini.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL TAMBAH BANTUAN MATERIAL -->
+            <div class="modal fade" id="modalTambahMaterial" tabindex="-1" aria-labelledby="modalTambahMaterialLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg rounded-4">
+                        <form action="<?= base_url('dashboard/kepanitiaan/material/store') ?>" method="post">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="kegiatan_id" value="<?= esc($kegiatan['id']) ?>">
+                            
+                            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                                <h5 class="modal-title fw-bold text-dark" id="modalTambahMaterialLabel">
+                                    <i class="fa-solid fa-truck-ramp-box me-2 text-warning"></i>Catat Bantuan Material / Barang
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            
+                            <div class="modal-body p-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Tanggal Penerimaan <span class="text-danger">*</span></label>
+                                    <input type="date" name="tanggal" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Nama Donatur / Sumber</label>
+                                    <input type="text" name="nama_donatur" class="form-control" placeholder="Contoh: Ibu Jumuati Syuyuti / Jamaah Masjid" value="Hamba Allah">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Uraian Material / Barang <span class="text-danger">*</span></label>
+                                    <input type="text" name="uraian_material" class="form-control" placeholder="Contoh: Batu Gunung / Pasir / LED TV 55 Inc (LG)" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Kategori Material <span class="text-danger">*</span></label>
+                                    <select name="kategori_material" class="form-select" required>
+                                        <option value="material_konstruksi">Material Konstruksi (Batu, Pasir, Semen, Besi)</option>
+                                        <option value="inventaris_elektronik">Inventaris & Elektronik (TV, Sound, AC, Lampu)</option>
+                                        <option value="perlengkapan_ibadah">Perlengkapan Ibadah (Karpet, Al-Quran, Mimbar)</option>
+                                        <option value="lainnya">Lainnya</option>
+                                    </select>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label fw-semibold small text-dark">Volume / Jumlah <span class="text-danger">*</span></label>
+                                        <input type="number" step="0.01" name="volume" id="mat_volume" class="form-control" placeholder="55" required oninput="calcMatTotal()">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label fw-semibold small text-dark">Satuan <span class="text-danger">*</span></label>
+                                        <input type="text" name="satuan" class="form-control" placeholder="Truk / Sak / Buah" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Estimasi Harga Satuan (Rp)</label>
+                                    <input type="number" name="harga_satuan" id="mat_harga" class="form-control" placeholder="1000000" oninput="calcMatTotal()">
+                                </div>
+                                <div class="p-3 bg-light rounded-3 mb-3 text-center">
+                                    <small class="text-muted d-block">Estimasi Total Nilai Valuasi</small>
+                                    <strong class="fs-5 text-dark" id="mat_total_preview">Rp 0</strong>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Keterangan Tambahan</label>
+                                    <textarea name="keterangan" class="form-control" rows="2" placeholder="Catatan opsional spesifikasi atau lokasi penyimpanan material"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                                <button type="button" class="btn btn-light px-4 py-2" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-warning text-dark fw-semibold px-4 py-2">Simpan Catatan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            function calcMatTotal() {
+                var vol = parseFloat(document.getElementById('mat_volume').value) || 0;
+                var hrg = parseFloat(document.getElementById('mat_harga').value) || 0;
+                var tot = vol * hrg;
+                document.getElementById('mat_total_preview').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(tot);
+            }
+            </script>
 
             <!-- TAB LAPORAN KEUANGAN -->
             <div class="tab-pane fade" id="keuangan" role="tabpanel" aria-labelledby="keuangan-tab">

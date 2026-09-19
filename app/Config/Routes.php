@@ -113,6 +113,13 @@ $routes->group('dashboard/kepanitiaan', ['namespace' => 'App\Controllers'], func
     $routes->get('kelompok/anggota/(:segment)', 'KepanitiaanController::kelolaAnggotaKelompok/$1');
     $routes->post('kelompok/anggota/store', 'KepanitiaanController::storeAnggotaKelompok');
     $routes->get('kelompok/anggota/delete/(:segment)', 'KepanitiaanController::deleteAnggotaKelompok/$1');
+
+    // Bantuan Material / Barang Routes
+    $routes->post('material/store', 'KepanitiaanController::storeMaterial');
+    $routes->get('material/delete/(:segment)', 'KepanitiaanController::deleteMaterial/$1');
+
+    // Cetak / Export LPJ Proyek
+    $routes->get('lpj/(:segment)', 'KepanitiaanController::lpj/$1');
 });
 
 // Rute CRUD Master Personil (Unified Personnel)

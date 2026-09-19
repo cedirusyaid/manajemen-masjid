@@ -8,6 +8,8 @@ use App\Models\PersonilModel;
 use App\Models\JabatanKegiatanModel;
 use App\Models\KelompokKegiatanModel;
 use App\Models\AnggotaKelompokModel;
+use App\Models\BantuanMaterialModel;
+use App\Models\RekeningModel;
 use Exception;
 
 class KepanitiaanController extends BaseController
@@ -18,6 +20,7 @@ class KepanitiaanController extends BaseController
     protected $jabatanKegiatanModel;
     protected $kelompokKegiatanModel;
     protected $anggotaKelompokModel;
+    protected $bantuanMaterialModel;
     protected $session;
 
     public function __construct()
@@ -28,8 +31,9 @@ class KepanitiaanController extends BaseController
         $this->jabatanKegiatanModel  = new JabatanKegiatanModel();
         $this->kelompokKegiatanModel = new KelompokKegiatanModel();
         $this->anggotaKelompokModel  = new AnggotaKelompokModel();
+        $this->bantuanMaterialModel  = new BantuanMaterialModel();
         $this->session               = \Config\Services::session();
-        helper(['url', 'form', 'audit_helper', 'telegram_helper']);
+        helper(['url', 'form', 'audit_helper', 'telegram_helper', 'site_helper']);
     }
 
     /**
@@ -110,20 +114,39 @@ class KepanitiaanController extends BaseController
                                   ->orderBy('mst_agenda.waktu', 'ASC')
                                   ->findAll();
 
+        // Load bantuan material khusus kegiatan
+        $materialList = $this->bantuanMaterialModel->getMaterialByKegiatan($id);
+        $totalNilaiMaterial = 0;
+        foreach ($materialList as $m) {
+            $totalNilaiMaterial += (float)$m['total_nilai'];
+        }
+
+        $grandTotalPenerimaan = $totalMasuk + $totalNilaiMaterial;
+
+        // Load rekening aktif dan master personil untuk form modal
+        $rekeningModel = new RekeningModel();
+        $rekeningList  = $rekeningModel->where('deleted_at', null)->where('status', 'active')->findAll();
+        $personilList  = $this->personilModel->where('deleted_at', null)->orderBy('nama', 'ASC')->findAll();
+
         return view('dashboard/kepanitiaan/detail', [
-            'username'          => $this->session->get('username'),
-            'role_name'         => $this->session->get('role_name'),
-            'avatar'            => $this->session->get('avatar'),
-            'kegiatan'          => $kegiatan,
-            'panitia_list'      => $panitiaList,
-            'jabatan_list'      => $jabatanList,
-            'kelompok_list'     => $kelompokList,
-            'keuangan_list'     => $keuanganList,
-            'total_masuk'       => $totalMasuk,
-            'total_keluar'      => $totalKeluar,
-            'saldo_kegiatan'    => $saldoKegiatan,
-            'agenda_list'       => $agendaList,
-            'validation'        => \Config\Services::validation()
+            'username'               => $this->session->get('username'),
+            'role_name'              => $this->session->get('role_name'),
+            'avatar'                 => $this->session->get('avatar'),
+            'kegiatan'               => $kegiatan,
+            'panitia_list'           => $panitiaList,
+            'jabatan_list'           => $jabatanList,
+            'kelompok_list'          => $kelompokList,
+            'keuangan_list'          => $keuanganList,
+            'total_masuk'            => $totalMasuk,
+            'total_keluar'           => $totalKeluar,
+            'saldo_kegiatan'         => $saldoKegiatan,
+            'material_list'          => $materialList,
+            'total_nilai_material'   => $totalNilaiMaterial,
+            'grand_total_penerimaan' => $grandTotalPenerimaan,
+            'rekening_list'          => $rekeningList,
+            'personil_list'          => $personilList,
+            'agenda_list'            => $agendaList,
+            'validation'             => \Config\Services::validation()
         ]);
     }
 
@@ -856,5 +879,154 @@ class KepanitiaanController extends BaseController
             telegram_log_error($e);
             return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus anggota kelompok: ' . $e->getMessage());
         }
+    }
+
+    // ==========================================
+    // BANTUAN MATERIAL / BARANG CRUD
+    // ==========================================
+
+    public function storeMaterial()
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kegiatanId = $this->request->getPost('kegiatan_id');
+        $rules = [
+            'kegiatan_id'       => 'required|max_length[36]',
+            'tanggal'           => 'required|valid_date[Y-m-d]',
+            'uraian_material'   => 'required|min_length[2]|max_length[255]',
+            'kategori_material' => 'required|in_list[material_konstruksi,inventaris_elektronik,perlengkapan_ibadah,lainnya]',
+            'volume'            => 'required|numeric|greater_than[0]',
+            'satuan'            => 'required|max_length[50]',
+            'harga_satuan'      => 'permit_empty|numeric|greater_than_equal_to[0]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa inputan material.');
+        }
+
+        $volume      = (float)$this->request->getPost('volume');
+        $hargaSatuan = (float)($this->request->getPost('harga_satuan') ?: 0);
+        $totalNilai  = $volume * $hargaSatuan;
+
+        $data = [
+            'kegiatan_id'          => $kegiatanId,
+            'tanggal'              => $this->request->getPost('tanggal'),
+            'nama_donatur'         => $this->request->getPost('nama_donatur') ?: 'Hamba Allah',
+            'uraian_material'      => $this->request->getPost('uraian_material'),
+            'kategori_material'    => $this->request->getPost('kategori_material'),
+            'volume'               => $volume,
+            'satuan'               => $this->request->getPost('satuan'),
+            'harga_satuan'         => $hargaSatuan,
+            'total_nilai'          => $totalNilai,
+            'penerima_personil_id' => $this->request->getPost('penerima_personil_id') ?: null,
+            'keterangan'           => $this->request->getPost('keterangan')
+        ];
+
+        try {
+            $this->bantuanMaterialModel->insert($data);
+            $newId = $this->bantuanMaterialModel->getInsertID() ?: $this->bantuanMaterialModel->db->insertID();
+
+            log_activity('INSERT', 'trn_bantuan_material', $newId, null, $data);
+
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $kegiatanId)->with('success', 'Bantuan material/barang berhasil dicatat.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal mencatat bantuan material: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteMaterial($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $materialBefore = $this->bantuanMaterialModel->find($id);
+        if (!$materialBefore) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data bantuan material tidak ditemukan.');
+        }
+
+        try {
+            $this->bantuanMaterialModel->delete($id);
+
+            log_activity('DELETE', 'trn_bantuan_material', $id, $materialBefore, null);
+
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $materialBefore['kegiatan_id'])->with('success', 'Data bantuan material berhasil dihapus.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Gagal menghapus material: ' . $e->getMessage());
+        }
+    }
+
+    // ==========================================
+    // CETAK / VIEW LPJ PROYEK PEMBANGUNAN
+    // ==========================================
+
+    public function lpj($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $kegiatan = $this->kegiatanModel->find($id);
+        if (!$kegiatan) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data kegiatan tidak ditemukan.');
+        }
+
+        // 1. Data Material Nontunai (Tabel I)
+        $materialList = $this->bantuanMaterialModel->getMaterialByKegiatan($id);
+        $totalNilaiMaterial = 0;
+        foreach ($materialList as $m) {
+            $totalNilaiMaterial += (float)$m['total_nilai'];
+        }
+
+        // 2. Data Keuangan / Dana Masuk (Tabel II)
+        $keuanganModel = new \App\Models\KeuanganModel();
+        $keuanganMasuk = $keuanganModel->select('trn_keuangan.*, mst_rekening.nama_bank, mst_rekening.nomor_rekening')
+                                       ->join('mst_rekening', 'mst_rekening.id = trn_keuangan.rekening_id', 'left')
+                                       ->where('trn_keuangan.kegiatan_id', $id)
+                                       ->where('trn_keuangan.tipe', 'masuk')
+                                       ->where('trn_keuangan.deleted_at', null)
+                                       ->orderBy('trn_keuangan.tanggal', 'ASC')
+                                       ->findAll();
+
+        $totalDanaMasuk = 0;
+        foreach ($keuanganMasuk as $km) {
+            $totalDanaMasuk += (float)$km['nominal'];
+        }
+
+        // 3. Grand Total Keseluruhan (Tabel III)
+        $grandTotal = $totalNilaiMaterial + $totalDanaMasuk;
+
+        // 4. Struktur Panitia Penandatangan LPJ
+        $panitiaList = $this->panitiaModel->getPanitiaByKegiatan($id);
+
+        $ketuaPanitia = null;
+        $bendaharaPanitia = null;
+
+        foreach ($panitiaList as $p) {
+            $namaJabatan = strtolower($p['nama_jabatan']);
+            if (strpos($namaJabatan, 'ketua') !== false && empty($ketuaPanitia)) {
+                $ketuaPanitia = $p;
+            }
+            if (strpos($namaJabatan, 'bendahara') !== false && empty($bendaharaPanitia)) {
+                $bendaharaPanitia = $p;
+            }
+        }
+
+        return view('dashboard/kepanitiaan/lpj_print', [
+            'kegiatan'               => $kegiatan,
+            'material_list'          => $materialList,
+            'total_nilai_material'   => $totalNilaiMaterial,
+            'keuangan_masuk'         => $keuanganMasuk,
+            'total_dana_masuk'       => $totalDanaMasuk,
+            'grand_total'            => $grandTotal,
+            'grand_total_terbilang'  => terbilang($grandTotal),
+            'ketua_panitia'          => $ketuaPanitia,
+            'bendahara_panitia'      => $bendaharaPanitia,
+            'tanggal_cetak'          => date('Y-m-d')
+        ]);
     }
 }

@@ -13,8 +13,8 @@ class KeuanganModel extends Model
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id', 'kegiatan_id', 'tanggal', 'kategori', 'tipe', 
-        'nominal', 'keterangan', 'penanggung_jawab', 'bukti_transaksi'
+        'id', 'kegiatan_id', 'rekening_id', 'tanggal', 'kategori', 'tipe', 
+        'nominal', 'nama_donatur', 'metode_pembayaran', 'keterangan', 'penanggung_jawab', 'bukti_transaksi'
     ];
 
     // Dates

@@ -72,11 +72,15 @@ class KeuanganController extends BaseController
         $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
         $selectedKegiatanId = $this->request->getGet('kegiatan_id');
 
+        $rekeningModel = new \App\Models\RekeningModel();
+        $rekeningList = $rekeningModel->where('deleted_at', null)->where('status', 'active')->findAll();
+
         return view('dashboard/keuangan/create', [
             'username'             => $this->session->get('username'),
             'role_name'            => $this->session->get('role_name'),
             'avatar'               => $this->session->get('avatar'),
             'kegiatan_list'        => $kegiatanList,
+            'rekening_list'        => $rekeningList,
             'selected_kegiatan_id' => $selectedKegiatanId,
             'validation'           => \Config\Services::validation()
         ]);
@@ -169,17 +173,21 @@ class KeuanganController extends BaseController
         }
 
         $kegiatanId = $this->request->getPost('kegiatan_id');
+        $rekeningId = $this->request->getPost('rekening_id');
         $redirectKegiatanId = $this->request->getPost('redirect_kegiatan_id');
 
         $data = [
-            'kegiatan_id'      => !empty($kegiatanId) ? $kegiatanId : null,
-            'tanggal'          => $this->request->getPost('tanggal'),
-            'kategori'         => $this->request->getPost('kategori'),
-            'tipe'             => $this->request->getPost('tipe'),
-            'nominal'          => $this->request->getPost('nominal'),
-            'keterangan'       => $this->request->getPost('keterangan'),
-            'penanggung_jawab' => $this->request->getPost('penanggung_jawab'),
-            'bukti_transaksi'  => $buktiName
+            'kegiatan_id'       => !empty($kegiatanId) ? $kegiatanId : null,
+            'rekening_id'       => !empty($rekeningId) ? $rekeningId : null,
+            'tanggal'           => $this->request->getPost('tanggal'),
+            'kategori'          => $this->request->getPost('kategori'),
+            'tipe'              => $this->request->getPost('tipe'),
+            'nominal'           => $this->request->getPost('nominal'),
+            'nama_donatur'      => $this->request->getPost('nama_donatur'),
+            'metode_pembayaran' => $this->request->getPost('metode_pembayaran') ?: 'transfer_bank',
+            'keterangan'        => $this->request->getPost('keterangan'),
+            'penanggung_jawab'  => $this->request->getPost('penanggung_jawab'),
+            'bukti_transaksi'   => $buktiName
         ];
 
         try {
@@ -217,6 +225,8 @@ class KeuanganController extends BaseController
 
         $kegiatanModel = new \App\Models\KegiatanModel();
         $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
+        $rekeningModel = new \App\Models\RekeningModel();
+        $rekeningList = $rekeningModel->where('deleted_at', null)->where('status', 'active')->findAll();
         $redirectKegiatanId = $this->request->getGet('kegiatan_id');
 
         return view('dashboard/keuangan/edit', [
@@ -225,6 +235,7 @@ class KeuanganController extends BaseController
             'avatar'               => $this->session->get('avatar'),
             'kas'                  => $kas,
             'kegiatan_list'        => $kegiatanList,
+            'rekening_list'        => $rekeningList,
             'redirect_kegiatan_id' => $redirectKegiatanId,
             'validation'           => \Config\Services::validation()
         ]);
@@ -328,17 +339,21 @@ class KeuanganController extends BaseController
         }
 
         $kegiatanId = $this->request->getPost('kegiatan_id');
+        $rekeningId = $this->request->getPost('rekening_id');
         $redirectKegiatanId = $this->request->getPost('redirect_kegiatan_id');
 
         $data = [
-            'kegiatan_id'      => !empty($kegiatanId) ? $kegiatanId : null,
-            'tanggal'          => $this->request->getPost('tanggal'),
-            'kategori'         => $this->request->getPost('kategori'),
-            'tipe'             => $this->request->getPost('tipe'),
-            'nominal'          => $this->request->getPost('nominal'),
-            'keterangan'       => $this->request->getPost('keterangan'),
-            'penanggung_jawab' => $this->request->getPost('penanggung_jawab'),
-            'bukti_transaksi'  => $buktiName
+            'kegiatan_id'       => !empty($kegiatanId) ? $kegiatanId : null,
+            'rekening_id'       => !empty($rekeningId) ? $rekeningId : null,
+            'tanggal'           => $this->request->getPost('tanggal'),
+            'kategori'          => $this->request->getPost('kategori'),
+            'tipe'              => $this->request->getPost('tipe'),
+            'nominal'           => $this->request->getPost('nominal'),
+            'nama_donatur'      => $this->request->getPost('nama_donatur'),
+            'metode_pembayaran' => $this->request->getPost('metode_pembayaran') ?: 'transfer_bank',
+            'keterangan'        => $this->request->getPost('keterangan'),
+            'penanggung_jawab'  => $this->request->getPost('penanggung_jawab'),
+            'bukti_transaksi'   => $buktiName
         ];
 
         try {
