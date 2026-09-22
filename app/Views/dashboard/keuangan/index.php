@@ -153,6 +153,17 @@
         }
 
         .profile-card {
+            user-select: none;
+            transition: var(--transition);
+        }
+        .profile-card:hover {
+            background-color: #f9fafb;
+            box-shadow: var(--shadow-md);
+        }
+        .profile-card::after {
+            display: none !important;
+        }
+        .profile-card {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -242,7 +253,8 @@
 
         .table-responsive {
             border-radius: 12px;
-            overflow: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .table {
@@ -333,7 +345,7 @@
             </li>
             <li>
                 <a href="<?= base_url('dashboard/jadwal-jumat') ?>" class="menu-link">
-                    <i class="fa-solid fa-calendar-week"></i> Jadwal Jumat
+                    <i class="fa-solid fa-calendar-week"></i> Pelaksana Shalat Jumat
                 </a>
             </li>
             <li>
@@ -389,11 +401,44 @@
                 <p class="text-muted mb-0">Catat transaksi penerimaan kas masuk dan pengeluaran operasional masjid.</p>
             </div>
             
-            <div class="profile-card">
-                <img class="profile-avatar" src="<?= esc($avatar) ?>" alt="Avatar">
-                <div class="profile-info">
-                    <div class="profile-name"><?= esc($username) ?></div>
-                    <div class="profile-role"><?= esc($role_name) ?></div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="<?= base_url() ?>" target="_blank" class="btn btn-outline-success btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold shadow-sm bg-white text-decoration-none">
+                    <i class="fa-solid fa-globe text-success"></i>
+                    <span>Lihat Website</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-muted" style="font-size: 0.7rem;"></i>
+                </a>
+                <div class="dropdown">
+                    <div class="profile-card dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" style="cursor: pointer;">
+                        <img class="profile-avatar" src="<?= esc($avatar ?? base_url('assets/images/default-avatar.png')) ?>" alt="Avatar">
+                        <div class="profile-info me-1">
+                            <div class="profile-name"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="profile-role"><?= esc($role_name ?? 'Pengurus') ?></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2 py-2" style="min-width: 210px;">
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="fw-bold text-dark small"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="text-muted" style="font-size: 0.75rem;"><?= esc(session()->get('email') ?? '') ?></div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url("dashboard") ?>">
+                                <i class="fa-solid fa-gauge-high text-muted"></i> Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url() ?>" target="_blank">
+                                <i class="fa-solid fa-globe text-muted"></i> Halaman Publik
+                                <i class="fa-solid fa-arrow-up-right-from-square ms-auto text-muted" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger small" href="<?= base_url("logout") ?>">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar (Logout)
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -413,42 +458,37 @@
             </div>
         <?php endif; ?>
 
-        <!-- SUMMARY WIDGETS -->
-        <div class="row g-4 mb-4">
-            <!-- Total Masuk -->
+        <!-- SUMMARY STAT CARDS -->
+        <div class="row g-3 mb-4">
             <div class="col-md-4">
-                <div class="stat-card">
+                <div class="stat-card py-3">
                     <div class="stat-info">
-                        <span class="stat-label">Total Kas Masuk</span>
-                        <span class="stat-value text-success">Rp <?= number_format($total_masuk, 0, ',', '.') ?></span>
+                        <span class="stat-label">Total Pemasukan</span>
+                        <span class="stat-value text-success fs-4">Rp <?= number_format($total_masuk, 0, ',', '.') ?></span>
                     </div>
-                    <div class="stat-icon icon-success">
+                    <div class="stat-icon icon-success" style="width: 42px; height: 42px; font-size: 1.1rem;">
                         <i class="fa-solid fa-arrow-trend-up"></i>
                     </div>
                 </div>
             </div>
-
-            <!-- Total Keluar -->
             <div class="col-md-4">
-                <div class="stat-card">
+                <div class="stat-card py-3">
                     <div class="stat-info">
                         <span class="stat-label">Total Pengeluaran</span>
-                        <span class="stat-value text-danger">Rp <?= number_format($total_keluar, 0, ',', '.') ?></span>
+                        <span class="stat-value text-danger fs-4">Rp <?= number_format($total_keluar, 0, ',', '.') ?></span>
                     </div>
-                    <div class="stat-icon icon-danger">
+                    <div class="stat-icon icon-danger" style="width: 42px; height: 42px; font-size: 1.1rem;">
                         <i class="fa-solid fa-arrow-trend-down"></i>
                     </div>
                 </div>
             </div>
-
-            <!-- Saldo Akhir -->
             <div class="col-md-4">
-                <div class="stat-card">
+                <div class="stat-card py-3">
                     <div class="stat-info">
-                        <span class="stat-label">Saldo Kas Bersih</span>
-                        <span class="stat-value">Rp <?= number_format($saldo_kas, 0, ',', '.') ?></span>
+                        <span class="stat-label">Saldo Kas Umum</span>
+                        <span class="stat-value fs-4 text-dark">Rp <?= number_format($saldo_kas, 0, ',', '.') ?></span>
                     </div>
-                    <div class="stat-icon icon-primary">
+                    <div class="stat-icon icon-primary" style="width: 42px; height: 42px; font-size: 1.1rem;">
                         <i class="fa-solid fa-scale-balanced"></i>
                     </div>
                 </div>
@@ -457,35 +497,47 @@
 
         <!-- DATA PANEL -->
         <div class="panel-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-wallet me-2 text-success"></i>Buku Kas Umum</h5>
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="fa-solid fa-wallet me-2 text-success"></i>
+                        Buku Kas Umum Masjid
+                    </h5>
+                    <small class="text-muted">Pencatatan arus kas masuk dan pengeluaran operasional masjid.</small>
+                </div>
                 <a href="<?= base_url('dashboard/keuangan/create') ?>" class="btn btn-add">
                     <i class="fa-solid fa-plus me-2"></i> Tambah Transaksi Kas
                 </a>
             </div>
 
             <div class="table-responsive">
-                <table class="table align-middle">
+                <table class="table align-middle" style="min-width: 850px;">
                     <thead>
                         <tr>
-                            <th>Tanggal</th>
-                            <th>Kategori</th>
+                            <th class="text-nowrap">Tanggal</th>
+                            <th class="text-nowrap">Kategori</th>
                             <th>Keterangan</th>
-                            <th>Penanggung Jawab</th>
-                            <th class="text-center" style="width: 80px;">Bukti</th>
-                            <th class="text-end">Nominal</th>
-                            <th class="text-center" style="width: 100px;">Aksi</th>
+                            <th class="text-nowrap">Penanggung Jawab</th>
+                            <th class="text-center text-nowrap" style="width: 80px;">Bukti</th>
+                            <th class="text-end text-nowrap" style="min-width: 140px;">Nominal</th>
+                            <th class="text-center text-nowrap" style="width: 100px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (!empty($kas_list)) : ?>
                             <?php foreach ($kas_list as $row) : ?>
                                 <tr>
-                                    <td class="fw-semibold text-dark"><?= esc(date('d/m/Y', strtotime($row['tanggal']))) ?></td>
-                                    <td>
-                                        <span class="badge bg-light text-dark text-capitalize border border-light-subtle px-3 py-2 rounded">
-                                            <?= esc($row['kategori']) ?>
-                                        </span>
+                                    <td class="fw-semibold text-dark text-nowrap"><?= esc(date('d/m/Y', strtotime($row['tanggal']))) ?></td>
+                                    <td class="text-nowrap">
+                                        <?php if ($row['kategori'] === 'saldo_awal') : ?>
+                                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 rounded">
+                                                <i class="fa-solid fa-vault me-1"></i> Saldo Awal
+                                            </span>
+                                        <?php else : ?>
+                                            <span class="badge bg-light text-dark text-capitalize border border-light-subtle px-3 py-2 rounded">
+                                                <?= esc($row['kategori']) ?>
+                                            </span>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <div class="text-dark fw-semibold mb-1"><?= esc($row['keterangan']) ?></div>
@@ -497,15 +549,10 @@
                                                     <span class="text-danger"><i class="fa-solid fa-circle-arrow-up me-1"></i> Kas Keluar</span>
                                                 <?php endif; ?>
                                             </small>
-                                            <?php if (!empty($row['nama_kegiatan'])) : ?>
-                                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 rounded-pill font-heading px-2 py-0.5" style="font-size: 0.725rem;">
-                                                    <i class="fa-solid fa-people-group me-1"></i> <?= esc($row['nama_kegiatan']) ?>
-                                                </span>
-                                            <?php endif; ?>
                                         </div>
                                     </td>
-                                    <td><?= esc($row['penanggung_jawab']) ?: '-' ?></td>
-                                    <td class="text-center">
+                                    <td class="text-nowrap"><?= esc($row['penanggung_jawab']) ?: '-' ?></td>
+                                    <td class="text-center text-nowrap">
                                         <?php if (!empty($row['bukti_transaksi'])) : ?>
                                             <a href="<?= base_url('uploads/keuangan/' . $row['bukti_transaksi']) ?>" target="_blank" class="btn-action btn-edit" title="Lihat Bukti Transaksi" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981;">
                                                 <i class="fa-solid <?= str_ends_with($row['bukti_transaksi'], '.pdf') ? 'fa-file-pdf' : 'fa-image' ?>"></i>
@@ -514,10 +561,10 @@
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="text-end fw-bold font-heading <?= $row['tipe'] === 'masuk' ? 'text-success' : 'text-danger' ?>">
+                                    <td class="text-end fw-bold font-heading text-nowrap <?= $row['tipe'] === 'masuk' ? 'text-success' : 'text-danger' ?>">
                                         <?= $row['tipe'] === 'masuk' ? '+' : '-' ?> Rp <?= number_format($row['nominal'], 0, ',', '.') ?>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-center text-nowrap">
                                         <div class="d-flex justify-content-center gap-2">
                                             <a href="<?= base_url('dashboard/keuangan/edit/' . $row['id']) ?>" class="btn-action btn-edit" title="Ubah">
                                                 <i class="fa-solid fa-pencil"></i>
@@ -533,7 +580,7 @@
                             <tr>
                                 <td colspan="7" class="text-center py-5 text-muted">
                                     <i class="fa-regular fa-folder-open d-block fs-3 mb-2"></i>
-                                    Belum ada data pencatatan buku kas umum.
+                                    Belum ada data pencatatan buku kas umum masjid.
                                 </td>
                             </tr>
                         <?php endif; ?>

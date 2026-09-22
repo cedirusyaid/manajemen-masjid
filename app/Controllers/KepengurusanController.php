@@ -72,6 +72,35 @@ class KepengurusanController extends BaseController
             });
         }
 
+        // Load keuangan kas umum pengurus (non-kegiatan)
+        $keuanganModel = new \App\Models\KeuanganModel();
+        $keuanganList = $keuanganModel->where('kegiatan_id', null)
+                                      ->where('deleted_at', null)
+                                      ->orderBy('tanggal', 'DESC')
+                                      ->orderBy('created_at', 'DESC')
+                                      ->findAll();
+
+        $totalMasuk  = 0;
+        $totalKeluar = 0;
+        foreach ($keuanganList as $k) {
+            if ($k['tipe'] === 'masuk') {
+                $totalMasuk += $k['nominal'];
+            } else {
+                $totalKeluar += $k['nominal'];
+            }
+        }
+        $saldoKas = $totalMasuk - $totalKeluar;
+
+        // Load agenda/program kerja pengurus masjid
+        $agendaModel = new \App\Models\AgendaModel();
+        $agendaList = $agendaModel->select('mst_agenda.*, mst_personil.nama as nama_ustadz, mst_personil.foto as foto_ustadz')
+                                  ->join('mst_personil', 'mst_personil.id = mst_agenda.narasumber_id', 'left')
+                                  ->where('mst_agenda.kegiatan_id', null)
+                                  ->where('mst_agenda.deleted_at', null)
+                                  ->orderBy('mst_agenda.tanggal', 'DESC')
+                                  ->orderBy('mst_agenda.waktu', 'ASC')
+                                  ->findAll();
+
         return view('dashboard/kepengurusan/detail', [
             'username'         => $this->session->get('username'),
             'role_name'        => $this->session->get('role_name'),
@@ -79,6 +108,11 @@ class KepengurusanController extends BaseController
             'periode'          => $periode,
             'pengurus_list'    => $pengurusList,
             'jabatan_list'     => $jabatanList,
+            'keuangan_list'    => $keuanganList,
+            'total_masuk'      => $totalMasuk,
+            'total_keluar'     => $totalKeluar,
+            'saldo_kas'        => $saldoKas,
+            'agenda_list'      => $agendaList,
             'validation'       => \Config\Services::validation()
         ]);
     }

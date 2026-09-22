@@ -50,9 +50,15 @@ class JadwalJumatController extends BaseController
         }
 
         // Ambil data khatib, imam, dan muadzin untuk pilihan dropdown
-        $khatibList  = $this->imamKhatibModel->getPetugasWithPersonil(['khatib', 'imam_khatib']);
-        $imamList    = $this->imamKhatibModel->getPetugasWithPersonil(['imam', 'imam_khatib']);
-        $muadzinList = $this->imamKhatibModel->getPetugasWithPersonil('muadzin');
+        $allPetugas  = $this->imamKhatibModel->getPetugasWithPersonil();
+        $khatibList  = $this->imamKhatibModel->getPetugasWithPersonil(['khatib', 'imam_khatib', 'imam']);
+        $imamList    = $this->imamKhatibModel->getPetugasWithPersonil(['imam', 'imam_khatib', 'khatib']);
+        $muadzinList = $this->imamKhatibModel->getPetugasWithPersonil(['muadzin', 'imam', 'khatib', 'imam_khatib']);
+
+        // Fallback jika salah satu filter kosong, gunakan seluruh petugas
+        if (empty($khatibList))  $khatibList  = $allPetugas;
+        if (empty($imamList))    $imamList    = $allPetugas;
+        if (empty($muadzinList)) $muadzinList = $allPetugas;
 
         return view('dashboard/jadwal_jumat/create', [
             'username'     => $this->session->get('username'),
@@ -76,8 +82,8 @@ class JadwalJumatController extends BaseController
 
         $rules = [
             'tanggal'       => 'required|valid_date[Y-m-d]',
-            'khatib_id'     => 'required',
-            'imam_id'       => 'required',
+            'khatib_id'     => 'required|max_length[36]',
+            'imam_id'       => 'required|max_length[36]',
             'muadzin_id'    => 'permit_empty',
             'judul_khotbah' => 'permit_empty|max_length[255]'
         ];
@@ -86,7 +92,17 @@ class JadwalJumatController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
         }
 
+        $newId = sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
+
         $data = [
+            'id'            => $newId,
             'tanggal'       => $this->request->getPost('tanggal'),
             'khatib_id'     => $this->request->getPost('khatib_id'),
             'imam_id'       => $this->request->getPost('imam_id'),
@@ -98,11 +114,8 @@ class JadwalJumatController extends BaseController
         try {
             $this->jadwalJumatModel->insert($data);
             
-            // Dapatkan ID yang baru saja digenerate otomatis di model
-            $newId = $this->jadwalJumatModel->getInsertID() ?: $db = \Config\Database::connect()->insertID();
-            
             // Catat Audit Trail
-            log_activity('INSERT', 'trn_jadwal_jumat', $newId ?: 'UUID', null, $data);
+            log_activity('INSERT', 'trn_jadwal_jumat', $newId, null, $data);
 
             return redirect()->to('/dashboard/jadwal-jumat')->with('success', 'Jadwal Jumat berhasil ditambahkan.');
         } catch (Exception $e) {
@@ -127,9 +140,15 @@ class JadwalJumatController extends BaseController
         }
 
         // Ambil data khatib, imam, dan muadzin untuk pilihan dropdown
-        $khatibList  = $this->imamKhatibModel->getPetugasWithPersonil(['khatib', 'imam_khatib']);
-        $imamList    = $this->imamKhatibModel->getPetugasWithPersonil(['imam', 'imam_khatib']);
+        $allPetugas  = $this->imamKhatibModel->getPetugasWithPersonil();
+        $khatibList  = $this->imamKhatibModel->getPetugasWithPersonil(['khatib', 'imam_khatib', 'imam']);
+        $imamList    = $this->imamKhatibModel->getPetugasWithPersonil(['imam', 'imam_khatib', 'khatib']);
         $muadzinList = $this->imamKhatibModel->getPetugasWithPersonil(['muadzin', 'imam', 'khatib', 'imam_khatib']);
+
+        // Fallback jika salah satu filter kosong, gunakan seluruh petugas
+        if (empty($khatibList))  $khatibList  = $allPetugas;
+        if (empty($imamList))    $imamList    = $allPetugas;
+        if (empty($muadzinList)) $muadzinList = $allPetugas;
 
         return view('dashboard/jadwal_jumat/edit', [
             'username'     => $this->session->get('username'),
@@ -220,26 +239,40 @@ class JadwalJumatController extends BaseController
         $jabatan = $this->request->getPost('jabatan');
 
         try {
-            $db = \Config\Database::connect();
-            
             // 1. Simpan ke mst_personil
             $personilModel = new \App\Models\PersonilModel();
+            $personilId = sprintf(
+                '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+                mt_rand(0, 0xffff),
+                mt_rand(0, 0x0fff) | 0x4000,
+                mt_rand(0, 0x3fff) | 0x8000,
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+            );
             $personilData  = [
+                'id'            => $personilId,
                 'nama'          => $nama,
                 'jenis_kelamin' => 'L',
                 'tipe_default'  => 'ustadz,petugas'
             ];
             $personilModel->insert($personilData);
-            $personilId = $personilModel->getInsertID() ?: $db->insertID();
 
             // 2. Simpan ke mst_imam_khatib
+            $newImamKhatibId = sprintf(
+                '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+                mt_rand(0, 0xffff),
+                mt_rand(0, 0x0fff) | 0x4000,
+                mt_rand(0, 0x3fff) | 0x8000,
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+            );
             $imamKhatibData = [
+                'id'          => $newImamKhatibId,
                 'personil_id' => $personilId,
                 'jabatan'     => $jabatan,
                 'bio'         => 'Petugas Tambahan'
             ];
             $this->imamKhatibModel->insert($imamKhatibData);
-            $newImamKhatibId = $this->imamKhatibModel->getInsertID() ?: $db->insertID();
 
             // Catat Audit Trail
             log_activity('INSERT', 'mst_imam_khatib', $newImamKhatibId, null, $imamKhatibData);

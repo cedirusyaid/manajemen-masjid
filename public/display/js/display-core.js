@@ -1,6 +1,6 @@
 /**
  * Display Core Engine - Masjid Agung Nujumul Ittihad Sinjai
- * Combined Realtime Clock, API Synchronization, Offline Prayer Calculation,
+ * Combined Realtime Clock, API Synchronization, Accurate Offline Prayer Calculation,
  * Pure Screen Blanking, and Admin Keyboard Shortcuts.
  */
 
@@ -10,80 +10,79 @@ window.DisplayCore = {
   prayerTimes: {
     subuh: "04:45",
     syuruq: "06:00",
-    dzuhur: "12:12",
-    ashar: "15:20",
-    maghrib: "18:15",
-    isya: "19:24"
+    dzuhur: "12:05",
+    ashar: "15:26",
+    maghrib: "18:03",
+    isya: "19:17"
+  },
+  blankSettings: {
+    before_prayer: 0,
+    subuh: 25,
+    dzuhur: 20,
+    ashar: 20,
+    maghrib: 20,
+    isya: 25,
+    jumat: 45
   },
   isManualBlank: false,
   userOverriddenWindow: false,
   apiData: null
 };
 
-// 1. Offline Astronomical Prayer Calculation Engine for Sinjai (Lat: -5.1242, Long: 120.2536, GMT+8)
+// 1. Accurate Offline Astronomical Prayer Calculation Engine for Sinjai (Lat: -5.1242, Long: 120.2536, GMT+8)
 function calculateOfflinePrayerTimes(date = new Date()) {
   const lat = -5.1242;
   const lng = 120.2536;
-  const timezone = 8; // WITA (GMT+8)
+  const tz = 8; // WITA
 
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
+  const rad = d => d * Math.PI / 180;
+  const deg = r => r * 180 / Math.PI;
 
-  // Julian Date calculation
-  const a = Math.floor((14 - month) / 12);
-  const y = year + 4800 - a;
-  const m = month + 12 * a - 3;
-  const jd = day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date - start;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const dayOfYear = Math.floor(diff / oneDay);
 
-  const d = jd - 2451545.0;
+  const B = 360 / 365 * (dayOfYear - 81);
+  const dec = 23.45 * Math.sin(rad(B)); // degrees
+  const EoT = 9.87 * Math.sin(rad(2 * B)) - 7.53 * Math.cos(rad(B)) - 1.5 * Math.sin(rad(B)); // minutes
 
-  // Sun's declination and equation of time
-  const g = 357.529 + 0.98560028 * d;
-  const q = 280.459 + 0.98564736 * d;
-  const L = q + 1.915 * Math.sin(g * Math.PI / 180) + 0.020 * Math.sin(2 * g * Math.PI / 180);
-  const e = 23.439 - 0.00000036 * d;
-  
-  const RA = Math.atan2(Math.cos(e * Math.PI / 180) * Math.sin(L * Math.PI / 180), Math.cos(L * Math.PI / 180)) * 180 / Math.PI;
-  const EqT = (q/15 - (RA < 0 ? RA + 360 : RA)/15);
-  const Dec = Math.asin(Math.sin(e * Math.PI / 180) * Math.sin(L * Math.PI / 180)) * 180 / Math.PI;
+  // Solar Noon (transit) in local hours
+  const noon = 12 + tz - (lng / 15) - (EoT / 60);
 
-  const transit = 12 + timezone - (lng / 15) - EqT;
-
-  const hourAngle = (angle) => {
-    const cosHA = (Math.sin(angle * Math.PI / 180) - Math.sin(lat * Math.PI / 180) * Math.sin(Dec * Math.PI / 180)) / (Math.cos(lat * Math.PI / 180) * Math.cos(Dec * Math.PI / 180));
+  function hourAngle(alt) {
+    const cosHA = (Math.sin(rad(alt)) - Math.sin(rad(lat)) * Math.sin(rad(dec))) /
+                  (Math.cos(rad(lat)) * Math.cos(rad(dec)));
     if (cosHA > 1 || cosHA < -1) return null;
-    return Math.acos(cosHA) * 180 / Math.PI / 15;
-  };
+    return deg(Math.acos(cosHA)) / 15;
+  }
 
-  const asrAngle = () => {
-    const shadowFactor = 1; // Shafi'i / Maliki / Hanbali
-    const phiMinusDec = Math.abs(lat - Dec);
-    const cotA = shadowFactor + Math.tan(phiMinusDec * Math.PI / 180);
-    const alt = Math.atan(1 / cotA) * 180 / Math.PI;
-    return hourAngle(-alt);
-  };
+  // Ashar calculation (Shafi'i)
+  const asrAlt = deg(Math.atan(1 / (1 + Math.tan(rad(Math.abs(lat - dec))))));
+  const haAsr = hourAngle(asrAlt);
 
-  const formatHours = (hours) => {
+  const haFajr = hourAngle(-20); // Subuh: 20 deg
+  const haSunrise = hourAngle(-0.833);
+  const haMaghrib = hourAngle(-0.833);
+  const haIsha = hourAngle(-18); // Isya: 18 deg
+
+  function toTime(hours) {
     if (hours === null || isNaN(hours)) return "00:00";
     let h = Math.floor(hours);
-    let mins = Math.floor((hours - h) * 60);
-    if (mins >= 60) { h++; mins -= 60; }
+    let m = Math.floor((hours - h) * 60);
+    if (m >= 60) { h++; m -= 60; }
     if (h >= 24) h -= 24;
-    return `${String(h).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
-  };
-
-  const fajrHA = hourAngle(-20); // Kemenag 20 deg
-  const ishaHA = hourAngle(-18); // Kemenag 18 deg
-  const asrHA = asrAngle();
-  const maghribHA = hourAngle(-0.833);
+    return String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0');
+  }
 
   return {
-    subuh: formatHours(transit - fajrHA),
-    dzuhur: formatHours(transit + (2/60)), // +2 mins safety
-    ashar: formatHours(transit + asrHA),
-    maghrib: formatHours(transit + maghribHA),
-    isya: formatHours(transit + ishaHA)
+    imsak: toTime(noon - haFajr - (10 / 60)),
+    subuh: toTime(noon - haFajr + (2 / 60)),
+    syuruq: toTime(noon - haSunrise),
+    dzuhur: toTime(noon + (2 / 60)),
+    ashar: toTime(noon + haAsr + (2 / 60)),
+    maghrib: toTime(noon + haMaghrib + (2 / 60)),
+    isya: toTime(noon + haIsha + (2 / 60))
   };
 }
 
@@ -149,43 +148,48 @@ function formatTimeShort(timeStr) {
 }
 
 function formatRupiah(nominal) {
+  if (nominal === null || nominal === undefined || isNaN(nominal)) return 'Rp 0';
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(nominal);
 }
 
 // 5. Prayer Time Fetching & Checking
 async function fetchPrayerTimes() {
-  try {
-    const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Sinjai&country=Indonesia&method=20");
-    const json = await res.json();
-    if (json && json.data && json.data.timings) {
-      const t = json.data.timings;
-      window.DisplayCore.prayerTimes = {
-        subuh: t.Fajr,
-        dzuhur: t.Dhuhr,
-        ashar: t.Asr,
-        maghrib: t.Maghrib,
-        isya: t.Isha
-      };
-      return;
-    }
-  } catch (err) {
-    console.log("Aladhan API offline/unreachable. Switching to offline astronomical calculation.");
+  // If we already have prayer times from API, skip
+  if (window.DisplayCore.prayerTimes && window.DisplayCore.prayerTimes.subuh) {
+    return;
   }
-  // Fallback to offline calculation
+  // Offline calculation fallback
   window.DisplayCore.prayerTimes = calculateOfflinePrayerTimes();
 }
 
 function timeToMinutes(tStr) {
-  if (!tStr) return 0;
+  if (!tStr || typeof tStr !== 'string') return 0;
   const p = tStr.split(':');
+  if (p.length < 2) return 0;
   return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
 }
 
-function isWithinPrayerWindow(nowMinutes, prayerTimeStr) {
-  if (!prayerTimeStr) return false;
+function isWithinPrayerWindow(nowMinutes, prayerTimeStr, prayerKey) {
+  if (!prayerTimeStr || typeof prayerTimeStr !== 'string' || !prayerTimeStr.includes(':')) return false;
   const pMin = timeToMinutes(prayerTimeStr);
-  const startMin = pMin - 10;
-  const endMin = pMin + 10;
+  if (pMin <= 0) return false;
+
+  const settings = window.DisplayCore.blankSettings || {};
+  const beforeMin = parseInt(settings.before_prayer, 10) || 5;
+
+  // Cek apakah hari ini adalah hari Jumat dan waktu shalat Dzuhur
+  const now = new Date();
+  const isFriday = (now.getDay() === 5); // 5 = Jumat
+
+  let durationAfter = 20;
+  if (prayerKey === 'dzuhur' && isFriday) {
+    durationAfter = parseInt(settings.jumat, 10) || 45;
+  } else if (settings[prayerKey] !== undefined) {
+    durationAfter = parseInt(settings[prayerKey], 10) || 20;
+  }
+
+  const startMin = pMin - beforeMin;
+  const endMin = pMin + durationAfter;
   return nowMinutes >= startMin && nowMinutes <= endMin;
 }
 
@@ -201,8 +205,9 @@ function checkPrayerBlankTrigger() {
   const nowMin = timeToMinutes(timeStr);
 
   let inWindow = false;
-  for (const key in window.DisplayCore.prayerTimes) {
-    if (isWithinPrayerWindow(nowMin, window.DisplayCore.prayerTimes[key])) {
+  const pTimes = window.DisplayCore.prayerTimes || {};
+  for (const key of ['subuh', 'dzuhur', 'ashar', 'maghrib', 'isya']) {
+    if (pTimes[key] && isWithinPrayerWindow(nowMin, pTimes[key], key)) {
       inWindow = true;
       break;
     }
@@ -262,30 +267,63 @@ async function fetchDisplayData(callback) {
     const basePath = path.replace(/\/display\/$/, '/');
 
     let response;
-    try {
-      response = await fetch(basePath + 'api/display');
-      if (!response.ok) {
-        response = await fetch(basePath + 'index.php/api/display');
+    const urlsToTry = [
+      basePath + 'api/display',
+      basePath + 'index.php/api/display',
+      '/api/display',
+      '/index.php/api/display'
+    ];
+
+    for (const u of urlsToTry) {
+      try {
+        const res = await fetch(u);
+        if (res.ok) {
+          response = res;
+          break;
+        }
+      } catch (e) {
+        // try next
       }
-    } catch (e) {
-      response = await fetch(basePath + 'index.php/api/display');
+    }
+
+    if (!response) {
+      console.warn("DisplayCore: Semua endpoint API tidak dapat dijangkau. Menggunakan data offline.");
+      return;
     }
 
     const res = await response.json();
 
-    if (res.status) {
+    if (res && res.status && res.data) {
       window.DisplayCore.apiData = res.data;
-      if (res.data.masjid && res.data.masjid.nama) {
-        window.DisplayCore.namaMasjid = res.data.masjid.nama;
-        const nameEl = document.getElementById('disp-nama-masjid');
-        if (nameEl) nameEl.textContent = res.data.masjid.nama;
+
+      // Sync Prayer Times from backend if available
+      if (res.data.jadwal_sholat) {
+        window.DisplayCore.prayerTimes = res.data.jadwal_sholat;
       }
+
+      // Sync Screen Blanking Durations per Prayer Time from backend
+      if (res.data.display_blank_settings) {
+        window.DisplayCore.blankSettings = res.data.display_blank_settings;
+      }
+
+      if (res.data.masjid) {
+        if (res.data.masjid.nama) {
+          window.DisplayCore.namaMasjid = res.data.masjid.nama;
+          const nameEl = document.getElementById('disp-nama-masjid');
+          if (nameEl) nameEl.textContent = res.data.masjid.nama;
+        }
+        if (res.data.masjid.alamat) {
+          const alamatEl = document.getElementById('disp-alamat-masjid');
+          if (alamatEl) alamatEl.textContent = res.data.masjid.alamat;
+        }
+      }
+
       if (typeof callback === 'function') {
         callback(res.data);
       }
     }
   } catch (err) {
-    console.error("Gagal sinkronisasi data API:", err);
+    console.error("Gagal sinkronisasi data API display:", err);
   }
 }
 
@@ -302,6 +340,6 @@ function initDisplayCore(dataRenderCallback) {
   setInterval(() => fetchDisplayData(dataRenderCallback), 30000);
 
   if ('wakeLock' in navigator) {
-    navigator.wakeLock.request('screen').catch(console.error);
+    navigator.wakeLock.request('screen').catch(() => {});
   }
 }

@@ -317,6 +317,43 @@
         }
 
         /* ----------------------------------------------------------------------
+         * Layanan Jamaah Section
+         * ---------------------------------------------------------------------- */
+        .layanan-section {
+            padding: 80px 0;
+            background-color: var(--white);
+        }
+
+        .layanan-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 32px 26px;
+            border: 1px solid #e5e7eb;
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .layanan-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(15, 118, 110, 0.3);
+        }
+
+        .layanan-icon-box {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        /* ----------------------------------------------------------------------
          * Infak Section
          * ---------------------------------------------------------------------- */
         .infak-section {
@@ -385,10 +422,30 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
                     <li class="nav-item"><a class="nav-link active" href="<?= base_url() ?>">Beranda</a></li>
+                    
+                    <!-- Dropdown Kepanitiaan -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarKepanitiaan" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-people-group me-1 text-warning"></i> Kepanitiaan
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 py-2" aria-labelledby="navbarKepanitiaan" style="min-width: 240px;">
+                            <li>
+                                <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="<?= base_url('pembangunan') ?>">
+                                    <i class="fa-solid fa-helmet-safety text-warning"></i>
+                                    <div>
+                                        <strong class="d-block" style="font-size: 0.875rem;">Panitia Pembangunan</strong>
+                                        <small class="text-muted" style="font-size: 0.75rem;">Proyek Renovasi & Fisik Masjid</small>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
                     <li class="nav-item"><a class="nav-link" href="#jadwal">Jadwal Sholat</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#petugas-jumat">Petugas Jumat</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#petugas-jumat">Pelaksana Shalat Jumat</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#kajian">Kajian</a></li>
                     <li class="nav-item"><a class="nav-link" href="#layanan">Layanan</a></li>
                     <li class="nav-item"><a class="nav-link" href="#donasi">Donasi</a></li>
                     <li class="nav-item ms-lg-2">
@@ -464,8 +521,8 @@
     <!-- PETUGAS JUMAT SECTION -->
     <section class="jumat-section container" id="petugas-jumat">
         <div class="section-header">
-            <h2>Petugas Salat Jumat Pekan Ini</h2>
-            <p>Jadwal Khatib, Imam, dan Muadzin Salat Jumat <?= site_name() ?></p>
+            <h2>Pelaksana Ibadah Shalat Jumat</h2>
+            <p>Jadwal Khatib, Imam, dan Muadzin Pelaksana Ibadah Shalat Jumat <?= site_name() ?></p>
         </div>
 
         <div class="jumat-card">
@@ -564,6 +621,66 @@
                     <p>Belum ada jadwal kajian terbaru saat ini.</p>
                 </div>
             <?php endif; ?>
+        </div>
+    </section>
+
+    <!-- LAYANAN JAMAAH SECTION -->
+    <section class="layanan-section" id="layanan">
+        <div class="container">
+            <div class="text-center mb-5">
+                <div class="petugas-role text-success fw-bold mb-2">Pelayanan Umat</div>
+                <h2 class="fw-bold font-heading">Layanan & Fasilitas Jamaah</h2>
+                <p class="text-muted mb-0">Berbagai sarana dakwah, konsultasi, pendidikan, dan bantuan sosial keagamaan di <?= site_name() ?>.</p>
+            </div>
+
+            <div class="row g-4">
+                <?php if (!empty($layanan_list)) : ?>
+                    <?php foreach ($layanan_list as $lay) : 
+                        $warna = !empty($lay['warna_tema']) ? esc($lay['warna_tema']) : 'success';
+                        $icon  = !empty($lay['icon']) ? esc($lay['icon']) : 'fa-solid fa-hand-holding-heart';
+                        
+                        // Siapkan nomor WA
+                        $phone = !empty($lay['kontak_wa']) ? $lay['kontak_wa'] : contact_phone();
+                        $phoneClean = preg_replace('/[^0-9]/', '', $phone);
+                        if (str_starts_with($phoneClean, '0')) {
+                            $phoneClean = '62' . substr($phoneClean, 1);
+                        }
+                        
+                        $pesan = !empty($lay['pesan_wa_default']) 
+                            ? $lay['pesan_wa_default'] 
+                            : "Assalamu'alaikum Pengurus " . site_name() . ", saya ingin konsultasi mengenai layanan " . $lay['nama_layanan'];
+                    ?>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="layanan-card h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="layanan-icon-box bg-<?= $warna ?> bg-opacity-10 text-<?= $warna ?>">
+                                        <i class="<?= $icon ?>"></i>
+                                    </div>
+                                    <h4 class="h5 fw-bold text-dark font-heading mb-2"><?= esc($lay['nama_layanan']) ?></h4>
+                                    <p class="text-muted small mb-4" style="line-height: 1.6;">
+                                        <?= nl2br(esc($lay['deskripsi'])) ?>
+                                    </p>
+                                </div>
+                                <div>
+                                    <?php if (!empty($lay['nama_pj'])) : ?>
+                                        <div class="small text-muted mb-2">
+                                            <i class="fa-solid fa-user-tie me-1 text-secondary"></i> PJ: <span class="fw-medium text-dark"><?= esc($lay['nama_pj']) ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                    <a href="https://api.whatsapp.com/send?phone=<?= $phoneClean ?>&text=<?= urlencode($pesan) ?>" target="_blank" class="btn btn-sm btn-outline-<?= $warna ?> w-100 rounded-pill py-2 fw-semibold">
+                                        <i class="fa-brands fa-whatsapp me-1"></i> Hubungi Layanan
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <div class="col-12 text-center py-5 text-muted">
+                        <i class="fa-solid fa-hand-holding-heart fs-1 mb-3 text-muted"></i>
+                        <p>Belum ada daftar layanan yang ditampilkan.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </section>
 
@@ -668,7 +785,7 @@
                     <h5>Navigasi Halaman</h5>
                     <ul class="list-unstyled d-grid gap-2">
                         <li><a href="#jadwal"><i class="fa-solid fa-angle-right me-2 text-warning"></i>Jadwal Sholat</a></li>
-                        <li><a href="#petugas-jumat"><i class="fa-solid fa-angle-right me-2 text-warning"></i>Petugas Salat Jumat</a></li>
+                        <li><a href="#petugas-jumat"><i class="fa-solid fa-angle-right me-2 text-warning"></i>Petugas Shalat Jumat</a></li>
                         <li><a href="#layanan"><i class="fa-solid fa-angle-right me-2 text-warning"></i>Pelayanan TPA / ZIS</a></li>
                         <li><a href="#donasi"><i class="fa-solid fa-angle-right me-2 text-warning"></i>QRIS Infak Digital</a></li>
                     </ul>

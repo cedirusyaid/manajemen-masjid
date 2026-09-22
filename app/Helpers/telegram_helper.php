@@ -74,13 +74,83 @@ if (!function_exists('telegram_log_error')) {
         $currentTime = date('Y-m-d H:i:s');
 
         $message = "🚨 <b>KRITIS: SYSTEM ERROR DETECTED</b> 🚨\n\n";
-        $message .= "<b>Project:</b> Website " . site_name() . "\n";
+        $message .= "<b>Project:</b> " . site_name() . "\n";
         $message .= "<b>Environment:</b> " . strtoupper($envMode) . "\n";
         $message .= "<b>Waktu:</b> {$currentTime}\n";
         $message .= "<b>File:</b> <code>" . esc($exception->getFile()) . "</code>\n";
         $message .= "<b>Line:</b> " . esc($exception->getLine()) . "\n\n";
-        $message .= "<b>Pesan Error:</b>\n<pre>" . esc($exception->getMessage()) . "</pre>\n";
+        $message .= "<b>Pesan Error:</b>\n<pre>" . esc($exception->getMessage()) . "</pre>\n\n";
+        $message .= "#Error #MasjidAgung #SystemAlert #" . ucfirst(strtolower($envMode));
 
         return telegram_send_msg($message);
+    }
+}
+
+if (!function_exists('telegram_notify_change')) {
+    /**
+     * Notifikasi aktivitas perubahan data (INSERT, UPDATE, DELETE, LOGIN) ke Telegram
+     *
+     * @param string $action    Aksi: INSERT / UPDATE / DELETE / LOGIN / dsb
+     * @param string $module    Nama Modul / Tabel target (misal: Kas Keuangan, Jadwal Jumat)
+     * @param string $detail    Ringkasan rincian perubahan (misal: judul, nominal, nama orang)
+     * @param string|null $actor Nama / Username yang melakukan perubahan
+     * @return bool
+     */
+    function telegram_notify_change(string $action, string $module, string $detail = '', ?string $actor = null): bool
+    {
+        $session = \Config\Services::session();
+        $request = \Config\Services::request();
+
+        if (empty($actor)) {
+            $actor = $session->get('username') ?: ($session->get('user_name') ?: 'System/Guest');
+        }
+        $ip = $request->getIPAddress();
+        $waktu = date('d-m-Y H:i:s');
+
+        $icons = [
+            'INSERT' => '✨',
+            'CREATE' => '✨',
+            'UPDATE' => '📝',
+            'EDIT'   => '📝',
+            'DELETE' => '🗑️',
+            'LOGIN'  => '🔑',
+            'LOGOUT' => '🚪',
+        ];
+        $actUpper = strtoupper($action);
+        $icon = $icons[$actUpper] ?? '🔔';
+
+        // Mapping module/table name ke nama yang rapi dan tag
+        $moduleTagMap = [
+            'mst_berita'         => ['name' => 'Berita & Pengumuman', 'tag' => '#Berita'],
+            'trn_kas'            => ['name' => 'Kas Keuangan', 'tag' => '#Keuangan'],
+            'mst_petugas_jumat'  => ['name' => 'Pelaksana Shalat Jumat', 'tag' => '#JadwalJumat'],
+            'mst_layanan'        => ['name' => 'Master Layanan', 'tag' => '#Layanan'],
+            'trn_pelayanan'      => ['name' => 'Permohonan Layanan', 'tag' => '#Pelayanan'],
+            'mst_agenda'         => ['name' => 'Agenda Kegiatan', 'tag' => '#Agenda'],
+            'mst_pengurus'       => ['name' => 'Pengurus Masjid', 'tag' => '#Pengurus'],
+            'mst_inventaris'     => ['name' => 'Inventaris Aset', 'tag' => '#Inventaris'],
+            'mst_users'          => ['name' => 'Manajemen Pengguna', 'tag' => '#User'],
+            'sys_settings'       => ['name' => 'Pengaturan Sistem', 'tag' => '#Pengaturan'],
+        ];
+
+        $moduleKey = strtolower(trim($module));
+        $moduleDisplay = $moduleTagMap[$moduleKey]['name'] ?? ucwords(str_replace(['mst_', 'trn_', 'sys_', '_'], ['', '', '', ' '], $module));
+        $moduleTag = $moduleTagMap[$moduleKey]['tag'] ?? ('#' . preg_replace('/[^a-zA-Z0-9]/', '', ucwords($moduleDisplay)));
+
+        // Buat tag aksi
+        $actionTag = '#' . ucfirst(strtolower($actUpper));
+
+        $msg  = "{$icon} <b>AKTIVITAS SISTEM - " . site_name() . "</b>\n\n";
+        $msg .= "<b>Aksi:</b> {$actUpper}\n";
+        $msg .= "<b>Modul:</b> " . esc($moduleDisplay) . "\n";
+        if (!empty($detail)) {
+            $msg .= "<b>Rincian:</b> " . esc($detail) . "\n";
+        }
+        $msg .= "<b>Oleh:</b> " . esc($actor) . "\n";
+        $msg .= "<b>IP:</b> <code>{$ip}</code>\n";
+        $msg .= "<b>Waktu:</b> {$waktu}\n\n";
+        $msg .= "#MasjidAgung {$actionTag} {$moduleTag} #AuditLog";
+
+        return telegram_send_msg($msg);
     }
 }

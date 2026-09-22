@@ -18,7 +18,7 @@ class KeuanganController extends BaseController
     }
 
     /**
-     * Tampilkan Daftar Kas Keuangan & Ringkasan Saldo
+     * Tampilkan Daftar Kas Umum Masjid & Ringkasan Saldo
      */
     public function index()
     {
@@ -26,27 +26,20 @@ class KeuanganController extends BaseController
             return $redirect;
         }
 
-        // Ambil data kas diurutkan berdasarkan tanggal terbaru dengan join ke master kegiatan
-        $kasList = $this->keuanganModel->select('trn_keuangan.*, mst_kegiatan.nama_kegiatan')
-                                        ->join('mst_kegiatan', 'mst_kegiatan.id = trn_keuangan.kegiatan_id', 'left')
-                                        ->where('trn_keuangan.deleted_at', null)
-                                        ->orderBy('trn_keuangan.tanggal', 'DESC')
-                                        ->orderBy('trn_keuangan.created_at', 'DESC')
-                                        ->findAll();
+        $userId = $this->session->get('user_id');
+        $roleId = (int)$this->session->get('role_id');
 
-        // Hitung total kas masuk, keluar, dan saldo akhir
-        $totalMasuk  = 0;
-        $totalKeluar = 0;
+        // Khusus Kas Umum Masjid (kegiatan_id IS NULL)
+        $kasList = $this->keuanganModel->where('trn_keuangan.kegiatan_id', null)
+                                       ->where('trn_keuangan.deleted_at', null)
+                                       ->orderBy('trn_keuangan.tanggal', 'DESC')
+                                       ->orderBy('trn_keuangan.created_at', 'DESC')
+                                       ->findAll();
 
-        foreach ($kasList as $item) {
-            if ($item['tipe'] === 'masuk') {
-                $totalMasuk += $item['nominal'];
-            } else {
-                $totalKeluar += $item['nominal'];
-            }
-        }
-
-        $saldoKas = $totalMasuk - $totalKeluar;
+        // Hitung total Kas Umum Masjid
+        $totalMasuk  = (float)($this->keuanganModel->where('kegiatan_id', null)->where('tipe', 'masuk')->where('deleted_at', null)->selectSum('nominal')->first()['nominal'] ?? 0);
+        $totalKeluar = (float)($this->keuanganModel->where('kegiatan_id', null)->where('tipe', 'keluar')->where('deleted_at', null)->selectSum('nominal')->first()['nominal'] ?? 0);
+        $saldoKas    = $totalMasuk - $totalKeluar;
 
         return view('dashboard/keuangan/index', [
             'username'     => $this->session->get('username'),
@@ -55,7 +48,8 @@ class KeuanganController extends BaseController
             'kas_list'     => $kasList,
             'total_masuk'  => $totalMasuk,
             'total_keluar' => $totalKeluar,
-            'saldo_kas'    => $saldoKas
+            'saldo_kas'    => $saldoKas,
+            'role_id'      => $roleId
         ]);
     }
 
@@ -68,9 +62,28 @@ class KeuanganController extends BaseController
             return $redirect;
         }
 
+        $userId = $this->session->get('user_id');
+        $roleId = (int)$this->session->get('role_id');
         $kegiatanModel = new \App\Models\KegiatanModel();
-        $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
-        $selectedKegiatanId = $this->request->getGet('kegiatan_id');
+        
+        // Role 2 (Bendahara Pengurus) tidak boleh memilih kegiatan (khusus kas umum)
+        if ($roleId === 2) {
+            $kegiatanList = [];
+            $selectedKegiatanId = null;
+        } elseif ($roleId === 6) {
+            // Role 6 (Bendahara Kepanitiaan): Batasi dropdown hanya pada kepanitiaan yang ditugaskan
+            $userKegiatanModel = new \App\Models\UserKegiatanModel();
+            $assignedKegiatanIds = $userId ? $userKegiatanModel->getKegiatanIdsByUser($userId) : [];
+            if (!empty($assignedKegiatanIds)) {
+                $kegiatanList = $kegiatanModel->whereIn('id', $assignedKegiatanIds)->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
+            } else {
+                $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
+            }
+            $selectedKegiatanId = $this->request->getGet('kegiatan_id');
+        } else {
+            $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
+            $selectedKegiatanId = $this->request->getGet('kegiatan_id');
+        }
 
         $rekeningModel = new \App\Models\RekeningModel();
         $rekeningList = $rekeningModel->where('deleted_at', null)->where('status', 'active')->findAll();
@@ -82,6 +95,7 @@ class KeuanganController extends BaseController
             'kegiatan_list'        => $kegiatanList,
             'rekening_list'        => $rekeningList,
             'selected_kegiatan_id' => $selectedKegiatanId,
+            'role_id'              => $roleId,
             'validation'           => \Config\Services::validation()
         ]);
     }
@@ -172,9 +186,20 @@ class KeuanganController extends BaseController
             }
         }
 
+        $roleId = (int)$this->session->get('role_id');
         $kegiatanId = $this->request->getPost('kegiatan_id');
         $rekeningId = $this->request->getPost('rekening_id');
         $redirectKegiatanId = $this->request->getPost('redirect_kegiatan_id');
+
+        if ($roleId === 2) {
+            // Bendahara Pengurus hanya boleh input kas umum (non-kegiatan)
+            $kegiatanId = null;
+        } elseif ($roleId === 6) {
+            // Bendahara Kepanitiaan wajib mengaitkan transaksi dengan kegiatan
+            if (empty($kegiatanId)) {
+                return redirect()->back()->withInput()->with('error', 'Akses dibatasi: Bendahara Kepanitiaan hanya boleh mencatat keuangan kegiatan/proyek.');
+            }
+        }
 
         $data = [
             'kegiatan_id'       => !empty($kegiatanId) ? $kegiatanId : null,
@@ -217,14 +242,27 @@ class KeuanganController extends BaseController
             return $redirect;
         }
 
+        $roleId = (int)$this->session->get('role_id');
         $kas = $this->keuanganModel->find($id);
 
         if (!$kas) {
             return redirect()->to('/dashboard/keuangan')->with('error', 'Data transaksi kas tidak ditemukan.');
         }
 
+        // Isolasi Role: Role 2 hanya kas umum, Role 6 hanya kas kepanitiaan
+        if ($roleId === 2 && !empty($kas['kegiatan_id'])) {
+            return redirect()->to('/dashboard/keuangan')->with('error', 'Akses ditolak: Anda hanya berwenang mengelola kas umum pengurus.');
+        }
+        if ($roleId === 6 && empty($kas['kegiatan_id'])) {
+            return redirect()->to('/dashboard/keuangan')->with('error', 'Akses ditolak: Anda hanya berwenang mengelola kas kegiatan kepanitiaan.');
+        }
+
         $kegiatanModel = new \App\Models\KegiatanModel();
-        $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
+        if ($roleId === 2) {
+            $kegiatanList = [];
+        } else {
+            $kegiatanList = $kegiatanModel->where('deleted_at', null)->orderBy('nama_kegiatan', 'ASC')->findAll();
+        }
         $rekeningModel = new \App\Models\RekeningModel();
         $rekeningList = $rekeningModel->where('deleted_at', null)->where('status', 'active')->findAll();
         $redirectKegiatanId = $this->request->getGet('kegiatan_id');
@@ -237,6 +275,7 @@ class KeuanganController extends BaseController
             'kegiatan_list'        => $kegiatanList,
             'rekening_list'        => $rekeningList,
             'redirect_kegiatan_id' => $redirectKegiatanId,
+            'role_id'              => $roleId,
             'validation'           => \Config\Services::validation()
         ]);
     }
@@ -250,10 +289,19 @@ class KeuanganController extends BaseController
             return $redirect;
         }
 
+        $roleId = (int)$this->session->get('role_id');
         $kas = $this->keuanganModel->find($id);
 
         if (!$kas) {
             return redirect()->to('/dashboard/keuangan')->with('error', 'Data transaksi kas tidak ditemukan.');
+        }
+
+        // Isolasi Role
+        if ($roleId === 2 && !empty($kas['kegiatan_id'])) {
+            return redirect()->to('/dashboard/keuangan')->with('error', 'Akses ditolak: Anda hanya berwenang mengelola kas umum pengurus.');
+        }
+        if ($roleId === 6 && empty($kas['kegiatan_id'])) {
+            return redirect()->to('/dashboard/keuangan')->with('error', 'Akses ditolak: Anda hanya berwenang mengelola kas kegiatan kepanitiaan.');
         }
 
         $rules = [
@@ -342,6 +390,16 @@ class KeuanganController extends BaseController
         $rekeningId = $this->request->getPost('rekening_id');
         $redirectKegiatanId = $this->request->getPost('redirect_kegiatan_id');
 
+        if ($roleId === 2) {
+            // Bendahara Pengurus hanya boleh edit kas umum (non-kegiatan)
+            $kegiatanId = null;
+        } elseif ($roleId === 6) {
+            // Bendahara Kepanitiaan wajib mengaitkan transaksi dengan kegiatan
+            if (empty($kegiatanId)) {
+                return redirect()->back()->withInput()->with('error', 'Akses dibatasi: Bendahara Kepanitiaan hanya boleh mencatat keuangan kegiatan/proyek.');
+            }
+        }
+
         $data = [
             'kegiatan_id'       => !empty($kegiatanId) ? $kegiatanId : null,
             'rekening_id'       => !empty($rekeningId) ? $rekeningId : null,
@@ -382,10 +440,19 @@ class KeuanganController extends BaseController
             return $redirect;
         }
 
+        $roleId = (int)$this->session->get('role_id');
         $kas = $this->keuanganModel->find($id);
 
         if (!$kas) {
             return redirect()->to('/dashboard/keuangan')->with('error', 'Data transaksi kas tidak ditemukan.');
+        }
+
+        // Isolasi Role
+        if ($roleId === 2 && !empty($kas['kegiatan_id'])) {
+            return redirect()->to('/dashboard/keuangan')->with('error', 'Akses ditolak: Anda hanya berwenang mengelola kas umum pengurus.');
+        }
+        if ($roleId === 6 && empty($kas['kegiatan_id'])) {
+            return redirect()->to('/dashboard/keuangan')->with('error', 'Akses ditolak: Anda hanya berwenang mengelola kas kegiatan kepanitiaan.');
         }
 
         $redirectKegiatanId = $this->request->getGet('kegiatan_id');

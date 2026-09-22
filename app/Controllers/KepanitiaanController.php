@@ -497,11 +497,12 @@ class KepanitiaanController extends BaseController
         }
 
         $rules = [
-            'kegiatan_id'  => 'required',
-            'nama_jabatan' => 'required|min_length[2]|max_length[100]',
-            'parent_id'    => 'permit_empty',
-            'tugas'        => 'permit_empty',
-            'urutan'       => 'permit_empty|integer'
+            'kegiatan_id'   => 'required',
+            'nama_jabatan'  => 'required|min_length[2]|max_length[100]',
+            'parent_id'     => 'permit_empty',
+            'kategori_unit' => 'permit_empty|max_length[100]',
+            'tugas'         => 'permit_empty',
+            'urutan'        => 'permit_empty|integer'
         ];
 
         if (!$this->validate($rules)) {
@@ -509,11 +510,12 @@ class KepanitiaanController extends BaseController
         }
 
         $data = [
-            'kegiatan_id'  => $this->request->getPost('kegiatan_id'),
-            'nama_jabatan' => $this->request->getPost('nama_jabatan'),
-            'parent_id'    => $this->request->getPost('parent_id') ?: null,
-            'tugas'        => $this->request->getPost('tugas'),
-            'urutan'       => (int)$this->request->getPost('urutan') ?: 0
+            'kegiatan_id'   => $this->request->getPost('kegiatan_id'),
+            'nama_jabatan'  => $this->request->getPost('nama_jabatan'),
+            'parent_id'     => $this->request->getPost('parent_id') ?: null,
+            'kategori_unit' => $this->request->getPost('kategori_unit') ?: 'Pelaksana Utama',
+            'tugas'         => $this->request->getPost('tugas'),
+            'urutan'        => (int)$this->request->getPost('urutan') ?: 0
         ];
 
         try {
@@ -573,11 +575,12 @@ class KepanitiaanController extends BaseController
         }
 
         $rules = [
-            'kegiatan_id'  => 'required',
-            'nama_jabatan' => 'required|min_length[2]|max_length[100]',
-            'parent_id'    => 'permit_empty',
-            'tugas'        => 'permit_empty',
-            'urutan'       => 'permit_empty|integer'
+            'kegiatan_id'   => 'required',
+            'nama_jabatan'  => 'required|min_length[2]|max_length[100]',
+            'parent_id'     => 'permit_empty',
+            'kategori_unit' => 'permit_empty|max_length[100]',
+            'tugas'         => 'permit_empty',
+            'urutan'        => 'permit_empty|integer'
         ];
 
         if (!$this->validate($rules)) {
@@ -585,11 +588,12 @@ class KepanitiaanController extends BaseController
         }
 
         $data = [
-            'kegiatan_id'  => $this->request->getPost('kegiatan_id'),
-            'nama_jabatan' => $this->request->getPost('nama_jabatan'),
-            'parent_id'    => $this->request->getPost('parent_id') ?: null,
-            'tugas'        => $this->request->getPost('tugas'),
-            'urutan'       => (int)$this->request->getPost('urutan') ?: 0
+            'kegiatan_id'   => $this->request->getPost('kegiatan_id'),
+            'nama_jabatan'  => $this->request->getPost('nama_jabatan'),
+            'parent_id'     => $this->request->getPost('parent_id') ?: null,
+            'kategori_unit' => $this->request->getPost('kategori_unit') ?: 'Pelaksana Utama',
+            'tugas'         => $this->request->getPost('tugas'),
+            'urutan'        => (int)$this->request->getPost('urutan') ?: 0
         ];
 
         try {
@@ -891,6 +895,11 @@ class KepanitiaanController extends BaseController
             return $redirect;
         }
 
+        $roleId = (int)$this->session->get('role_id');
+        if (!in_array($roleId, [1, 6])) {
+            return redirect()->back()->with('error', 'Akses ditolak: Hanya Bendahara Kepanitiaan dan Super Admin yang berhak mencatat bantuan material.');
+        }
+
         $kegiatanId = $this->request->getPost('kegiatan_id');
         $rules = [
             'kegiatan_id'       => 'required|max_length[36]',
@@ -937,10 +946,73 @@ class KepanitiaanController extends BaseController
         }
     }
 
+    public function updateMaterial($id)
+    {
+        if ($redirect = $this->checkAdminAccess()) {
+            return $redirect;
+        }
+
+        $roleId = (int)$this->session->get('role_id');
+        if (!in_array($roleId, [1, 6])) {
+            return redirect()->back()->with('error', 'Akses ditolak: Hanya Bendahara Kepanitiaan dan Super Admin yang berhak memperbarui bantuan material.');
+        }
+
+        $materialBefore = $this->bantuanMaterialModel->find($id);
+        if (!$materialBefore) {
+            return redirect()->to('/dashboard/kepanitiaan')->with('error', 'Data bantuan material tidak ditemukan.');
+        }
+
+        $rules = [
+            'tanggal'           => 'required|valid_date[Y-m-d]',
+            'uraian_material'   => 'required|min_length[2]|max_length[255]',
+            'kategori_material' => 'required|in_list[material_konstruksi,inventaris_elektronik,perlengkapan_ibadah,lainnya]',
+            'volume'            => 'required|numeric|greater_than[0]',
+            'satuan'            => 'required|max_length[50]',
+            'harga_satuan'      => 'permit_empty|numeric|greater_than_equal_to[0]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa inputan material.');
+        }
+
+        $volume      = (float)$this->request->getPost('volume');
+        $hargaSatuan = (float)($this->request->getPost('harga_satuan') ?: 0);
+        $totalNilai  = $volume * $hargaSatuan;
+
+        $data = [
+            'tanggal'              => $this->request->getPost('tanggal'),
+            'nama_donatur'         => $this->request->getPost('nama_donatur') ?: 'Hamba Allah',
+            'uraian_material'      => $this->request->getPost('uraian_material'),
+            'kategori_material'    => $this->request->getPost('kategori_material'),
+            'volume'               => $volume,
+            'satuan'               => $this->request->getPost('satuan'),
+            'harga_satuan'         => $hargaSatuan,
+            'total_nilai'          => $totalNilai,
+            'penerima_personil_id' => $this->request->getPost('penerima_personil_id') ?: null,
+            'keterangan'           => $this->request->getPost('keterangan')
+        ];
+
+        try {
+            $this->bantuanMaterialModel->update($id, $data);
+
+            log_activity('UPDATE', 'trn_bantuan_material', $id, $materialBefore, $data);
+
+            return redirect()->to('/dashboard/kepanitiaan/detail/' . $materialBefore['kegiatan_id'])->with('success', 'Data bantuan material berhasil diperbarui.');
+        } catch (Exception $e) {
+            telegram_log_error($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui bantuan material: ' . $e->getMessage());
+        }
+    }
+
     public function deleteMaterial($id)
     {
         if ($redirect = $this->checkAdminAccess()) {
             return $redirect;
+        }
+
+        $roleId = (int)$this->session->get('role_id');
+        if (!in_array($roleId, [1, 6])) {
+            return redirect()->back()->with('error', 'Akses ditolak: Hanya Bendahara Kepanitiaan dan Super Admin yang berhak menghapus data bantuan material.');
         }
 
         $materialBefore = $this->bantuanMaterialModel->find($id);

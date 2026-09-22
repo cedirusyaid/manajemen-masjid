@@ -15,7 +15,7 @@ class RoleModel extends Model
 
     // Validation Rules
     protected $validationRules      = [
-        'name' => 'required|min_length[3]|max_length[50]|is_unique[sys_roles.name,id,{id}]',
+        'name' => 'required|min_length[3]|max_length[50]',
     ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;

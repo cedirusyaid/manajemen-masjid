@@ -31,8 +31,8 @@ class UserModel extends Model
 
     // Validation Rules
     protected $validationRules = [
-        'username' => 'required|alpha_dash|min_length[4]|max_length[50]|is_unique[sys_users.username,id,{id}]',
-        'email'    => 'required|valid_email|is_unique[sys_users.email,id,{id}]',
+        'username' => 'required|alpha_dash|min_length[4]|max_length[50]',
+        'email'    => 'required|valid_email',
         'role_id'  => 'required|integer',
         'status'   => 'required|in_list[active,inactive]'
     ];
@@ -73,10 +73,40 @@ class UserModel extends Model
      */
     public function getUserWithRole(string $id)
     {
-        return $this->select('sys_users.*, sys_roles.name as role_name')
-                    ->join('sys_roles', 'sys_roles.id = sys_users.role_id')
+        return $this->select('sys_users.*, sys_roles.name as role_name, mst_personil.nama as nama_personil')
+                    ->join('sys_roles', 'sys_roles.id = sys_users.role_id', 'left')
+                    ->join('mst_personil', 'mst_personil.id = sys_users.personil_id', 'left')
                     ->where('sys_users.id', $id)
                     ->where('sys_users.deleted_at', null)
                     ->first();
+    }
+
+    /**
+     * Mendapatkan daftar seluruh pengguna dengan nama role dan personil
+     */
+    public function getUsersWithDetails($roleId = null, $status = null, $keyword = null)
+    {
+        $builder = $this->select('sys_users.*, sys_roles.name as role_name, sys_roles.description as role_description, mst_personil.nama as nama_personil, mst_personil.no_hp as no_hp_personil')
+                        ->join('sys_roles', 'sys_roles.id = sys_users.role_id', 'left')
+                        ->join('mst_personil', 'mst_personil.id = sys_users.personil_id', 'left')
+                        ->where('sys_users.deleted_at', null);
+
+        if (!empty($roleId)) {
+            $builder->where('sys_users.role_id', (int) $roleId);
+        }
+
+        if (!empty($status)) {
+            $builder->where('sys_users.status', $status);
+        }
+
+        if (!empty($keyword)) {
+            $builder->groupStart()
+                    ->like('sys_users.username', $keyword)
+                    ->orLike('sys_users.email', $keyword)
+                    ->orLike('mst_personil.nama', $keyword)
+                    ->groupEnd();
+        }
+
+        return $builder->orderBy('sys_users.created_at', 'DESC')->findAll();
     }
 }

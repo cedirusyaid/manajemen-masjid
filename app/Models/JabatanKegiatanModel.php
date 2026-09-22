@@ -12,7 +12,7 @@ class JabatanKegiatanModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id', 'kegiatan_id', 'nama_jabatan', 'parent_id', 'tugas', 'urutan'];
+    protected $allowedFields    = ['id', 'kegiatan_id', 'nama_jabatan', 'parent_id', 'kategori_unit', 'tugas', 'urutan'];
 
     // Dates
     protected $useTimestamps = true;
@@ -26,11 +26,12 @@ class JabatanKegiatanModel extends Model
 
     // Validation Rules
     protected $validationRules = [
-        'kegiatan_id'  => 'required',
-        'nama_jabatan' => 'required|min_length[2]|max_length[100]',
-        'parent_id'    => 'permit_empty',
-        'tugas'        => 'permit_empty',
-        'urutan'       => 'permit_empty|integer'
+        'kegiatan_id'   => 'required',
+        'nama_jabatan'  => 'required|min_length[2]|max_length[100]',
+        'parent_id'     => 'permit_empty',
+        'kategori_unit' => 'permit_empty|max_length[100]',
+        'tugas'         => 'permit_empty',
+        'urutan'        => 'permit_empty|integer'
     ];
 
     /**

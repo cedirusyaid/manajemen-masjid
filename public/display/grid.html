@@ -157,6 +157,7 @@
   <header>
     <div>
       <div class="masjid-title" id="disp-nama-masjid">MASJID AGUNG NUJUMUL ITTIHAD</div>
+      <div class="masjid-sub" id="disp-alamat-masjid">Kabupaten Sinjai</div>
     </div>
     <div class="clock-box">
       <div class="clock-time" id="disp-clock">00:00</div>
@@ -175,7 +176,7 @@
       <div id="disp-agenda-content">Memuat agenda masjid...</div>
     </div>
     <div class="card">
-      <h2>PETUGAS JUMAT</h2>
+      <h2>PELAKSANA IBADAH SHALAT JUMAT</h2>
       <div id="disp-jumat-content">Memuat jadwal Jumat...</div>
     </div>
   </main>
@@ -218,7 +219,7 @@
           ${khotbahHtml}
         `;
       } else {
-        document.getElementById('disp-jumat-content').textContent = 'Belum ada jadwal petugas Jumat.';
+        document.getElementById('disp-jumat-content').textContent = 'Belum ada jadwal pelaksana ibadah shalat Jumat.';
       }
 
       // Render Pengumuman & Agenda Kegiatan
@@ -254,9 +255,17 @@
       document.getElementById('disp-agenda-content').innerHTML = contentHtml;
 
       // Render Running Text
-      const saldo = formatRupiah(d.keuangan.saldo);
-      const tglUpdateKas = d.keuangan.last_update ? ` (Per ${formatIndoDate(d.keuangan.last_update)})` : '';
-      let runningText = `Laporan Kas Masjid${tglUpdateKas}: ${saldo} | `;
+      const k = d.keuangan;
+      let runningText = '';
+      if (k) {
+        runningText = `Laporan Kas Umum (${k.periode_label || 'Pekan Ini'}): Saldo Awal ${formatRupiah(k.saldo_awal)} | Masuk ${formatRupiah(k.pemasukan_pekan)} | Keluar ${formatRupiah(k.pengeluaran_pekan)} | Saldo Akhir ${formatRupiah(k.saldo_akhir)} | `;
+      } else {
+        runningText = 'Laporan Kas Umum Masjid | ';
+      }
+
+      if (d.pembangunan) {
+        runningText += `🏗️ Dana Pembangunan Terkumpul: ${formatRupiah(d.pembangunan.total_masuk)} (Valuasi Donasi Material: ${formatRupiah(d.pembangunan.total_nilai_material)}) | `;
+      }
 
       if (d.pengumuman && d.pengumuman.length > 0) {
         d.pengumuman.forEach(p => {

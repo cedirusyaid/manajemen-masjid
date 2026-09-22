@@ -152,6 +152,17 @@
         }
 
         .profile-card {
+            user-select: none;
+            transition: var(--transition);
+        }
+        .profile-card:hover {
+            background-color: #f9fafb;
+            box-shadow: var(--shadow-md);
+        }
+        .profile-card::after {
+            display: none !important;
+        }
+        .profile-card {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -215,6 +226,34 @@
         .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
             background-color: var(--primary);
             color: var(--white);
+        }
+
+        /* Hierarchical Accordion Styles */
+        .accordion-hierarchy .accordion-header {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            background-color: #f9fafb;
+        }
+
+        .accordion-hierarchy .accordion-button {
+            flex-grow: 1;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+
+        .accordion-hierarchy .accordion-button:not(.collapsed) {
+            color: var(--primary);
+        }
+
+        .accordion-hierarchy .accordion-actions {
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background-color: #ffffff;
+            border-left: 1px solid #e5e7eb;
+            z-index: 10;
         }
 
         /* Table/Badges Styles */
@@ -463,7 +502,7 @@
             </li>
             <li>
                 <a href="<?= base_url('dashboard/jadwal-jumat') ?>" class="menu-link">
-                    <i class="fa-solid fa-calendar-week"></i> Jadwal Jumat
+                    <i class="fa-solid fa-calendar-week"></i> Pelaksana Shalat Jumat
                 </a>
             </li>
             <li>
@@ -519,11 +558,44 @@
                 <p class="text-muted mb-0">Kelola jajaran panitia pelaksana kegiatan masjid.</p>
             </div>
             
-            <div class="profile-card">
-                <img class="profile-avatar" src="<?= esc($avatar) ?>" alt="Avatar">
-                <div class="profile-info">
-                    <div class="profile-name"><?= esc($username) ?></div>
-                    <div class="profile-role"><?= esc($role_name) ?></div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="<?= base_url() ?>" target="_blank" class="btn btn-outline-success btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold shadow-sm bg-white text-decoration-none">
+                    <i class="fa-solid fa-globe text-success"></i>
+                    <span>Lihat Website</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-muted" style="font-size: 0.7rem;"></i>
+                </a>
+                <div class="dropdown">
+                    <div class="profile-card dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" style="cursor: pointer;">
+                        <img class="profile-avatar" src="<?= esc($avatar ?? base_url('assets/images/default-avatar.png')) ?>" alt="Avatar">
+                        <div class="profile-info me-1">
+                            <div class="profile-name"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="profile-role"><?= esc($role_name ?? 'Pengurus') ?></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2 py-2" style="min-width: 210px;">
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="fw-bold text-dark small"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="text-muted" style="font-size: 0.75rem;"><?= esc(session()->get('email') ?? '') ?></div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url("dashboard") ?>">
+                                <i class="fa-solid fa-gauge-high text-muted"></i> Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url() ?>" target="_blank">
+                                <i class="fa-solid fa-globe text-muted"></i> Halaman Publik
+                                <i class="fa-solid fa-arrow-up-right-from-square ms-auto text-muted" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger small" href="<?= base_url("logout") ?>">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar (Logout)
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -629,13 +701,132 @@
                 return $html;
             }
         }
+
+        if (!function_exists('renderKegiatanTreeListHtml')) {
+            function renderKegiatanTreeListHtml($tree, $kegiatanId, $level = 0) {
+                $html = '';
+                foreach ($tree as $node) {
+                    $cleanId = preg_replace('/[^a-zA-Z0-9_-]/', '', $node['id']);
+                    $collapseId = 'collapse-tree-' . $cleanId;
+                    $hasChildren = !empty($node['children']);
+                    $hasPanitia = !empty($node['panitia']);
+                    $panitiaCount = $hasPanitia ? count($node['panitia']) : 0;
+                    $childrenCount = $hasChildren ? count($node['children']) : 0;
+                    $indentPadding = ($level * 28 + 16);
+
+                    $html .= '<div class="tree-node-item border-bottom jabatan-tree-node" data-name="' . strtolower(esc($node['nama_jabatan'])) . '">';
+                    
+                    // Baris Jabatan (Clean Row)
+                    $html .= '<div class="d-flex align-items-center justify-content-between py-2.5 px-3 hover-row" style="padding-left: ' . $indentPadding . 'px; background-color: ' . ($level === 0 ? '#f8fafc' : '#ffffff') . ';">';
+                    
+                    // Kolom Kiri: Toggle + No Urut + Nama Jabatan + (Atasan)
+                    $html .= '<div class="d-flex align-items-center gap-2 overflow-hidden flex-grow-1 me-3">';
+                    
+                    if ($hasChildren || $hasPanitia) {
+                        $html .= '<button class="btn btn-sm btn-link text-secondary p-0 border-0 text-decoration-none btn-tree-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#' . $collapseId . '" aria-expanded="true" style="width: 20px; font-size: 0.85rem;">';
+                        $html .= '<i class="fa-solid fa-chevron-down tree-arrow"></i>';
+                        $html .= '</button>';
+                    } else {
+                        $html .= '<span style="width: 20px; display: inline-block; text-align: center; color: #cbd5e1;">•</span>';
+                    }
+                    
+                    $html .= '<span class="badge bg-light text-secondary border small font-monospace" style="font-size: 0.75rem;">' . esc($node['urutan']) . '</span>';
+                    
+                    if ($level === 0) {
+                        $html .= '<strong class="text-dark fs-6 text-truncate" title="' . esc($node['nama_jabatan']) . '">' . esc($node['nama_jabatan']) . '</strong>';
+                    } else {
+                        $html .= '<span class="text-dark fw-semibold text-truncate" title="' . esc($node['nama_jabatan']) . '" style="font-size: 0.925rem;">' . esc($node['nama_jabatan']) . '</span>';
+                    }
+                    
+                    if (!empty($node['nama_atasan'])) {
+                        $html .= '<small class="text-muted d-none d-xl-inline text-truncate" style="max-width: 220px;">(Atasan: ' . esc($node['nama_atasan']) . ')</small>';
+                    }
+                    $html .= '</div>';
+                    
+                    // Kolom Tengah: Info Ringkas (Badge Jumlah Panitia & Sub)
+                    $html .= '<div class="d-flex align-items-center gap-2 flex-shrink-0 me-3">';
+                    if ($panitiaCount > 0) {
+                        $html .= '<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2.5 py-0.5 rounded-pill" style="font-size: 0.775rem;">';
+                        $html .= '<i class="fa-solid fa-user me-1"></i>' . $panitiaCount . ' Orang';
+                        $html .= '</span>';
+                    } else {
+                        $html .= '<span class="text-muted small" style="font-size: 0.775rem;">Belum ada panitia</span>';
+                    }
+                    
+                    if ($childrenCount > 0) {
+                        $html .= '<span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-2 py-0.5 rounded-pill" style="font-size: 0.775rem;">';
+                        $html .= $childrenCount . ' Sub-Seksi';
+                        $html .= '</span>';
+                    }
+                    $html .= '</div>';
+                    
+                    // Kolom Kanan: Tombol Aksi Cepat
+                    $html .= '<div class="d-flex align-items-center gap-1.5 flex-shrink-0">';
+                    $html .= '<a href="' . base_url('dashboard/kepanitiaan/panitia/create?kegiatan_id=' . esc($kegiatanId) . '&jabatan_kegiatan_id=' . esc($node['id'])) . '" class="btn btn-sm btn-outline-success py-1 px-2.5 rounded-2" style="font-size: 0.775rem;" title="Tambah Panitia"><i class="fa-solid fa-user-plus me-1"></i>+ Panitia</a>';
+                    $html .= '<a href="' . base_url('dashboard/kepanitiaan/jabatan/create?kegiatan_id=' . esc($kegiatanId) . '&parent_id=' . esc($node['id'])) . '" class="btn btn-sm btn-outline-primary py-1 px-2.5 rounded-2" style="font-size: 0.775rem;" title="Tambah Sub-Jabatan"><i class="fa-solid fa-plus me-1"></i>+ Sub</a>';
+                    $html .= '<a href="' . base_url('dashboard/kepanitiaan/jabatan/edit/' . esc($node['id']) . '?kegiatan_id=' . esc($kegiatanId)) . '" class="btn btn-sm btn-outline-warning py-1 px-2 rounded-2" style="font-size: 0.775rem;" title="Ubah Jabatan"><i class="fa-solid fa-pencil"></i></a>';
+                    $html .= '<a href="' . base_url('dashboard/kepanitiaan/jabatan/delete/' . esc($node['id'])) . '" class="btn btn-sm btn-outline-danger py-1 px-2 rounded-2" style="font-size: 0.775rem;" onclick="return confirm(\'Hapus jabatan ini? Penugasan panitia terkait juga akan dihapus.\')" title="Hapus Jabatan"><i class="fa-solid fa-trash"></i></a>';
+                    $html .= '</div>';
+                    
+                    $html .= '</div>'; // End baris jabatan
+                    
+                    // Collapsible Container untuk personil & sub-jabatan
+                    $html .= '<div id="' . $collapseId . '" class="collapse show tree-child-collapse">';
+                    
+                    // Daftar Personil di bawah jabatan ini
+                    if ($hasPanitia) {
+                        $panitiaIndent = $indentPadding + 28;
+                        $html .= '<div class="tree-panitia-container py-1" style="background-color: rgba(248, 250, 252, 0.6);">';
+                        foreach ($node['panitia'] as $pIndex => $pan) {
+                            $html .= '<div class="d-flex align-items-center justify-content-between py-1.5 px-3 border-bottom border-light hover-row panitia-person-row" style="padding-left: ' . $panitiaIndent . 'px;" data-name="' . strtolower(esc($pan['nama'])) . '">';
+                            
+                            $html .= '<div class="d-flex align-items-center gap-2 overflow-hidden flex-grow-1 me-3">';
+                            $html .= '<span class="text-muted small" style="min-width: 18px;">' . ($pIndex + 1) . '.</span>';
+                            $html .= '<i class="fa-solid fa-user text-success small" style="font-size: 0.75rem;"></i>';
+                            $html .= '<strong class="text-dark small">' . esc($pan['nama']) . '</strong>';
+                            
+                            if (!empty($pan['no_hp'])) {
+                                $html .= '<a href="https://api.whatsapp.com/send?phone=' . esc($pan['no_hp']) . '" target="_blank" class="text-success small ms-2 text-decoration-none" style="font-size: 0.775rem;">';
+                                $html .= '<i class="fa-brands fa-whatsapp"></i> ' . esc($pan['no_hp']);
+                                $html .= '</a>';
+                            }
+                            
+                            if (!empty($pan['tugas'])) {
+                                $html .= '<span class="text-muted small ms-2 text-truncate" style="max-width: 320px; font-size: 0.75rem;" title="' . esc($pan['tugas']) . '">';
+                                $html .= '— ' . esc($pan['tugas']);
+                                $html .= '</span>';
+                            }
+                            $html .= '</div>';
+                            
+                            // Tombol Edit/Hapus Personil
+                            $html .= '<div class="d-flex align-items-center gap-2 flex-shrink-0">';
+                            $html .= '<a href="' . base_url('dashboard/kepanitiaan/panitia/edit/' . esc($pan['id']) . '?kegiatan_id=' . esc($kegiatanId)) . '" class="text-primary small text-decoration-none px-1" title="Edit Personil"><i class="fa-solid fa-pen"></i></a>';
+                            $html .= '<a href="' . base_url('dashboard/kepanitiaan/panitia/delete/' . esc($pan['id'])) . '" class="text-danger small text-decoration-none px-1" onclick="return confirm(\'Hapus penugasan panitia ini?\')" title="Hapus Personil"><i class="fa-solid fa-trash"></i></a>';
+                            $html .= '</div>';
+                            
+                            $html .= '</div>';
+                        }
+                        $html .= '</div>';
+                    }
+                    
+                    // Sub-jabatan anak (rekursif)
+                    if ($hasChildren) {
+                        $html .= renderKegiatanTreeListHtml($node['children'], $kegiatanId, $level + 1);
+                    }
+                    
+                    $html .= '</div>'; // End collapsible
+                    $html .= '</div>'; // End tree-node-item
+                }
+                return $html;
+            }
+        }
         ?>
 
         <!-- Nav tabs -->
         <ul class="nav nav-pills mb-4 gap-2" id="kepanitiaanTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="struktur-tab" data-bs-toggle="tab" data-bs-target="#struktur" type="button" role="tab" aria-controls="struktur" aria-selected="true">
-                    <i class="fa-solid fa-sitemap me-2"></i>Struktur Organisasi
+                    <i class="fa-solid fa-sitemap me-2"></i>Struktur Organisasi (Hirarki)
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -667,114 +858,151 @@
 
         <!-- Tab content -->
         <div class="tab-content">
-            <!-- TAB STRUKTUR ORGANISASI (JABATAN & PANITIA) -->
+            <!-- TAB STRUKTUR ORGANISASI (JABATAN & PANITIA - TREE LIST VIEW) -->
             <div class="tab-pane fade show active" id="struktur" role="tabpanel" aria-labelledby="struktur-tab">
-                <div class="panel-card bg-white border-0 shadow-sm rounded-4 mb-4">
-                    <div class="panel-title d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-                        <span class="fw-bold text-dark fs-5">Jajaran Kepanitiaan Berdasarkan Jabatan</span>
-                        <div class="d-flex gap-2">
-                            <a href="<?= base_url('dashboard/kepanitiaan/jabatan/create?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn btn-sm btn-outline-success px-3 py-2 fw-semibold" style="border-radius: 8px;">
-                                <i class="fa-solid fa-plus me-1"></i>Tambah Jabatan
+                <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-3 border-bottom">
+                        <div>
+                            <span class="fw-bold text-dark fs-5 d-block">Struktur Hirarki Kepanitiaan</span>
+                            <small class="text-muted">Daftar hirarki struktur jabatan dan susunan personil panitia pelaksana.</small>
+                        </div>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <div class="input-group input-group-sm" style="width: 220px;">
+                                <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
+                                <input type="text" id="searchTreeInput" class="form-control bg-light border-start-0" placeholder="Cari jabatan/nama...">
+                            </div>
+                            <button type="button" id="btnExpandAllTree" class="btn btn-sm btn-outline-secondary px-2.5 py-1.5 fw-semibold" style="border-radius: 8px;">
+                                <i class="fa-solid fa-angles-down me-1"></i>Buka Semua
+                            </button>
+                            <button type="button" id="btnCollapseAllTree" class="btn btn-sm btn-outline-secondary px-2.5 py-1.5 fw-semibold" style="border-radius: 8px;">
+                                <i class="fa-solid fa-angles-up me-1"></i>Tutup Semua
+                            </button>
+                            <a href="<?= base_url('dashboard/kepanitiaan/jabatan/create?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn btn-sm btn-outline-success px-3 py-1.5 fw-semibold" style="border-radius: 8px;">
+                                <i class="fa-solid fa-plus me-1"></i>Tambah Jabatan Utama
                             </a>
-                            <a href="<?= base_url('dashboard/kepanitiaan/panitia/create?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn btn-sm btn-success px-3 py-2 fw-semibold" style="background-color: var(--primary); border: none; border-radius: 8px;">
+                            <a href="<?= base_url('dashboard/kepanitiaan/panitia/create?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn btn-sm btn-success px-3 py-1.5 fw-semibold" style="background-color: var(--primary); border: none; border-radius: 8px;">
                                 <i class="fa-solid fa-user-plus me-1"></i>Tugaskan Panitia
                             </a>
                         </div>
                     </div>
 
                     <?php if (!empty($jabatan_list)) : ?>
-                        <div class="row g-4">
-                            <?php foreach ($jabatan_list as $jab) : ?>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="card h-100 border-0 shadow-sm rounded-4" style="background-color: #f9fafb; border: 1px solid #e5e7eb !important;">
-                                        <!-- Card Header: Info Jabatan -->
-                                        <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-2 rounded-top-4 d-flex justify-content-between align-items-start">
-                                            <div class="overflow-hidden">
-                                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 px-2 py-1 rounded-pill mb-2 d-inline-block small">
-                                                    Urutan: <?= esc($jab['urutan']) ?>
-                                                </span>
-                                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="<?= esc($jab['nama_jabatan']) ?>"><?= esc($jab['nama_jabatan']) ?></h3>
-                                                <?php if ($jab['nama_atasan']) : ?>
-                                                    <small class="text-muted d-block text-truncate" title="Koordinator: <?= esc($jab['nama_atasan']) ?>">
-                                                        <i class="fa-solid fa-turn-up fa-rotate-90 me-1 text-secondary"></i>
-                                                        Koordinator: <span class="fw-semibold text-secondary"><?= esc($jab['nama_atasan']) ?></span>
-                                                    </small>
-                                                <?php else : ?>
-                                                    <small class="text-muted d-block"><i class="fa-solid fa-crown me-1 text-warning"></i>Jabatan Puncak</small>
-                                                <?php endif; ?>
-                                            </div>
-                                            <!-- Aksi Jabatan -->
-                                            <div class="dropdown">
-                                                <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="fa-solid fa-ellipsis-vertical fs-5"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
-                                                    <li>
-                                                        <a class="dropdown-item py-2 px-3 small" href="<?= base_url('dashboard/kepanitiaan/jabatan/edit/' . esc($jab['id']) . '?kegiatan_id=' . esc($kegiatan['id'])) ?>">
-                                                            <i class="fa-solid fa-edit me-2 text-primary"></i>Ubah Jabatan
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item py-2 px-3 small text-danger" href="<?= base_url('dashboard/kepanitiaan/jabatan/delete/' . esc($jab['id'])) ?>" onclick="return confirm('Apakah Anda yakin ingin menghapus jabatan ini? Menghapus jabatan akan menghapus penugasan panitia terkait.')">
-                                                            <i class="fa-solid fa-trash me-2"></i>Hapus Jabatan
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                        <?php
+                            // Kelompokkan jabatan berdasarkan kategori_unit
+                            $unitGroups = [];
+                            foreach ($jabatan_list as $j) {
+                                $unitName = !empty($j['kategori_unit']) ? trim($j['kategori_unit']) : 'Pelaksana Utama';
+                                if (!isset($unitGroups[$unitName])) {
+                                    $unitGroups[$unitName] = [];
+                                }
+                                $unitGroups[$unitName][] = $j;
+                            }
+
+                            // Urutan standar unit
+                            $unitOrder = [
+                                'Pembina / Penasehat',
+                                'Pengarah',
+                                'Pelaksana Utama',
+                                'Bidang Pembangunan dan Konstruksi',
+                                'Bidang Penggalangan Dana',
+                                'Bidang Logistik dan Material',
+                                'Bidang Keamanan dan Ketertiban',
+                                'Bidang Publikasi, Dokumentasi dan Humas',
+                                'Bidang Perlengkapan dan Rumah Tangga',
+                                'Bidang Sekretariat'
+                            ];
+
+                            // Susun urutan unit
+                            $sortedUnits = [];
+                            foreach ($unitOrder as $u) {
+                                if (isset($unitGroups[$u])) {
+                                    $sortedUnits[$u] = $unitGroups[$u];
+                                    unset($unitGroups[$u]);
+                                }
+                            }
+                            foreach ($unitGroups as $u => $items) {
+                                $sortedUnits[$u] = $items;
+                            }
+                        ?>
+
+                        <!-- Unit Navigation Pills -->
+                        <div class="d-flex flex-wrap gap-1.5 mb-3 pb-2 border-bottom unit-filter-nav">
+                            <button type="button" class="btn btn-sm btn-dark rounded-pill px-3 py-1 btn-unit-filter active" data-unit="all">Semua Unit (<?= count($sortedUnits) ?>)</button>
+                            <?php 
+                                $unitIcons = [
+                                    'Pembina / Penasehat' => 'fa-shield-halved text-info',
+                                    'Pengarah' => 'fa-compass text-warning',
+                                    'Pelaksana Utama' => 'fa-crown text-warning',
+                                    'Bidang Pembangunan dan Konstruksi' => 'fa-trowel-bricks text-danger',
+                                    'Bidang Penggalangan Dana' => 'fa-hand-holding-dollar text-success',
+                                    'Bidang Logistik dan Material' => 'fa-truck-ramp-box text-primary',
+                                    'Bidang Keamanan dan Ketertiban' => 'fa-shield text-danger',
+                                    'Bidang Publikasi, Dokumentasi dan Humas' => 'fa-bullhorn text-info',
+                                    'Bidang Perlengkapan dan Rumah Tangga' => 'fa-boxes-stacked text-secondary',
+                                    'Bidang Sekretariat' => 'fa-file-lines text-primary'
+                                ];
+                                foreach ($sortedUnits as $unitName => $uJabatan) : 
+                                    $iconClass = $unitIcons[$unitName] ?? 'fa-layer-group text-secondary';
+                                    $countPanitiaUnit = 0;
+                                    foreach ($uJabatan as $uj) {
+                                        $countPanitiaUnit += !empty($uj['panitia']) ? count($uj['panitia']) : 0;
+                                    }
+                            ?>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1 btn-unit-filter" data-unit="<?= esc(preg_replace('/[^a-zA-Z0-9]/', '', $unitName)) ?>">
+                                    <i class="fa-solid <?= $iconClass ?> me-1"></i><?= esc($unitName) ?>
+                                    <span class="badge bg-light text-dark border ms-1" style="font-size: 0.7rem;"><?= count($uJabatan) ?> pos</span>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <!-- Tree Container Grouped by Unit -->
+                        <div class="d-flex flex-column gap-3" id="treePanitiaContainer">
+                            <?php foreach ($sortedUnits as $unitName => $uJabatan) : 
+                                $unitSlug = preg_replace('/[^a-zA-Z0-9]/', '', $unitName);
+                                $unitIcon = $unitIcons[$unitName] ?? 'fa-layer-group text-secondary';
+                                $totalUnitPanitia = 0;
+                                foreach ($uJabatan as $uj) {
+                                    $totalUnitPanitia += !empty($uj['panitia']) ? count($uj['panitia']) : 0;
+                                }
+                            ?>
+                                <div class="unit-group-wrapper border rounded-3 overflow-hidden shadow-2xs" data-unit-slug="<?= esc($unitSlug) ?>">
+                                    <!-- Unit Header Banner -->
+                                    <div class="d-flex align-items-center justify-content-between px-3 py-2.5 bg-light border-bottom">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fa-solid <?= $unitIcon ?> fs-6"></i>
+                                            <strong class="text-dark" style="font-size: 0.95rem;"><?= esc($unitName) ?></strong>
+                                            <span class="badge bg-white text-secondary border small ms-1"><?= count($uJabatan) ?> Jabatan</span>
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 small"><?= $totalUnitPanitia ?> Panitia</span>
                                         </div>
-                                        
-                                        <!-- Card Body: Daftar Panitia -->
-                                        <div class="card-body px-4 pb-4">
-                                            <hr class="mt-1 mb-3 text-muted opacity-25">
-                                            
-                                            <?php if (!empty($jab['panitia'])) : ?>
-                                                <ul class="list-unstyled mb-0 d-flex flex-column gap-3">
-                                                    <?php foreach ($jab['panitia'] as $pan) : ?>
-                                                        <li class="p-3 bg-white rounded-3 shadow-xs border d-flex justify-content-between align-items-center">
-                                                            <div class="overflow-hidden">
-                                                                <strong class="text-dark d-block text-truncate" style="max-width: 170px;" title="<?= esc($pan['nama']) ?>"><?= esc($pan['nama']) ?></strong>
-                                                                <?php if ($pan['no_hp']) : ?>
-                                                                    <a href="https://api.whatsapp.com/send?phone=<?= esc($pan['no_hp']) ?>" target="_blank" class="text-decoration-none text-muted small d-inline-block mt-1">
-                                                                        <i class="fa-brands fa-whatsapp text-success me-1"></i><?= esc($pan['no_hp']) ?>
-                                                                    </a>
-                                                                <?php else : ?>
-                                                                    <small class="text-muted d-block mt-1"><i class="fa-solid fa-phone-slash me-1"></i>Tidak ada WA</small>
-                                                                <?php endif; ?>
-                                                                
-                                                                <?php if ($pan['tugas']) : ?>
-                                                                    <small class="text-muted d-block mt-1 bg-light p-1 rounded-2 border" style="font-size: 0.775rem;">
-                                                                        <i class="fa-solid fa-list-check me-1 text-primary"></i><?= esc($pan['tugas']) ?>
-                                                                    </small>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                            <!-- Aksi Anggota -->
-                                                            <div class="d-flex gap-1 ms-2">
-                                                                <a href="<?= base_url('dashboard/kepanitiaan/panitia/edit/' . esc($pan['id']) . '?kegiatan_id=' . esc($kegiatan['id'])) ?>" class="btn-action btn-edit" style="width: 28px; height: 28px; font-size: 0.8rem;" title="Edit Penugasan">
-                                                                    <i class="fa-solid fa-pen"></i>
-                                                                </a>
-                                                                <a href="<?= base_url('dashboard/kepanitiaan/panitia/delete/' . esc($pan['id'])) ?>" class="btn-action btn-delete" style="width: 28px; height: 28px; font-size: 0.8rem;" onclick="return confirm('Apakah Anda yakin ingin menghapus panitia ini?')" title="Hapus Penugasan">
-                                                                    <i class="fa-solid fa-trash"></i>
-                                                                </a>
-                                                            </div>
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                </ul>
-                                            <?php else : ?>
-                                                <div class="text-center py-4 bg-white rounded-3 border border-dashed">
-                                                    <i class="fa-solid fa-user-slash text-muted mb-2 d-block fs-4"></i>
-                                                    <p class="text-muted small mb-3">Belum ditugaskan</p>
-                                                    <a href="<?= base_url('dashboard/kepanitiaan/panitia/create?kegiatan_id=' . esc($kegiatan['id']) . '&jabatan_kegiatan_id=' . esc($jab['id'])) ?>" class="btn btn-xs btn-outline-success py-1 px-2.5 rounded-pill fw-semibold" style="font-size: 0.775rem;">
-                                                        <i class="fa-solid fa-user-plus me-1"></i>Tugaskan
-                                                    </a>
-                                                </div>
-                                            <?php endif; ?>
+                                        <div class="text-end text-muted small d-none d-sm-block">
+                                            <i class="fa-solid fa-folder-tree me-1"></i>Unit Blok
                                         </div>
+                                    </div>
+
+                                    <!-- Table Head -->
+                                    <div class="d-flex align-items-center justify-content-between py-2 px-3 bg-white border-bottom fw-bold text-secondary" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        <div class="flex-grow-1">Nama Jabatan & Personil</div>
+                                        <div style="width: 130px;" class="text-center d-none d-md-block">Status Panitia</div>
+                                        <div style="width: 220px;" class="text-end">Aksi</div>
+                                    </div>
+
+                                    <!-- Tree Rows within this Unit -->
+                                    <div class="tree-rows-body bg-white">
+                                        <?php 
+                                            $uTree = buildKegiatanTree($uJabatan, null);
+                                            // Jika ada jabatan yang parent-nya di luar unit atau tidak null di uTree, cari yang parent_id tidak ada di daftar unit ini
+                                            if (empty($uTree)) {
+                                                // Fallback: render baris langsung
+                                                $uTree = $uJabatan;
+                                            }
+                                            echo renderKegiatanTreeListHtml($uTree, $kegiatan['id'], 0);
+                                        ?>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
                     <?php else : ?>
-                        <div class="text-center py-5 text-muted bg-light rounded-4 border border-dashed">
+                        <div class="text-center py-5 text-muted bg-light rounded-3 border border-dashed">
                             <i class="fa-solid fa-sitemap fs-1 mb-3 d-block text-secondary"></i>
                             Belum ada struktur jabatan dibuat pada kegiatan ini.
                         </div>
@@ -928,7 +1156,7 @@
                                     <th class="text-center">Volume</th>
                                     <th class="text-end">Harga Satuan</th>
                                     <th class="text-end">Total Nilai</th>
-                                    <th class="text-center" style="width: 80px;">Aksi</th>
+                                    <th class="text-center" style="width: 100px;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -958,9 +1186,24 @@
                                                 Rp <?= number_format($m['total_nilai'], 0, ',', '.') ?>
                                             </td>
                                             <td class="text-center">
-                                                <a href="<?= base_url('dashboard/kepanitiaan/material/delete/' . $m['id']) ?>" class="btn-action btn-delete" onclick="return confirm('Hapus catatan bantuan material ini?');" title="Hapus">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </a>
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <button type="button" class="btn-action btn-edit" title="Ubah"
+                                                        data-bs-toggle="modal" data-bs-target="#modalEditMaterial"
+                                                        data-id="<?= esc($m['id']) ?>"
+                                                        data-tanggal="<?= esc($m['tanggal']) ?>"
+                                                        data-nama_donatur="<?= esc($m['nama_donatur']) ?>"
+                                                        data-uraian_material="<?= esc($m['uraian_material']) ?>"
+                                                        data-kategori_material="<?= esc($m['kategori_material']) ?>"
+                                                        data-volume="<?= esc($m['volume']) ?>"
+                                                        data-satuan="<?= esc($m['satuan']) ?>"
+                                                        data-harga_satuan="<?= esc($m['harga_satuan']) ?>"
+                                                        data-keterangan="<?= esc($m['keterangan'] ?? '') ?>">
+                                                        <i class="fa-solid fa-pencil"></i>
+                                                    </button>
+                                                    <a href="<?= base_url('dashboard/kepanitiaan/material/delete/' . $m['id']) ?>" class="btn-action btn-delete" onclick="return confirm('Hapus catatan bantuan material ini?');" title="Hapus">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -1048,6 +1291,75 @@
                 </div>
             </div>
 
+            <!-- MODAL EDIT BANTUAN MATERIAL -->
+            <div class="modal fade" id="modalEditMaterial" tabindex="-1" aria-labelledby="modalEditMaterialLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg rounded-4">
+                        <form id="formEditMaterial" action="" method="post">
+                            <?= csrf_field() ?>
+                            
+                            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                                <h5 class="modal-title fw-bold text-dark" id="modalEditMaterialLabel">
+                                    <i class="fa-solid fa-pencil me-2 text-warning"></i>Ubah Catatan Bantuan Material
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            
+                            <div class="modal-body p-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Tanggal Penerimaan <span class="text-danger">*</span></label>
+                                    <input type="date" name="tanggal" id="edit_mat_tanggal" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Nama Donatur / Sumber</label>
+                                    <input type="text" name="nama_donatur" id="edit_mat_donatur" class="form-control" placeholder="Contoh: Ibu Jumuati Syuyuti / Jamaah Masjid">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Uraian Material / Barang <span class="text-danger">*</span></label>
+                                    <input type="text" name="uraian_material" id="edit_mat_uraian" class="form-control" placeholder="Contoh: Batu Gunung / Pasir / LED TV 55 Inc (LG)" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Kategori Material <span class="text-danger">*</span></label>
+                                    <select name="kategori_material" id="edit_mat_kategori" class="form-select" required>
+                                        <option value="material_konstruksi">Material Konstruksi (Batu, Pasir, Semen, Besi)</option>
+                                        <option value="inventaris_elektronik">Inventaris & Elektronik (TV, Sound, AC, Lampu)</option>
+                                        <option value="perlengkapan_ibadah">Perlengkapan Ibadah (Karpet, Al-Quran, Mimbar)</option>
+                                        <option value="lainnya">Lainnya</option>
+                                    </select>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label fw-semibold small text-dark">Volume / Jumlah <span class="text-danger">*</span></label>
+                                        <input type="number" step="0.01" name="volume" id="edit_mat_volume" class="form-control" placeholder="55" required oninput="calcEditMatTotal()">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label fw-semibold small text-dark">Satuan <span class="text-danger">*</span></label>
+                                        <input type="text" name="satuan" id="edit_mat_satuan" class="form-control" placeholder="Truk / Sak / Buah" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Estimasi Harga Satuan (Rp)</label>
+                                    <input type="number" name="harga_satuan" id="edit_mat_harga" class="form-control" placeholder="1000000" oninput="calcEditMatTotal()">
+                                </div>
+                                <div class="p-3 bg-light rounded-3 mb-3 text-center">
+                                    <small class="text-muted d-block">Estimasi Total Nilai Valuasi</small>
+                                    <strong class="fs-5 text-dark" id="edit_mat_total_preview">Rp 0</strong>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-dark">Keterangan Tambahan</label>
+                                    <textarea name="keterangan" id="edit_mat_keterangan" class="form-control" rows="2" placeholder="Catatan opsional spesifikasi atau lokasi penyimpanan material"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                                <button type="button" class="btn btn-light px-4 py-2" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-warning text-dark fw-semibold px-4 py-2">Simpan Perubahan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <script>
             function calcMatTotal() {
                 var vol = parseFloat(document.getElementById('mat_volume').value) || 0;
@@ -1055,6 +1367,42 @@
                 var tot = vol * hrg;
                 document.getElementById('mat_total_preview').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(tot);
             }
+
+            function calcEditMatTotal() {
+                var vol = parseFloat(document.getElementById('edit_mat_volume').value) || 0;
+                var hrg = parseFloat(document.getElementById('edit_mat_harga').value) || 0;
+                var tot = vol * hrg;
+                document.getElementById('edit_mat_total_preview').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(tot);
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalEditMaterial = document.getElementById('modalEditMaterial');
+                if (modalEditMaterial) {
+                    modalEditMaterial.addEventListener('show.bs.modal', function (event) {
+                        var button = event.relatedTarget;
+                        var id = button.getAttribute('data-id');
+                        var tanggal = button.getAttribute('data-tanggal');
+                        var donatur = button.getAttribute('data-nama_donatur');
+                        var uraian = button.getAttribute('data-uraian_material');
+                        var kategori = button.getAttribute('data-kategori_material');
+                        var volume = button.getAttribute('data-volume');
+                        var satuan = button.getAttribute('data-satuan');
+                        var harga = button.getAttribute('data-harga_satuan');
+                        var keterangan = button.getAttribute('data-keterangan');
+
+                        document.getElementById('formEditMaterial').action = '<?= base_url('dashboard/kepanitiaan/material/update') ?>/' + id;
+                        document.getElementById('edit_mat_tanggal').value = tanggal;
+                        document.getElementById('edit_mat_donatur').value = donatur;
+                        document.getElementById('edit_mat_uraian').value = uraian;
+                        document.getElementById('edit_mat_kategori').value = kategori;
+                        document.getElementById('edit_mat_volume').value = volume;
+                        document.getElementById('edit_mat_satuan').value = satuan;
+                        document.getElementById('edit_mat_harga').value = harga ? Math.round(parseFloat(harga)) : '';
+                        document.getElementById('edit_mat_keterangan').value = keterangan || '';
+                        calcEditMatTotal();
+                    });
+                }
+            });
             </script>
 
             <!-- TAB LAPORAN KEUANGAN -->
@@ -1263,5 +1611,111 @@
 
     <!-- Bootstrap 5.3 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 0. Unit Group Filter Navigation
+            const unitFilterBtns = document.querySelectorAll('.btn-unit-filter');
+            const unitWrappers = document.querySelectorAll('.unit-group-wrapper');
+
+            unitFilterBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    unitFilterBtns.forEach(b => {
+                        b.classList.remove('active', 'btn-dark');
+                        b.classList.add('btn-outline-secondary');
+                    });
+                    this.classList.add('active', 'btn-dark');
+                    this.classList.remove('btn-outline-secondary');
+
+                    const targetUnit = this.getAttribute('data-unit');
+                    unitWrappers.forEach(w => {
+                        if (targetUnit === 'all' || w.getAttribute('data-unit-slug') === targetUnit) {
+                            w.style.display = '';
+                        } else {
+                            w.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // 1. Expand All Tree Nodes
+            document.getElementById('btnExpandAllTree')?.addEventListener('click', function () {
+                const collapses = document.querySelectorAll('#treePanitiaContainer .tree-child-collapse');
+                collapses.forEach(el => {
+                    const bsCollapse = bootstrap.Collapse.getOrCreateInstance(el, { toggle: false });
+                    bsCollapse.show();
+                });
+            });
+
+            // 2. Collapse All Tree Nodes
+            document.getElementById('btnCollapseAllTree')?.addEventListener('click', function () {
+                const collapses = document.querySelectorAll('#treePanitiaContainer .tree-child-collapse');
+                collapses.forEach(el => {
+                    const bsCollapse = bootstrap.Collapse.getOrCreateInstance(el, { toggle: false });
+                    bsCollapse.hide();
+                });
+            });
+
+            // 3. Live Search Filter for Tree Nodes & Panitia Names
+            document.getElementById('searchTreeInput')?.addEventListener('input', function () {
+                const query = this.value.toLowerCase().trim();
+                const nodes = document.querySelectorAll('#treePanitiaContainer .jabatan-tree-node');
+
+                if (query === '') {
+                    nodes.forEach(node => {
+                        node.style.display = '';
+                    });
+                    const personRows = document.querySelectorAll('#treePanitiaContainer .panitia-person-row');
+                    personRows.forEach(row => {
+                        row.style.display = '';
+                    });
+                    return;
+                }
+
+                nodes.forEach(node => {
+                    const nodeName = node.getAttribute('data-name') || '';
+                    const personRows = node.querySelectorAll('.panitia-person-row');
+                    let personMatched = false;
+
+                    personRows.forEach(p => {
+                        const pName = p.getAttribute('data-name') || '';
+                        if (pName.includes(query)) {
+                            p.style.display = '';
+                            personMatched = true;
+                        } else {
+                            p.style.display = 'none';
+                        }
+                    });
+
+                    if (nodeName.includes(query) || personMatched) {
+                        node.style.display = '';
+                        // Show all matching person rows if node title matched
+                        if (nodeName.includes(query)) {
+                            personRows.forEach(p => p.style.display = '');
+                        }
+                        // Auto-expand this node and its parent collapses
+                        let parentCollapse = node.closest('.tree-child-collapse');
+                        while (parentCollapse) {
+                            const bsCollapse = bootstrap.Collapse.getOrCreateInstance(parentCollapse, { toggle: false });
+                            bsCollapse.show();
+                            parentCollapse = parentCollapse.parentElement?.closest('.tree-child-collapse');
+                        }
+                        const myCollapse = node.querySelector('.tree-child-collapse');
+                        if (myCollapse) {
+                            bootstrap.Collapse.getOrCreateInstance(myCollapse, { toggle: false }).show();
+                        }
+                    } else {
+                        // Check if any child node matches
+                        const hasMatchingChild = node.querySelector('.jabatan-tree-node[data-name*="' + query + '"]');
+                        if (!hasMatchingChild) {
+                            node.style.display = 'none';
+                        } else {
+                            node.style.display = '';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

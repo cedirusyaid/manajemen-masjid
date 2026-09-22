@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TV Display - Masjid Agung Nujumul Ittihad (Tampilan Fullscreen Slideshow)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-dark: #0a192f;
@@ -330,7 +333,15 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      cursor: pointer;
+      user-select: none;
       transition: all 0.3s ease;
+    }
+
+    .indicator-pill:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      transform: translateY(-2px);
     }
 
     .indicator-pill.active {
@@ -384,6 +395,7 @@
   <header>
     <div>
       <div class="masjid-title" id="disp-nama-masjid">MASJID AGUNG NUJUMUL ITTIHAD</div>
+      <div class="masjid-sub" id="disp-alamat-masjid">Kabupaten Sinjai</div>
     </div>
     <div class="clock-box">
       <div class="clock-time" id="disp-clock">00:00</div>
@@ -429,18 +441,28 @@
         </div>
       </div>
 
-      <!-- Slide 4: Petugas Jumat -->
+      <!-- Slide 4: Proyek Pembangunan Masjid -->
       <div class="slide" id="slide-3">
         <div class="slide-header">
-          <div class="slide-title">🕌 PETUGAS SALAT JUMAT</div>
+          <div class="slide-title">🏗️ PROYEK & DANA PEMBANGUNAN MASJID</div>
         </div>
-        <div class="slide-body" id="slide-jumat-content">
-          Memuat petugas salat Jumat...
+        <div class="slide-body" id="slide-pembangunan-content">
+          Memuat informasi pembangunan masjid...
         </div>
       </div>
 
-      <!-- Slide 5: Donasi & Infaq Digital -->
+      <!-- Slide 5: Petugas Jumat -->
       <div class="slide" id="slide-4">
+        <div class="slide-header">
+          <div class="slide-title">🕌 PELAKSANA IBADAH SHALAT JUMAT</div>
+        </div>
+        <div class="slide-body" id="slide-jumat-content">
+          Memuat pelaksana ibadah shalat Jumat...
+        </div>
+      </div>
+
+      <!-- Slide 6: Donasi & Infaq Digital -->
+      <div class="slide" id="slide-5">
         <div class="slide-header">
           <div class="slide-title">💳 INFAQ, SEDEKAH & DONASI DIGITAL</div>
         </div>
@@ -449,13 +471,25 @@
         </div>
       </div>
 
+      <!-- Slide 7: Ayat-Ayat Pilihan / Mutiara Al-Qur'an -->
+      <div class="slide" id="slide-6">
+        <div class="slide-header">
+          <div class="slide-title">📖 MUTIARA AL-QUR'AN & TADABBUR AYAT</div>
+        </div>
+        <div class="slide-body" id="slide-ayat-content">
+          Memuat ayat-ayat pilihan...
+        </div>
+      </div>
+
       <!-- Slide Indicators -->
       <div class="indicator-container">
-        <div class="indicator-pill active" id="pill-0">📢 Pengumuman</div>
-        <div class="indicator-pill" id="pill-1">📅 Agenda</div>
-        <div class="indicator-pill" id="pill-2">💰 Keuangan</div>
-        <div class="indicator-pill" id="pill-3">🕌 Petugas Jumat</div>
-        <div class="indicator-pill" id="pill-4">💳 Donasi & QRIS</div>
+        <div class="indicator-pill active" id="pill-0" onclick="showSlide(0)">📢 Pengumuman</div>
+        <div class="indicator-pill" id="pill-1" onclick="showSlide(1)">📅 Agenda</div>
+        <div class="indicator-pill" id="pill-2" onclick="showSlide(2)">💰 Keuangan</div>
+        <div class="indicator-pill" id="pill-3" onclick="showSlide(3)">🏗️ Pembangunan</div>
+        <div class="indicator-pill" id="pill-4" onclick="showSlide(4)">🕌 Pelaksana Shalat Jumat</div>
+        <div class="indicator-pill" id="pill-5" onclick="showSlide(5)">💳 Donasi & QRIS</div>
+        <div class="indicator-pill" id="pill-6" onclick="showSlide(6)">📖 Ayat Pilihan</div>
       </div>
 
       <!-- Auto Progress Bar -->
@@ -484,11 +518,17 @@
   <script>
     // Slideshow Rotation Controller
     let currentSlide = 0;
-    const totalSlides = 5;
-    const slideDuration = 10000;
+    const totalSlides = 7;
+    let baseSlideDuration = 10000;
     let slideTimer = null;
     let progressInterval = null;
     let progressPercent = 0;
+    let ayatIndex = 0;
+
+    function getCurrentSlideDuration() {
+      // Slide 6 (Ayat Pilihan) berdurasi 2x lipat dari durasi slide standar
+      return currentSlide === 6 ? (baseSlideDuration * 2) : baseSlideDuration;
+    }
 
     function showSlide(index) {
       currentSlide = index;
@@ -505,6 +545,7 @@
       if (activePill) activePill.classList.add('active');
 
       resetProgressBar();
+      scheduleNextSlide();
     }
 
     function resetProgressBar() {
@@ -513,24 +554,40 @@
       if (bar) bar.style.width = '0%';
     }
 
-    function startSlideshow() {
-      if (slideTimer) clearInterval(slideTimer);
+    function scheduleNextSlide() {
+      if (slideTimer) clearTimeout(slideTimer);
       if (progressInterval) clearInterval(progressInterval);
+
+      const duration = getCurrentSlideDuration();
+      const stepMs = duration / 100;
 
       progressInterval = setInterval(() => {
         progressPercent += 1;
         const bar = document.getElementById('slide-progress');
-        if (bar) bar.style.width = `${progressPercent}%`;
-      }, slideDuration / 100);
+        if (bar) bar.style.width = `${Math.min(progressPercent, 100)}%`;
+      }, stepMs);
 
-      slideTimer = setInterval(() => {
+      slideTimer = setTimeout(() => {
         const nextSlide = (currentSlide + 1) % totalSlides;
         showSlide(nextSlide);
-      }, slideDuration);
+      }, duration);
+    }
+
+    function startSlideshow() {
+      showSlide(currentSlide);
     }
 
     // Render Data Callback for Slideshow
     function renderSlideshowData(d) {
+      // Sync dynamic slide rotation duration (seconds to ms)
+      if (d.slideshow_duration && d.slideshow_duration >= 3) {
+        const newDuration = d.slideshow_duration * 1000;
+        if (newDuration !== baseSlideDuration) {
+          baseSlideDuration = newDuration;
+          scheduleNextSlide();
+        }
+      }
+
       // Render Slide 1: Pengumuman
       if (d.pengumuman && d.pengumuman.length > 0) {
         let html = '<div class="pengumuman-grid">';
@@ -573,26 +630,113 @@
         document.getElementById('slide-agenda-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Tidak ada agenda mendatang.</p>';
       }
 
-      // Render Slide 3: Keuangan
+      // Render Slide 3: Keuangan Kas Umum (Periode Mingguan: Sabtu s/d Jumat)
       if (d.keuangan) {
-        const lastUpdateTxt = d.keuangan.last_update ? `<p style="text-align: right; color: #8892b0; font-size: 1.05rem; margin-bottom: 15px;">🕒 Update Terakhir Kas: <strong style="color: var(--text-gold);">${formatIndoDate(d.keuangan.last_update)}</strong></p>` : '';
+        const k = d.keuangan;
+        const periodeTxt = k.periode_label ? `<span style="background: rgba(100, 255, 218, 0.1); color: var(--accent-cyan); padding: 4px 14px; border-radius: 20px; font-size: 0.95rem; font-weight: 600; border: 1px solid rgba(100, 255, 218, 0.25);">📅 ${k.periode_label}</span>` : '';
+        const lastUpdateTxt = k.last_update ? `<span style="color: #8892b0; font-size: 0.95rem;">🕒 Update Terakhir: <strong style="color: var(--text-gold);">${formatIndoDate(k.last_update)}</strong></span>` : '';
+        
         document.getElementById('slide-keuangan-content').innerHTML = `
-          ${lastUpdateTxt}
-          <div class="keuangan-stats">
-            <div class="stat-box">
-              <div class="stat-label">Total Pemasukan Kas</div>
-              <div class="stat-value masuk">${formatRupiah(d.keuangan.total_masuk)}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+            ${periodeTxt}
+            ${lastUpdateTxt}
+          </div>
+          <div class="keuangan-stats" style="grid-template-columns: repeat(4, 1fr); gap: 18px;">
+            <div class="stat-box" style="padding: 24px 15px;">
+              <div class="stat-label" style="font-size: 0.95rem;">Saldo Awal <span style="font-size: 0.75rem; display: block; opacity: 0.7;">(Per Jumat ${k.cutoff_awal_label || ''})</span></div>
+              <div class="stat-value" style="color: var(--accent-cyan); font-size: 1.85rem;">${formatRupiah(k.saldo_awal)}</div>
             </div>
-            <div class="stat-box">
-              <div class="stat-label">Total Pengeluaran Kas</div>
-              <div class="stat-value keluar">${formatRupiah(d.keuangan.total_keluar)}</div>
+            <div class="stat-box" style="padding: 24px 15px;">
+              <div class="stat-label" style="font-size: 0.95rem;">Pemasukan <span style="font-size: 0.75rem; display: block; opacity: 0.7;">(Pekan Ini)</span></div>
+              <div class="stat-value masuk" style="font-size: 1.85rem;">${formatRupiah(k.pemasukan_pekan)}</div>
             </div>
-            <div class="stat-box">
-              <div class="stat-label">Saldo Akhir Kas Masjid</div>
-              <div class="stat-value saldo">${formatRupiah(d.keuangan.saldo)}</div>
+            <div class="stat-box" style="padding: 24px 15px;">
+              <div class="stat-label" style="font-size: 0.95rem;">Pengeluaran <span style="font-size: 0.75rem; display: block; opacity: 0.7;">(Pekan Ini)</span></div>
+              <div class="stat-value keluar" style="font-size: 1.85rem;">${formatRupiah(k.pengeluaran_pekan)}</div>
+            </div>
+            <div class="stat-box" style="padding: 24px 15px; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.05);">
+              <div class="stat-label" style="font-size: 0.95rem; color: var(--text-gold);">Saldo Akhir <span style="font-size: 0.75rem; display: block; opacity: 0.8;">(Kas Masjid)</span></div>
+              <div class="stat-value saldo" style="font-size: 1.85rem;">${formatRupiah(k.saldo_akhir)}</div>
             </div>
           </div>
         `;
+      }
+
+      // Render Slide 4: Proyek Pembangunan Masjid
+      if (d.pembangunan) {
+        const pb = d.pembangunan;
+        const targetHtml = pb.target_dana > 0 
+          ? `<div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px 20px; margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: #8892b0; font-size: 0.95rem;">Target Dana: <strong style="color: var(--text-white);">${formatRupiah(pb.target_dana)}</strong></span>
+                <span style="color: var(--accent-cyan); font-weight: 700; font-size: 1rem;">${pb.persentase}% Terkumpul</span>
+              </div>
+              <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 10px; overflow: hidden;">
+                <div style="background: linear-gradient(90deg, var(--accent-cyan), var(--text-gold)); width: ${pb.persentase}%; height: 100%; border-radius: 10px;"></div>
+              </div>
+            </div>`
+          : '';
+
+        let materialHtml = '';
+        if (pb.daftar_material && pb.daftar_material.length > 0) {
+          materialHtml = '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">';
+          pb.daftar_material.forEach(m => {
+            const vol = m.volume ? `${parseFloat(m.volume)} ${m.satuan || ''}` : '';
+            materialHtml += `
+              <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 10px 14px; border-left: 3px solid var(--accent-cyan); font-size: 0.95rem;">
+                <div style="font-weight: 600; color: var(--text-gold);">${m.uraian_material} <span style="color: #8892b0; font-size: 0.85rem;">(${vol})</span></div>
+                <div style="color: #8892b0; font-size: 0.8rem;">Donatur: <span style="color: var(--text-white);">${m.nama_donatur || 'Hamba Allah'}</span> | Nilai: <strong style="color: var(--accent-green);">${formatRupiah(m.total_nilai)}</strong></div>
+              </div>
+            `;
+          });
+          materialHtml += '</div>';
+        } else {
+          materialHtml = '<p style="color: #8892b0; font-size: 0.95rem;">Belum ada donasi material tercatat.</p>';
+        }
+
+        document.getElementById('slide-pembangunan-content').innerHTML = `
+          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 1.2rem; color: var(--text-gold); margin: 0; line-height: 1.3;">${pb.nama_kegiatan}</h3>
+            <span style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; white-space: nowrap;">
+              Status: ${pb.status || 'Berjalan'}
+            </span>
+          </div>
+
+          ${targetHtml}
+
+          <div class="keuangan-stats" style="margin-bottom: 16px; margin-top: 0;">
+            <div class="stat-box" style="padding: 16px 14px;">
+              <div class="stat-label" style="font-size: 0.9rem; margin-bottom: 4px;">Infaq Kas Proyek</div>
+              <div class="stat-value masuk" style="font-size: 1.8rem;">${formatRupiah(pb.total_masuk)}</div>
+            </div>
+            <div class="stat-box" style="padding: 16px 14px;">
+              <div class="stat-label" style="font-size: 0.9rem; margin-bottom: 4px;">Realisasi Pengeluaran</div>
+              <div class="stat-value keluar" style="font-size: 1.8rem;">${formatRupiah(pb.total_keluar)}</div>
+            </div>
+            <div class="stat-box" style="padding: 16px 14px;">
+              <div class="stat-label" style="font-size: 0.9rem; margin-bottom: 4px;">Saldo Kas Pembangunan</div>
+              <div class="stat-value saldo" style="font-size: 1.8rem;">${formatRupiah(pb.saldo)}</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: stretch;">
+            <div>
+              <div style="color: var(--accent-cyan); font-weight: 700; font-size: 0.95rem; margin-bottom: 8px;">
+                📦 Donasi Bantuan Material Konstruksi & Barang Terbaru:
+              </div>
+              ${materialHtml}
+            </div>
+            <div style="background: rgba(255,255,255,0.03); border: 1px dashed var(--accent-cyan); border-radius: 12px; padding: 14px; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+              <small style="color: #8892b0; font-size: 0.8rem; text-transform: uppercase;">Total Dukungan Umat (Kas + Material)</small>
+              <div style="font-size: 1.6rem; font-weight: bold; color: var(--text-gold); font-family: monospace; margin: 4px 0;">
+                ${formatRupiah(pb.total_dukungan_semua)}
+              </div>
+              <small style="color: var(--accent-cyan); font-size: 0.78rem;">Valuasi Donasi Material: ${formatRupiah(pb.total_nilai_material)}</small>
+            </div>
+          </div>
+        `;
+      } else {
+        document.getElementById('slide-pembangunan-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Belum ada data proyek pembangunan aktif.</p>';
       }
 
       // Render Slide 4: Petugas Jumat (3 Jumat ke Depan)
@@ -631,10 +775,10 @@
         jumatHtml += '</div>';
         document.getElementById('slide-jumat-content').innerHTML = jumatHtml;
       } else {
-        document.getElementById('slide-jumat-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Belum ada jadwal petugas Jumat.</p>';
+        document.getElementById('slide-jumat-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Belum ada jadwal pelaksana ibadah shalat Jumat.</p>';
       }
 
-      // Render Slide 5: Donasi & Infaq Digital
+      // Render Slide 6: Donasi & Infaq Digital
       const qrisVal = d.qris_data || 'MasjidAgungSinjaiQRIS';
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrisVal)}`;
 
@@ -674,10 +818,45 @@
         </div>
       `;
 
+      // Render Slide 7: Ayat-Ayat Pilihan / Mutiara Al-Qur'an
+      if (d.ayat_pilihan && d.ayat_pilihan.length > 0) {
+        const itemAyat = d.ayat_pilihan[ayatIndex % d.ayat_pilihan.length];
+        ayatIndex++;
+
+        document.getElementById('slide-ayat-content').innerHTML = `
+          <div style="max-width: 1000px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 10px 20px;">
+            <div style="margin-bottom: 15px;">
+              <span style="background: rgba(255, 209, 102, 0.15); color: var(--text-gold); border: 1px solid var(--text-gold); padding: 5px 18px; border-radius: 20px; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                ✨ QS. ${itemAyat.surah}: ${itemAyat.nomor_ayat} ${itemAyat.tema ? '• ' + itemAyat.tema : ''}
+              </span>
+            </div>
+
+            <div style="font-family: 'Amiri', 'Scheherazade New', serif; font-size: 2.5rem; line-height: 2.1; color: #ffffff; direction: rtl; text-align: center; margin: 15px 0 25px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+              ${itemAyat.teks_arab}
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.04); border-left: 4px solid var(--accent-cyan); border-right: 4px solid var(--accent-cyan); border-radius: 12px; padding: 18px 25px; margin-top: 5px;">
+              <p style="font-size: 1.25rem; font-style: italic; color: var(--text-white); line-height: 1.6; margin: 0;">
+                "${itemAyat.terjemahan}"
+              </p>
+              <div style="color: var(--accent-cyan); font-size: 0.9rem; margin-top: 8px; font-weight: 600;">
+                (QS. ${itemAyat.surah} [${itemAyat.nomor_ayat}])
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        document.getElementById('slide-ayat-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0; text-align: center;">Memuat ayat-ayat pilihan...</p>';
+      }
+
       // Render Running Text
-      const saldo = formatRupiah(d.keuangan.saldo);
-      const tglUpdateKas = d.keuangan.last_update ? ` (Per ${formatIndoDate(d.keuangan.last_update)})` : '';
-      let runningText = `Laporan Kas Masjid${tglUpdateKas}: ${saldo} | `;
+      const saldo = formatRupiah(d.keuangan ? d.keuangan.saldo : 0);
+      const tglUpdateKas = (d.keuangan && d.keuangan.last_update) ? ` (Per ${formatIndoDate(d.keuangan.last_update)})` : '';
+      let runningText = `Laporan Kas Umum Masjid${tglUpdateKas}: ${saldo} | `;
+
+      if (d.pembangunan) {
+        runningText += `🏗️ Dana Pembangunan Terkumpul: ${formatRupiah(d.pembangunan.total_masuk)} (Valuasi Donasi Material: ${formatRupiah(d.pembangunan.total_nilai_material)}) | `;
+      }
 
       if (d.pengumuman && d.pengumuman.length > 0) {
         d.pengumuman.forEach(p => {

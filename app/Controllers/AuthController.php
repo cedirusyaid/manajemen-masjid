@@ -221,8 +221,31 @@ class AuthController extends BaseController
             // Set Session login
             $this->setSessionUser($user);
 
-            // Catat Audit Trail
+            // 1. Catat Audit Trail Lokal Masjid Agung
             log_activity('LOGIN', 'sys_users', $user['id'], null, ['email' => $email, 'method' => 'google']);
+
+            // 2. Sinkronkan & Catat Log Login ke OAuth Relay Database (oauth_db)
+            $relayDbPath = ROOTPATH . '../oauth-relay/db.php';
+            if (file_exists($relayDbPath)) {
+                try {
+                    require_once $relayDbPath;
+                    if (class_exists('OAuthDB')) {
+                        \OAuthDB::registerAllowedUser($email, $name, 'user');
+                        \OAuthDB::logAccess(
+                            'LOGIN',
+                            'OK',
+                            'MASJID-AGUNG',
+                            $email,
+                            $name,
+                            $googleId,
+                            $_SERVER['HTTP_HOST'] ?? 'apps.sinjaikab.go.id',
+                            $_SERVER['REQUEST_URI'] ?? '/auth/google/callback'
+                        );
+                    }
+                } catch (\Throwable $oe) {
+                    log_message('error', 'OAuthDB Relay Log Error: ' . $oe->getMessage());
+                }
+            }
 
             return redirect()->to('/dashboard')->with('success', 'Selamat datang kembali, ' . $name . '!');
 

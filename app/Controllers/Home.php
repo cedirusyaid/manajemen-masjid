@@ -31,8 +31,8 @@ class Home extends BaseController
 
         // 3. Ambil data agenda terdekat dari database
         $realAgenda = $this->agendaModel->getAgendaTerdekat(3);
+        $agendaList = [];
         if (!empty($realAgenda)) {
-            $agendaList = [];
             foreach ($realAgenda as $row) {
                 $agendaList[] = [
                     'judul'      => $row['judul'],
@@ -43,32 +43,12 @@ class Home extends BaseController
                     'banner'     => $row['banner']
                 ];
             }
-        } else {
-            // Fallback Dummy Data jika database kosong
-            $agendaList = [
-                [
-                    'judul'      => 'Kajian Rutin Tafsir Al-Qur\'an',
-                    'tanggal'    => date('Y-m-d', strtotime('+2 days')),
-                    'waktu'      => '18:30:00',
-                    'lokasi'     => 'Ruang Utama ' . site_name(),
-                    'narasumber' => 'Ustadz DR. H. Muh. Yahya, M.A.',
-                    'banner'     => null
-                ],
-                [
-                    'judul'      => 'Tabligh Akbar Menyambut Tahun Baru Hijriah',
-                    'tanggal'    => date('Y-m-d', strtotime('+5 days')),
-                    'waktu'      => '09:00:00',
-                    'lokasi'     => 'Halaman Utama ' . site_name(),
-                    'narasumber' => 'Syeikh KH. Rasyid Bakri',
-                    'banner'     => null
-                ]
-            ];
         }
 
         // 4. Ambil data berita terbit terdekat dari database
         $realBerita = $this->beritaModel->where('status', 'published')->orderBy('created_at', 'DESC')->findAll(3);
+        $beritaList = [];
         if (!empty($realBerita)) {
-            $beritaList = [];
             foreach ($realBerita as $row) {
                 $beritaList[] = [
                     'judul'      => $row['judul'],
@@ -78,35 +58,116 @@ class Home extends BaseController
                     'banner'     => $row['banner']
                 ];
             }
-        } else {
-            // Fallback Dummy Data
-            $beritaList = [
-                [
-                    'judul'      => 'Penyaluran Zakat Fitrah 1447 H Berjalan Lancar',
-                    'slug'       => 'penyaluran-zakat-fitrah-berjalan-lancar',
-                    'konten'     => site_name() . ' sukses menyalurkan zakat fitrah kepada ratusan mustahik di sekitar wilayah Sinjai Utara...',
-                    'created_at' => date('Y-m-d H:i:s', strtotime('-1 days')),
-                    'banner'     => null
-                ],
-                [
-                    'judul'      => 'Pembangunan Menara Masjid Tahap II Dimulai',
-                    'slug'       => 'pembangunan-menara-masjid-dimulai',
-                    'konten'     => 'Panitia pembangunan resmi memulai pengerjaan fisik menara tahap kedua setelah dana hibah dari Pemda cair...',
-                    'created_at' => date('Y-m-d H:i:s', strtotime('-3 days')),
-                    'banner'     => null
-                ]
-            ];
         }
 
         $rekeningModel = new \App\Models\RekeningModel();
         $rekeningList  = $rekeningModel->getActiveChannels();
+
+        $layananModel = new \App\Models\LayananModel();
+        $layananList  = $layananModel->getLayananAktif();
 
         return render_theme('home', [
             'petugas_jumat' => $petugasJumat,
             'jadwal_sholat' => $jadwalSholat,
             'agenda_list'   => $agendaList,
             'berita_list'   => $beritaList,
-            'rekening_list' => $rekeningList
+            'rekening_list' => $rekeningList,
+            'layanan_list'  => $layananList
+        ]);
+    }
+
+    /**
+     * Halaman Publik Khusus Panitia Pembangunan Masjid Agung Sinjai
+     */
+    public function pembangunan($id = null)
+    {
+        $kegiatanModel = new \App\Models\KegiatanModel();
+
+        if ($id) {
+            $kegiatan = $kegiatanModel->find($id);
+        } else {
+            // Default: Panitia Pembangunan aktif terbaru
+            $kegiatan = $kegiatanModel->where('deleted_at', null)
+                                      ->orderBy('created_at', 'DESC')
+                                      ->first();
+        }
+
+        if (!$kegiatan) {
+            return redirect()->to('/')->with('error', 'Informasi kepanitiaan tidak ditemukan.');
+        }
+
+        $kegiatanId = $kegiatan['id'];
+
+        $jabatanKegiatanModel = new \App\Models\JabatanKegiatanModel();
+        $panitiaModel = new \App\Models\PanitiaModel();
+        $kelompokKegiatanModel = new \App\Models\KelompokKegiatanModel();
+        $anggotaKelompokModel = new \App\Models\AnggotaKelompokModel();
+        $keuanganModel = new \App\Models\KeuanganModel();
+        $bantuanMaterialModel = new \App\Models\BantuanMaterialModel();
+        $rekeningModel = new \App\Models\RekeningModel();
+        $agendaModel = new \App\Models\AgendaModel();
+
+        // 1. Ambil jajaran struktur jabatan & personil panitia
+        $panitiaList = $panitiaModel->getPanitiaByKegiatan($kegiatanId);
+        $jabatanList = $jabatanKegiatanModel->getJabatanByKegiatan($kegiatanId);
+
+        foreach ($jabatanList as &$jabatan) {
+            $jabatan['panitia'] = array_values(array_filter($panitiaList, function($p) use ($jabatan) {
+                return $p['jabatan_kegiatan_id'] === $jabatan['id'];
+            }));
+        }
+
+        // 2. Ambil kelompok kerja lapangan & anggota jemaah
+        $kelompokList = $kelompokKegiatanModel->getKelompokByKegiatan($kegiatanId);
+        foreach ($kelompokList as &$kelompok) {
+            $kelompok['anggota'] = $anggotaKelompokModel->getAnggotaByKelompok($kelompok['id']);
+        }
+
+        // 3. Transparansi Kas Keuangan Proyek
+        $keuanganList = $keuanganModel->where('kegiatan_id', $kegiatanId)
+                                      ->where('deleted_at', null)
+                                      ->orderBy('tanggal', 'DESC')
+                                      ->orderBy('created_at', 'DESC')
+                                      ->findAll();
+
+        $totalMasuk  = 0;
+        $totalKeluar = 0;
+        foreach ($keuanganList as $k) {
+            if ($k['tipe'] === 'masuk') {
+                $totalMasuk += $k['nominal'];
+            } else {
+                $totalKeluar += $k['nominal'];
+            }
+        }
+        $saldoKas = $totalMasuk - $totalKeluar;
+
+        // 4. Rekap Bantuan Material Nontunai
+        $materialList = $bantuanMaterialModel->getMaterialByKegiatan($kegiatanId);
+        $totalNilaiMaterial = 0;
+        foreach ($materialList as $m) {
+            $totalNilaiMaterial += ($m['total_nilai'] ?: ((float)($m['harga_satuan'] ?? 0) * (float)($m['volume'] ?? 0)));
+        }
+
+        // 5. Rekening Donasi Pembangunan & Agenda Proyek
+        $rekeningList = $rekeningModel->getActiveChannels();
+        $agendaList   = $agendaModel->where('kegiatan_id', $kegiatanId)
+                                    ->where('deleted_at', null)
+                                    ->orderBy('tanggal', 'ASC')
+                                    ->findAll();
+
+        return render_theme('kepanitiaan', [
+            'kegiatan'             => $kegiatan,
+            'jabatan_list'         => $jabatanList,
+            'panitia_list'         => $panitiaList,
+            'kelompok_list'        => $kelompokList,
+            'keuangan_list'        => $keuanganList,
+            'total_masuk'          => $totalMasuk,
+            'total_keluar'         => $totalKeluar,
+            'saldo_kas'            => $saldoKas,
+            'material_list'        => $materialList,
+            'total_nilai_material' => $totalNilaiMaterial,
+            'rekening_list'        => $rekeningList,
+            'agenda_list'          => $agendaList
         ]);
     }
 
@@ -121,6 +182,29 @@ class Home extends BaseController
         // Coba ambil dari cache CodeIgniter 4
         if ($jadwal = cache($cacheKey)) {
             return $jadwal;
+        }
+
+        // 1. Prioritaskan master hisab lokal dari database (mst_jadwal_sholat)
+        try {
+            $jadwalSholatModel = new \App\Models\JadwalSholatModel();
+            $dbJadwal = $jadwalSholatModel->getHariIni();
+            if ($dbJadwal) {
+                $jadwalFormat = [
+                    'tanggal' => date('d-m-Y'),
+                    'imsak'   => $dbJadwal['imsak'],
+                    'subuh'   => $dbJadwal['subuh'],
+                    'terbit'  => $dbJadwal['terbit'],
+                    'dhuha'   => $dbJadwal['dhuha'],
+                    'dzuhur'  => $dbJadwal['dzuhur'],
+                    'ashar'   => $dbJadwal['ashar'],
+                    'maghrib' => $dbJadwal['maghrib'],
+                    'isya'    => $dbJadwal['isya']
+                ];
+                cache()->save($cacheKey, $jadwalFormat, 43200);
+                return $jadwalFormat;
+            }
+        } catch (\Throwable $e) {
+            // Lanjut ke fallback / API jika belum ada database
         }
 
         // Target API Kemenag via myQuran dengan ID Kota terkonfigurasi (DB dengan fallback)

@@ -152,6 +152,17 @@
         }
 
         .profile-card {
+            user-select: none;
+            transition: var(--transition);
+        }
+        .profile-card:hover {
+            background-color: #f9fafb;
+            box-shadow: var(--shadow-md);
+        }
+        .profile-card::after {
+            display: none !important;
+        }
+        .profile-card {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -435,7 +446,7 @@
             </li>
             <li>
                 <a href="<?= base_url('dashboard/jadwal-jumat') ?>" class="menu-link">
-                    <i class="fa-solid fa-calendar-week"></i> Jadwal Jumat
+                    <i class="fa-solid fa-calendar-week"></i> Pelaksana Shalat Jumat
                 </a>
             </li>
             <li>
@@ -491,11 +502,44 @@
                 <p class="text-muted mb-0">Kelola jajaran pengurus masjid dan pembagian pos jabatannya.</p>
             </div>
             
-            <div class="profile-card">
-                <img class="profile-avatar" src="<?= esc($avatar) ?>" alt="Avatar">
-                <div class="profile-info">
-                    <div class="profile-name"><?= esc($username) ?></div>
-                    <div class="profile-role"><?= esc($role_name) ?></div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="<?= base_url() ?>" target="_blank" class="btn btn-outline-success btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold shadow-sm bg-white text-decoration-none">
+                    <i class="fa-solid fa-globe text-success"></i>
+                    <span>Lihat Website</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-muted" style="font-size: 0.7rem;"></i>
+                </a>
+                <div class="dropdown">
+                    <div class="profile-card dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" style="cursor: pointer;">
+                        <img class="profile-avatar" src="<?= esc($avatar ?? base_url('assets/images/default-avatar.png')) ?>" alt="Avatar">
+                        <div class="profile-info me-1">
+                            <div class="profile-name"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="profile-role"><?= esc($role_name ?? 'Pengurus') ?></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2 py-2" style="min-width: 210px;">
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="fw-bold text-dark small"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="text-muted" style="font-size: 0.75rem;"><?= esc(session()->get('email') ?? '') ?></div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url("dashboard") ?>">
+                                <i class="fa-solid fa-gauge-high text-muted"></i> Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url() ?>" target="_blank">
+                                <i class="fa-solid fa-globe text-muted"></i> Halaman Publik
+                                <i class="fa-solid fa-arrow-up-right-from-square ms-auto text-muted" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger small" href="<?= base_url("logout") ?>">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar (Logout)
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -519,153 +563,45 @@
         <div class="panel-card mb-4 bg-white border-0 shadow-sm rounded-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="p-3 rounded-3 bg-success bg-opacity-10 text-success">
-                        <i class="fa-solid fa-calendar-check fs-2"></i>
+                <a href="<?= base_url() ?>" target="_blank" class="btn btn-outline-success btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold shadow-sm bg-white text-decoration-none">
+                    <i class="fa-solid fa-globe text-success"></i>
+                    <span>Lihat Website</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-muted" style="font-size: 0.7rem;"></i>
+                </a>
+                <div class="dropdown">
+                    <div class="profile-card dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" style="cursor: pointer;">
+                        <img class="profile-avatar" src="<?= esc($avatar ?? base_url('assets/images/default-avatar.png')) ?>" alt="Avatar">
+                        <div class="profile-info me-1">
+                            <div class="profile-name"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="profile-role"><?= esc($role_name ?? 'Pengurus') ?></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.75rem;"></i>
                     </div>
-                    <div>
-                        <h2 class="h4 fw-bold mb-1 text-dark"><?= esc($periode['nama_periode']) ?></h2>
-                        <p class="text-muted mb-0 small">
-                            <span class="fw-semibold text-dark">Masa Bakti:</span> <?= esc($periode['tahun_mulai']) ?> - <?= esc($periode['tahun_selesai']) ?>
-                            <span class="mx-2">|</span>
-                            <span class="fw-semibold text-dark">Status:</span> 
-                            <?php if ($periode['status'] === 'aktif') : ?>
-                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill">Aktif</span>
-                            <?php else : ?>
-                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2.5 py-1 rounded-pill">Tidak Aktif</span>
-                            <?php endif; ?>
-                        </p>
-                    </div>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="<?= base_url('dashboard/kepengurusan') ?>" class="btn btn-sm btn-outline-secondary px-3 py-2 fw-semibold" style="border-radius: 8px;">
-                        <i class="fa-solid fa-arrow-left me-2"></i>Kembali
-                    </a>
-                    <a href="<?= base_url('dashboard/kepengurusan/periode/edit/' . esc($periode['id'])) ?>" class="btn btn-sm btn-primary px-3 py-2 fw-semibold" style="background-color: var(--primary-light); border: none; border-radius: 8px;">
-                        <i class="fa-solid fa-edit me-2"></i>Ubah Periode
-                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2 py-2" style="min-width: 210px;">
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="fw-bold text-dark small"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="text-muted" style="font-size: 0.75rem;"><?= esc(session()->get('email') ?? '') ?></div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url("dashboard") ?>">
+                                <i class="fa-solid fa-gauge-high text-muted"></i> Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url() ?>" target="_blank">
+                                <i class="fa-solid fa-globe text-muted"></i> Halaman Publik
+                                <i class="fa-solid fa-arrow-up-right-from-square ms-auto text-muted" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger small" href="<?= base_url("logout") ?>">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar (Logout)
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
-
-        <?php
-        if (!function_exists('buildPeriodeTree')) {
-            function buildPeriodeTree(array $elements, $parentId = null) {
-                $branch = array();
-                foreach ($elements as $element) {
-                    if ($element['parent_id'] === $parentId) {
-                        $children = buildPeriodeTree($elements, $element['id']);
-                        if ($children) {
-                            $element['children'] = $children;
-                        }
-                        $branch[] = $element;
-                    }
-                }
-                return $branch;
-            }
-        }
-
-        if (!function_exists('renderPeriodeTreeHtml')) {
-            function renderPeriodeTreeHtml($tree) {
-                $html = '<ul>';
-                foreach ($tree as $node) {
-                    $html .= '<li>';
-                    $html .= '<div class="org-tree-node">';
-                    $html .= '<div class="node-title">' . esc($node['nama_jabatan']) . '</div>';
-                    
-                    if (!empty($node['pengurus'])) {
-                        $html .= '<div class="node-names">';
-                        foreach ($node['pengurus'] as $p) {
-                            $html .= '<div class="node-name"><i class="fa-solid fa-user me-1 text-success small"></i>' . esc($p['nama']) . '</div>';
-                        }
-                        $html .= '</div>';
-                    } else {
-                        $html .= '<div class="text-muted small" style="font-size: 0.75rem; font-style: italic; margin-top: 4px;">Kosong</div>';
-                    }
-                    
-                    $html .= '</div>';
-                    
-                    if (!empty($node['children'])) {
-                        $html .= renderPeriodeTreeHtml($node['children']);
-                    }
-                    $html .= '</li>';
-                }
-                $html .= '</ul>';
-                return $html;
-            }
-        }
-        ?>
-
-        <!-- Nav tabs -->
-        <ul class="nav nav-pills mb-4 gap-2" id="kepengurusanTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="struktur-tab" data-bs-toggle="tab" data-bs-target="#struktur" type="button" role="tab" aria-controls="struktur" aria-selected="true">
-                    <i class="fa-solid fa-sitemap me-2"></i>Struktur Organisasi
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="chart-tab" data-bs-toggle="tab" data-bs-target="#chart" type="button" role="tab" aria-controls="chart" aria-selected="false">
-                    <i class="fa-solid fa-diagram-project me-2"></i>Bagan Struktur (Org Chart)
-                </button>
-            </li>
-        </ul>
-
-        <!-- Tab content -->
-        <div class="tab-content">
-            <!-- TAB STRUKTUR ORGANISASI (JABATAN & PENGURUS) -->
-            <div class="tab-pane fade show active" id="struktur" role="tabpanel" aria-labelledby="struktur-tab">
-                <div class="panel-card bg-white border-0 shadow-sm rounded-4 mb-4">
-                    <div class="panel-title d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-                        <span class="fw-bold text-dark fs-5">Jajaran Kepengurusan Berdasarkan Jabatan</span>
-                        <div class="d-flex gap-2">
-                            <a href="<?= base_url('dashboard/kepengurusan/jabatan/create?periode_id=' . esc($periode['id'])) ?>" class="btn btn-sm btn-outline-success px-3 py-2 fw-semibold" style="border-radius: 8px;">
-                                <i class="fa-solid fa-plus me-1"></i>Tambah Jabatan
-                            </a>
-                            <a href="<?= base_url('dashboard/kepengurusan/pengurus/create?periode_id=' . esc($periode['id'])) ?>" class="btn btn-sm btn-success px-3 py-2 fw-semibold" style="background-color: var(--primary); border: none; border-radius: 8px;">
-                                <i class="fa-solid fa-user-plus me-1"></i>Tugaskan Pengurus
-                            </a>
-                        </div>
-                    </div>
-
-                    <?php if (!empty($jabatan_list)) : ?>
-                        <div class="row g-4">
-                            <?php foreach ($jabatan_list as $jab) : ?>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="card h-100 border-0 shadow-sm rounded-4" style="background-color: #f9fafb; border: 1px solid #e5e7eb !important;">
-                                        <!-- Card Header: Info Jabatan -->
-                                        <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-2 rounded-top-4 d-flex justify-content-between align-items-start">
-                                            <div class="overflow-hidden">
-                                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 px-2 py-1 rounded-pill mb-2 d-inline-block small">
-                                                    Urutan: <?= esc($jab['urutan']) ?>
-                                                </span>
-                                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="<?= esc($jab['nama_jabatan']) ?>"><?= esc($jab['nama_jabatan']) ?></h3>
-                                                <?php if ($jab['nama_atasan']) : ?>
-                                                    <small class="text-muted d-block text-truncate" title="Atasan: <?= esc($jab['nama_atasan']) ?>">
-                                                        <i class="fa-solid fa-turn-up fa-rotate-90 me-1 text-secondary"></i>
-                                                        Atasan: <span class="fw-semibold text-secondary"><?= esc($jab['nama_atasan']) ?></span>
-                                                    </small>
-                                                <?php else : ?>
-                                                    <small class="text-muted d-block"><i class="fa-solid fa-crown me-1 text-warning"></i>Jabatan Puncak</small>
-                                                <?php endif; ?>
-                                            </div>
-                                            <!-- Aksi Jabatan -->
-                                            <div class="dropdown">
-                                                <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="fa-solid fa-ellipsis-vertical fs-5"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
-                                                    <li>
-                                                        <a class="dropdown-item py-2 px-3 small" href="<?= base_url('dashboard/kepengurusan/jabatan/edit/' . esc($jab['id']) . '?periode_id=' . esc($periode['id'])) ?>">
-                                                            <i class="fa-solid fa-edit me-2 text-primary"></i>Ubah Jabatan
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a class="dropdown-item py-2 px-3 small text-danger" href="<?= base_url('dashboard/kepengurusan/jabatan/delete/' . esc($jab['id'])) ?>" onclick="return confirm('Apakah Anda yakin ingin menghapus jabatan ini? Menghapus jabatan akan menghapus penugasan pengurus terkait.')">
-                                                            <i class="fa-solid fa-trash me-2"></i>Hapus Jabatan
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
                                         
                                         <!-- Card Body: Daftar Pengurus -->
                                         <div class="card-body px-4 pb-4">

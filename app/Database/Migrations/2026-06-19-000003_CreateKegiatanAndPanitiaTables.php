@@ -27,19 +27,21 @@ class CreateKegiatanAndPanitiaTables extends Migration
 
         // 2. trn_jabatan_kegiatan
         $this->forge->addField([
-            'id'           => ['type' => 'CHAR', 'constraint' => 36],
-            'kegiatan_id'  => ['type' => 'CHAR', 'constraint' => 36],
-            'nama_jabatan' => ['type' => 'VARCHAR', 'constraint' => 100],
-            'parent_id'    => ['type' => 'CHAR', 'constraint' => 36, 'null' => true],
-            'tugas'        => ['type' => 'TEXT', 'null' => true],
-            'urutan'       => ['type' => 'INT', 'constraint' => 11, 'default' => 0, 'null' => true],
-            'created_at'   => ['type' => 'DATETIME', 'null' => true],
-            'updated_at'   => ['type' => 'DATETIME', 'null' => true],
-            'deleted_at'   => ['type' => 'DATETIME', 'null' => true],
+            'id'            => ['type' => 'CHAR', 'constraint' => 36],
+            'kegiatan_id'   => ['type' => 'CHAR', 'constraint' => 36],
+            'nama_jabatan'  => ['type' => 'VARCHAR', 'constraint' => 100],
+            'parent_id'     => ['type' => 'CHAR', 'constraint' => 36, 'null' => true],
+            'kategori_unit' => ['type' => 'VARCHAR', 'constraint' => 100, 'null' => true],
+            'tugas'         => ['type' => 'TEXT', 'null' => true],
+            'urutan'        => ['type' => 'INT', 'constraint' => 11, 'default' => 0, 'null' => true],
+            'created_at'    => ['type' => 'DATETIME', 'null' => true],
+            'updated_at'    => ['type' => 'DATETIME', 'null' => true],
+            'deleted_at'    => ['type' => 'DATETIME', 'null' => true],
         ]);
         $this->forge->addKey('id', true);
         $this->forge->addKey('kegiatan_id');
         $this->forge->addKey('parent_id');
+        $this->forge->addKey('kategori_unit');
         $this->forge->addForeignKey('kegiatan_id', 'mst_kegiatan', 'id', 'CASCADE', 'CASCADE');
         $this->forge->createTable('trn_jabatan_kegiatan', true);
 

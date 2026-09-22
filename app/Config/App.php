@@ -32,12 +32,12 @@ class App extends BaseConfig
     /**
      * Nama website / masjid resmi terpusat
      */
-    public string $siteName = 'Website Resmi Masjid';
+    public string $siteName = 'Masjid Agung Nujumul Ittihad Sinjai';
 
     /**
      * Alamat fisik resmi masjid terpusat
      */
-    public string $siteAddress = 'Alamat Resmi Masjid Anda';
+    public string $siteAddress = 'Jl. Persatuan Raya, Kec. Sinjai Utara, Kab. Sinjai, Sulawesi Selatan';
 
     /**
      * ID Kota untuk Jadwal Sholat Kemenag (via API myQuran)

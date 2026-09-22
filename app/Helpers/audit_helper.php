@@ -46,6 +46,22 @@ if (!function_exists('log_activity')) {
                 'created_at'  => date('Y-m-d H:i:s')
             ]);
 
+            // Kirim notifikasi Telegram secara otomatis jika helper tersedia
+            if (function_exists('telegram_notify_change')) {
+                // Ekstrak detail ringkas dari after_data atau before_data
+                $summaryData = $afterData ?? $beforeData ?? [];
+                $summaryParts = [];
+                $keys = ['judul', 'nama', 'nama_lengkap', 'keterangan', 'uraian', 'nominal', 'role', 'status', 'kegiatan_id'];
+                foreach ($keys as $k) {
+                    if (isset($summaryData[$k]) && is_scalar($summaryData[$k]) && $summaryData[$k] !== '') {
+                        $val = is_numeric($summaryData[$k]) && in_array($k, ['nominal', 'jumlah']) ? 'Rp ' . number_format((float)$summaryData[$k], 0, ',', '.') : $summaryData[$k];
+                        $summaryParts[] = ucfirst($k) . ": " . $val;
+                    }
+                }
+                $detailStr = !empty($summaryParts) ? implode(' | ', array_slice($summaryParts, 0, 3)) : "ID: " . substr($recordId, 0, 8);
+                telegram_notify_change($action, $tableName, $detailStr);
+            }
+
             return true;
         } catch (\Exception $e) {
             log_message('error', 'Audit Log Failed: ' . $e->getMessage());

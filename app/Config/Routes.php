@@ -4,6 +4,9 @@ use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
 $routes->get('/', 'Home::index');
+$routes->get('/pembangunan', 'Home::pembangunan');
+$routes->get('/kepanitiaan', 'Home::pembangunan');
+$routes->get('/kepanitiaan/(:segment)', 'Home::pembangunan/$1');
 
 // Rute Autentikasi Pengurus (Native & Google Auth)
 $routes->get('/login', 'AuthController::login');
@@ -116,6 +119,7 @@ $routes->group('dashboard/kepanitiaan', ['namespace' => 'App\Controllers'], func
 
     // Bantuan Material / Barang Routes
     $routes->post('material/store', 'KepanitiaanController::storeMaterial');
+    $routes->post('material/update/(:segment)', 'KepanitiaanController::updateMaterial/$1');
     $routes->get('material/delete/(:segment)', 'KepanitiaanController::deleteMaterial/$1');
 
     // Cetak / Export LPJ Proyek
@@ -153,7 +157,68 @@ $routes->group('dashboard/rekening', ['namespace' => 'App\Controllers'], functio
     $routes->get('delete/(:segment)', 'RekeningController::delete/$1');
 });
 
-// Rute REST API TV Display Masjid
-$routes->get('/api/display', 'Api\DisplayController::index');
+// Rute CRUD Master Layanan & Transaksi Pelayanan Jamaah
+$routes->group('dashboard/layanan', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('/', 'LayananController::index');
+    $routes->get('create', 'LayananController::create');
+    $routes->post('store', 'LayananController::store');
+    $routes->get('edit/(:segment)', 'LayananController::edit/$1');
+    $routes->post('update/(:segment)', 'LayananController::update/$1');
+    $routes->get('delete/(:segment)', 'LayananController::delete/$1');
+});
 
+$routes->group('dashboard/pelayanan', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('/', 'LayananController::pelayananIndex');
+    $routes->get('create', 'LayananController::createPelayanan');
+    $routes->post('store', 'LayananController::storePelayanan');
+    $routes->get('edit/(:segment)', 'LayananController::editPelayanan/$1');
+    $routes->post('update/(:segment)', 'LayananController::updatePelayanan/$1');
+    $routes->get('delete/(:segment)', 'LayananController::deletePelayanan/$1');
+    $routes->get('cetak/(:segment)', 'LayananController::cetakPelayanan/$1');
+});
+
+// Rute CRUD Master Jadwal Waktu Shalat
+$routes->group('dashboard/jadwal-sholat', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('/', 'JadwalSholatController::index');
+    $routes->get('create', 'JadwalSholatController::create');
+    $routes->post('store', 'JadwalSholatController::store');
+    $routes->get('edit/(:segment)', 'JadwalSholatController::edit/$1');
+    $routes->post('update/(:segment)', 'JadwalSholatController::update/$1');
+    $routes->get('delete/(:segment)', 'JadwalSholatController::delete/$1');
+    $routes->get('reset-tahunan', 'JadwalSholatController::resetTahunan');
+    $routes->post('save-blank-settings', 'JadwalSholatController::saveDisplayBlankSettings');
+});
+
+// Rute CRUD Ayat Pilihan Display
+$routes->group('dashboard/ayat', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('/', 'AyatPilihanController::index');
+    $routes->get('create', 'AyatPilihanController::create');
+    $routes->post('store', 'AyatPilihanController::store');
+    $routes->get('edit/(:segment)', 'AyatPilihanController::edit/$1');
+    $routes->post('update/(:segment)', 'AyatPilihanController::update/$1');
+    $routes->get('toggle-status/(:segment)', 'AyatPilihanController::toggleStatus/$1');
+    $routes->get('delete/(:segment)', 'AyatPilihanController::delete/$1');
+});
+
+// Rute CRUD Manajemen Pengguna Sistem (Users)
+$routes->group('dashboard/users', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('/', 'UserController::index');
+    $routes->get('create', 'UserController::create');
+    $routes->post('store', 'UserController::store');
+    $routes->get('edit/(:segment)', 'UserController::edit/$1');
+    $routes->post('update/(:segment)', 'UserController::update/$1');
+    $routes->get('toggle-status/(:segment)', 'UserController::toggleStatus/$1');
+    $routes->get('delete/(:segment)', 'UserController::delete/$1');
+});
+
+
+// Rute REST API & TV Display Masjid
+$routes->get('/api/display', 'Api\DisplayController::index');
+$routes->get('/api/display/data', 'Api\DisplayController::index');
+$routes->get('/display', function() {
+    return redirect()->to(base_url('display/index.html'));
+});
+$routes->get('/display/(:any)', function($sub = '') {
+    return redirect()->to(base_url('display/' . $sub));
+});
 

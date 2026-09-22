@@ -161,6 +161,17 @@
         }
 
         .profile-card {
+            user-select: none;
+            transition: var(--transition);
+        }
+        .profile-card:hover {
+            background-color: #f9fafb;
+            box-shadow: var(--shadow-md);
+        }
+        .profile-card::after {
+            display: none !important;
+        }
+        .profile-card {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -352,13 +363,38 @@
                 </a>
             </li>
             <li>
+                <a href="<?= base_url('dashboard/users') ?>" class="menu-link">
+                    <i class="fa-solid fa-users-gear"></i> Kelola Pengguna
+                </a>
+            </li>
+            <li>
+                <a href="<?= base_url('dashboard/pelayanan') ?>" class="menu-link">
+                    <i class="fa-solid fa-hand-holding-hand"></i> Pelayanan Jamaah
+                </a>
+            </li>
+            <li>
+                <a href="<?= base_url('dashboard/layanan') ?>" class="menu-link">
+                    <i class="fa-solid fa-layer-group"></i> Master Layanan
+                </a>
+            </li>
+            <li>
                 <a href="<?= base_url('display/index.html') ?>" target="_blank" class="menu-link">
                     <i class="fa-solid fa-tv"></i> Display Digital <i class="fa-solid fa-arrow-up-right-from-square ms-auto text-muted" style="font-size: 0.75rem;"></i>
                 </a>
             </li>
             <li>
+                <a href="<?= base_url() ?>" target="_blank" class="menu-link">
+                    <i class="fa-solid fa-globe"></i> Halaman Publik <i class="fa-solid fa-arrow-up-right-from-square ms-auto text-muted" style="font-size: 0.75rem;"></i>
+                </a>
+            </li>
+            <li>
+                <a href="<?= base_url('dashboard/jadwal-sholat') ?>" class="menu-link">
+                    <i class="fa-solid fa-clock"></i> Waktu Shalat
+                </a>
+            </li>
+            <li>
                 <a href="<?= base_url('dashboard/jadwal-jumat') ?>" class="menu-link">
-                    <i class="fa-solid fa-calendar-week"></i> Jadwal Jumat
+                    <i class="fa-solid fa-calendar-week"></i> Pelaksana Shalat Jumat
                 </a>
             </li>
             <li>
@@ -379,6 +415,11 @@
             <li>
                 <a href="<?= base_url('dashboard/agenda') ?>" class="menu-link">
                     <i class="fa-solid fa-book-open-reader"></i> Jadwal Pengajian
+                </a>
+            </li>
+            <li>
+                <a href="<?= base_url('dashboard/ayat') ?>" class="menu-link">
+                    <i class="fa-solid fa-quran"></i> Ayat Pilihan Display
                 </a>
             </li>
             <li>
@@ -414,11 +455,44 @@
                 <p class="text-muted mb-0">Selamat datang kembali, <?= esc($username) ?>!</p>
             </div>
             
-            <div class="profile-card">
-                <img class="profile-avatar" src="<?= esc($avatar) ?>" alt="Avatar">
-                <div class="profile-info">
-                    <div class="profile-name"><?= esc($username) ?></div>
-                    <div class="profile-role"><?= esc($role_name) ?></div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="<?= base_url() ?>" target="_blank" class="btn btn-outline-success btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold shadow-sm bg-white text-decoration-none">
+                    <i class="fa-solid fa-globe text-success"></i>
+                    <span>Lihat Website</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-muted" style="font-size: 0.7rem;"></i>
+                </a>
+                <div class="dropdown">
+                    <div class="profile-card dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" style="cursor: pointer;">
+                        <img class="profile-avatar" src="<?= esc($avatar ?? base_url('assets/images/default-avatar.png')) ?>" alt="Avatar">
+                        <div class="profile-info me-1">
+                            <div class="profile-name"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="profile-role"><?= esc($role_name ?? 'Pengurus') ?></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2 py-2" style="min-width: 210px;">
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="fw-bold text-dark small"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="text-muted" style="font-size: 0.75rem;"><?= esc(session()->get('email') ?? '') ?></div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url("dashboard") ?>">
+                                <i class="fa-solid fa-gauge-high text-muted"></i> Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url() ?>" target="_blank">
+                                <i class="fa-solid fa-globe text-muted"></i> Halaman Publik
+                                <i class="fa-solid fa-arrow-up-right-from-square ms-auto text-muted" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger small" href="<?= base_url("logout") ?>">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar (Logout)
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -429,7 +503,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="stat-card">
                     <div class="stat-info">
-                        <span class="stat-label">Saldo Kas</span>
+                        <span class="stat-label">Saldo Kas Umum</span>
                         <span class="stat-value">Rp <?= number_format($saldo_kas, 0, ',', '.') ?></span>
                     </div>
                     <div class="stat-icon icon-primary">
@@ -527,7 +601,7 @@
             <div class="col-lg-6">
                 <div class="panel-card">
                     <div class="panel-header">
-                        <h5 class="panel-title"><i class="fa-solid fa-calendar-day"></i> Jadwal Jumat Terdekat</h5>
+                        <h5 class="panel-title"><i class="fa-solid fa-calendar-day"></i> Pelaksana Shalat Jumat Terdekat</h5>
                         <a href="#" class="btn btn-sm btn-outline-success border-0 fw-bold">Detail</a>
                     </div>
                     <?php if (!empty($petugas_jumat)) : ?>
@@ -553,7 +627,7 @@
                     <?php else : ?>
                         <div class="text-center py-4 text-muted">
                             <i class="fa-regular fa-calendar-xmark d-block fs-3 mb-2"></i>
-                            Jadwal Jumat mendatang belum dirilis.
+                            Pelaksana Shalat Jumat mendatang belum dirilis.
                         </div>
                     <?php endif; ?>
                 </div>

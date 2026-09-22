@@ -47,9 +47,10 @@ class DashboardController extends BaseController
                            ->where('deleted_at', null)
                            ->countAllResults();
 
-        // D. Laporan Kas Keuangan Bulan Ini (trn_keuangan)
+        // D. Laporan Kas Umum Masjid (Non-Kepanitiaan / kegiatan_id is NULL)
         $kasMasukRow = $db->table('trn_keuangan')
                           ->selectSum('nominal')
+                          ->where('kegiatan_id', null)
                           ->where('tipe', 'masuk')
                           ->where('deleted_at', null)
                           ->get()
@@ -58,6 +59,7 @@ class DashboardController extends BaseController
 
         $kasKeluarRow = $db->table('trn_keuangan')
                            ->selectSum('nominal')
+                           ->where('kegiatan_id', null)
                            ->where('tipe', 'keluar')
                            ->where('deleted_at', null)
                            ->get()

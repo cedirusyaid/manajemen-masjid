@@ -180,8 +180,8 @@ class DisplaySeeder extends Seeder
 
         if ($userId) {
             $beritaModel->insert([
-                'judul'      => 'Himbauan Menjaga Kebersihan & Kerapihan Shaft Salat',
-                'konten'     => 'Dihimbau kepada seluruh jamaah Masjid Agung Nujumul Ittihad untuk selalu menjaga kebersihan area utama masjid dan merapatkan shaft saat salat berjamaah.',
+                'judul'      => 'Himbauan Menjaga Kebersihan & Kerapihan Saf Shalat',
+                'konten'     => 'Dihimbau kepada seluruh jamaah Masjid Agung Nujumul Ittihad untuk selalu menjaga kebersihan area utama masjid dan merapatkan saf saat shalat berjamaah.',
                 'status'     => 'published',
                 'created_by' => $userId
             ]);

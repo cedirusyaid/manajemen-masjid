@@ -10,6 +10,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Select2 CSS & Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
     
     <style>
         :root {
@@ -152,6 +155,17 @@
         }
 
         .profile-card {
+            user-select: none;
+            transition: var(--transition);
+        }
+        .profile-card:hover {
+            background-color: #f9fafb;
+            box-shadow: var(--shadow-md);
+        }
+        .profile-card::after {
+            display: none !important;
+        }
+        .profile-card {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -263,7 +277,7 @@
             </li>
             <li>
                 <a href="<?= base_url('dashboard/jadwal-jumat') ?>" class="menu-link">
-                    <i class="fa-solid fa-calendar-week"></i> Jadwal Jumat
+                    <i class="fa-solid fa-calendar-week"></i> Pelaksana Shalat Jumat
                 </a>
             </li>
             <li>
@@ -314,11 +328,44 @@
                 <p class="text-muted mb-0">Sesuaikan informasi jabatan struktur kepanitiaan masjid.</p>
             </div>
             
-            <div class="profile-card">
-                <img class="profile-avatar" src="<?= esc($avatar) ?>" alt="Avatar">
-                <div class="profile-info">
-                    <div class="profile-name"><?= esc($username) ?></div>
-                    <div class="profile-role"><?= esc($role_name) ?></div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="<?= base_url() ?>" target="_blank" class="btn btn-outline-success btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold shadow-sm bg-white text-decoration-none">
+                    <i class="fa-solid fa-globe text-success"></i>
+                    <span>Lihat Website</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-muted" style="font-size: 0.7rem;"></i>
+                </a>
+                <div class="dropdown">
+                    <div class="profile-card dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" style="cursor: pointer;">
+                        <img class="profile-avatar" src="<?= esc($avatar ?? base_url('assets/images/default-avatar.png')) ?>" alt="Avatar">
+                        <div class="profile-info me-1">
+                            <div class="profile-name"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="profile-role"><?= esc($role_name ?? 'Pengurus') ?></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.75rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2 py-2" style="min-width: 210px;">
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="fw-bold text-dark small"><?= esc($username ?? 'Pengguna') ?></div>
+                            <div class="text-muted" style="font-size: 0.75rem;"><?= esc(session()->get('email') ?? '') ?></div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url("dashboard") ?>">
+                                <i class="fa-solid fa-gauge-high text-muted"></i> Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-dark small" href="<?= base_url() ?>" target="_blank">
+                                <i class="fa-solid fa-globe text-muted"></i> Halaman Publik
+                                <i class="fa-solid fa-arrow-up-right-from-square ms-auto text-muted" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger small" href="<?= base_url("logout") ?>">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar (Logout)
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -356,16 +403,36 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-8 mb-4">
+                    <div class="col-md-6 mb-4">
+                        <label for="kategori_unit" class="form-label">Unit / Kelompok Struktur</label>
+                        <?php $currentUnit = old('kategori_unit', $jabatan['kategori_unit'] ?? 'Pelaksana Utama'); ?>
+                        <select class="form-select" id="kategori_unit" name="kategori_unit">
+                            <option value="Pembina / Penasehat" <?= $currentUnit === 'Pembina / Penasehat' ? 'selected' : '' ?>>Pembina / Penasehat</option>
+                            <option value="Pengarah" <?= $currentUnit === 'Pengarah' ? 'selected' : '' ?>>Pengarah</option>
+                            <option value="Pelaksana Utama" <?= $currentUnit === 'Pelaksana Utama' ? 'selected' : '' ?>>Pelaksana Utama</option>
+                            <option value="Bidang Pembangunan dan Konstruksi" <?= $currentUnit === 'Bidang Pembangunan dan Konstruksi' ? 'selected' : '' ?>>Bidang Pembangunan dan Konstruksi</option>
+                            <option value="Bidang Penggalangan Dana" <?= $currentUnit === 'Bidang Penggalangan Dana' ? 'selected' : '' ?>>Bidang Penggalangan Dana</option>
+                            <option value="Bidang Logistik dan Material" <?= $currentUnit === 'Bidang Logistik dan Material' ? 'selected' : '' ?>>Bidang Logistik dan Material</option>
+                            <option value="Bidang Keamanan dan Ketertiban" <?= $currentUnit === 'Bidang Keamanan dan Ketertiban' ? 'selected' : '' ?>>Bidang Keamanan dan Ketertiban</option>
+                            <option value="Bidang Publikasi, Dokumentasi dan Humas" <?= $currentUnit === 'Bidang Publikasi, Dokumentasi dan Humas' ? 'selected' : '' ?>>Bidang Publikasi, Dokumentasi dan Humas</option>
+                            <option value="Bidang Perlengkapan dan Rumah Tangga" <?= $currentUnit === 'Bidang Perlengkapan dan Rumah Tangga' ? 'selected' : '' ?>>Bidang Perlengkapan dan Rumah Tangga</option>
+                            <option value="Bidang Sekretariat" <?= $currentUnit === 'Bidang Sekretariat' ? 'selected' : '' ?>>Bidang Sekretariat</option>
+                        </select>
+                        <small class="text-muted" style="font-size: 0.775rem;">Kelompok blok unit untuk mengelompokkan struktur kepanitiaan.</small>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label for="urutan" class="form-label">Urutan Tampilan Visual</label>
+                        <input type="number" class="form-control" id="urutan" name="urutan" placeholder="Contoh: 1" value="<?= old('urutan', esc($jabatan['urutan'])) ?>">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 mb-4">
                         <label for="parent_id" class="form-label">Jabatan Atasan (Parent)</label>
                         <select class="form-select" id="parent_id" name="parent_id">
                             <option value="">-- Tanpa Atasan (Puncak Pimpinan/Koordinator) --</option>
                         </select>
-                    </div>
-
-                    <div class="col-md-4 mb-4">
-                        <label for="urutan" class="form-label">Urutan Tampilan Visual</label>
-                        <input type="number" class="form-control" id="urutan" name="urutan" placeholder="Contoh: 1" value="<?= old('urutan', esc($jabatan['urutan'])) ?>">
                     </div>
                 </div>
 
@@ -384,10 +451,13 @@
         </div>
     </main>
 
-    <!-- Bootstrap 5.3 JS Bundle -->
+    <!-- jQuery and Bootstrap 5.3 JS Bundle -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <!-- JavaScript Filter Dinamis Jabatan Atasan -->
+    <!-- JavaScript Filter Dinamis Jabatan Atasan dengan Select2 Search -->
     <script>
         const rawJabatanList = <?= json_encode($jabatan_list) ?>;
         const currentJabatanId = "<?= $jabatan['id'] ?>";
@@ -396,6 +466,11 @@
         function filterParentJabatan() {
             const selectedKegiatan = document.getElementById('kegiatan_id').value;
             const parentSelect = document.getElementById('parent_id');
+            
+            // Simpan nilai pilihan saat ini jika ada
+            let currentVal = $(parentSelect).val() || oldParentId;
+
+            // Reset dan buat opsi default
             parentSelect.innerHTML = '<option value="">-- Tanpa Atasan (Puncak Pimpinan/Koordinator) --</option>';
             
             // Kecualikan jabatan ini sendiri agar tidak circular dependency
@@ -403,16 +478,35 @@
             filtered.forEach(j => {
                 const opt = document.createElement('option');
                 opt.value = j.id;
-                opt.textContent = j.nama_jabatan;
-                if (j.id === oldParentId) {
+                opt.textContent = (j.urutan ? ('[' + j.urutan + '] ') : '') + j.nama_jabatan;
+                if (j.id === currentVal) {
                     opt.selected = true;
                 }
                 parentSelect.appendChild(opt);
             });
+
+            // Inisialisasi atau refresh Select2
+            $('#parent_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- Pilih / Cari Jabatan Atasan --',
+                allowClear: true,
+                width: '100%'
+            });
         }
 
-        document.getElementById('kegiatan_id').addEventListener('change', filterParentJabatan);
-        window.addEventListener('DOMContentLoaded', filterParentJabatan);
+        $(document).ready(function() {
+            $('#kegiatan_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- Pilih Kegiatan --',
+                width: '100%'
+            });
+
+            filterParentJabatan();
+
+            $('#kegiatan_id').on('change', function() {
+                filterParentJabatan();
+            });
+        });
     </script>
 </body>
 </html>

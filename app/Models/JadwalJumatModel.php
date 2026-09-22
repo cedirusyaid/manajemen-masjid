@@ -67,12 +67,12 @@ class JadwalJumatModel extends Model
             imam_p.nama as imam_nama, imam_p.foto as imam_foto,
             muadzin_p.nama as muadzin_nama, muadzin_p.foto as muadzin_foto
         ')
-        ->join('mst_imam_khatib as khatib', 'khatib.id = trn_jadwal_jumat.khatib_id')
-        ->join('mst_personil as khatib_p', 'khatib_p.id = khatib.personil_id')
-        ->join('mst_imam_khatib as imam', 'imam.id = trn_jadwal_jumat.imam_id')
-        ->join('mst_personil as imam_p', 'imam_p.id = imam.personil_id')
-        ->join('mst_imam_khatib as muadzin', 'muadzin.id = trn_jadwal_jumat.muadzin_id')
-        ->join('mst_personil as muadzin_p', 'muadzin_p.id = muadzin.personil_id')
+        ->join('mst_imam_khatib as khatib', 'khatib.id = trn_jadwal_jumat.khatib_id', 'left')
+        ->join('mst_personil as khatib_p', 'khatib_p.id = khatib.personil_id', 'left')
+        ->join('mst_imam_khatib as imam', 'imam.id = trn_jadwal_jumat.imam_id', 'left')
+        ->join('mst_personil as imam_p', 'imam_p.id = imam.personil_id', 'left')
+        ->join('mst_imam_khatib as muadzin', 'muadzin.id = trn_jadwal_jumat.muadzin_id', 'left')
+        ->join('mst_personil as muadzin_p', 'muadzin_p.id = muadzin.personil_id', 'left')
         ->where('trn_jadwal_jumat.deleted_at', null);
 
         if ($tanggal) {
