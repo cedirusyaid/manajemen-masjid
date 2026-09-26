@@ -505,7 +505,7 @@
                     <!-- Deskripsi Detail / Materi Kajian -->
                     <div class="col-md-12">
                         <label for="deskripsi" class="form-label mb-2">Deskripsi / Detail Acara <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="5" required><?= old('deskripsi', $agenda['deskripsi']) ?></textarea>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="5"><?= old('deskripsi', $agenda['deskripsi']) ?></textarea>
                         <div class="invalid-feedback"><?= $validation->getError('deskripsi') ?></div>
                     </div>
 
@@ -560,12 +560,10 @@
                 $('#wrapper_tanggal_sekali').addClass('d-none');
                 $('#wrapper_hari_rutin').removeClass('d-none');
                 $('#wrapper_pekan_rutin').removeClass('d-none');
-                $('#tanggal').removeAttr('required');
             } else {
                 $('#wrapper_tanggal_sekali').removeClass('d-none');
                 $('#wrapper_hari_rutin').addClass('d-none');
                 $('#wrapper_pekan_rutin').addClass('d-none');
-                $('#tanggal').attr('required', 'required');
             }
         }
 
@@ -592,6 +590,15 @@
                     ['table', ['table']],
                     ['view', ['fullscreen', 'codeview', 'help']]
                 ]
+            });
+
+            // Sinkronisasi data Summernote sebelum form disubmit
+            $('form').on('submit', function() {
+                if ($('#deskripsi').summernote('isEmpty')) {
+                    $('#deskripsi').val('');
+                } else {
+                    $('#deskripsi').val($('#deskripsi').summernote('code'));
+                }
             });
         });
     </script>
