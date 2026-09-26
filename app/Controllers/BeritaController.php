@@ -67,11 +67,13 @@ class BeritaController extends BaseController
             'judul'  => 'required|min_length[5]|max_length[255]',
             'konten' => 'required',
             'status' => 'required|in_list[draft,published]',
-            'banner' => 'permit_empty|uploaded[banner]|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]'
+            'banner' => 'permit_empty|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]|max_size[banner,2048]'
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+            $errors = $this->validator->getErrors();
+            $errorMessage = !empty($errors) ? implode(' | ', $errors) : 'Validasi gagal, mohon periksa kembali inputan Anda.';
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal: ' . $errorMessage);
         }
 
         $bannerName = null;
@@ -178,11 +180,13 @@ class BeritaController extends BaseController
             'judul'  => 'required|min_length[5]|max_length[255]',
             'konten' => 'required',
             'status' => 'required|in_list[draft,published]',
-            'banner' => 'permit_empty|uploaded[banner]|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]'
+            'banner' => 'permit_empty|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]|max_size[banner,2048]'
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+            $errors = $this->validator->getErrors();
+            $errorMessage = !empty($errors) ? implode(' | ', $errors) : 'Validasi gagal, mohon periksa kembali inputan Anda.';
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal: ' . $errorMessage);
         }
 
         $bannerName = $berita['banner'];

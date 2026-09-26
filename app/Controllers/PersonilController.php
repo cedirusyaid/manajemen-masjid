@@ -69,11 +69,13 @@ class PersonilController extends BaseController
             'email'         => 'permit_empty|valid_email|max_length[100]',
             'jenis_kelamin' => 'required|in_list[L,P]',
             'alamat'        => 'permit_empty',
-            'foto'          => 'permit_empty|uploaded[foto]|is_image[foto]|mime_in[foto,image/jpg,image/jpeg,image/png,image/webp]'
+            'foto'          => 'permit_empty|is_image[foto]|mime_in[foto,image/jpg,image/jpeg,image/png,image/webp]|max_size[foto,2048]'
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+            $errors = $this->validator->getErrors();
+            $errorMessage = !empty($errors) ? implode(' | ', $errors) : 'Validasi gagal, mohon periksa kembali inputan Anda.';
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal: ' . $errorMessage);
         }
 
         $fotoName = null;
@@ -191,11 +193,13 @@ class PersonilController extends BaseController
             'email'         => 'permit_empty|valid_email|max_length[100]',
             'jenis_kelamin' => 'required|in_list[L,P]',
             'alamat'        => 'permit_empty',
-            'foto'          => 'permit_empty|uploaded[foto]|is_image[foto]|mime_in[foto,image/jpg,image/jpeg,image/png,image/webp]'
+            'foto'          => 'permit_empty|is_image[foto]|mime_in[foto,image/jpg,image/jpeg,image/png,image/webp]|max_size[foto,2048]'
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+            $errors = $this->validator->getErrors();
+            $errorMessage = !empty($errors) ? implode(' | ', $errors) : 'Validasi gagal, mohon periksa kembali inputan Anda.';
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal: ' . $errorMessage);
         }
 
         $fotoName = $personil['foto'];

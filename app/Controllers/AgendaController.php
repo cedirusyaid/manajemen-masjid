@@ -88,11 +88,13 @@ class AgendaController extends BaseController
             'lokasi'        => 'permit_empty|max_length[255]',
             'narasumber_id' => 'permit_empty',
             'narasumber'    => 'permit_empty|max_length[150]',
-            'banner'        => 'permit_empty|uploaded[banner]|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]'
+            'banner'        => 'permit_empty|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]|max_size[banner,2048]'
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+            $errors = $this->validator->getErrors();
+            $errorMessage = !empty($errors) ? implode(' | ', $errors) : 'Validasi gagal, mohon periksa kembali inputan Anda.';
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal: ' . $errorMessage);
         }
 
         $bannerName = null;
@@ -237,11 +239,13 @@ class AgendaController extends BaseController
             'lokasi'        => 'permit_empty|max_length[255]',
             'narasumber_id' => 'permit_empty',
             'narasumber'    => 'permit_empty|max_length[150]',
-            'banner'        => 'permit_empty|uploaded[banner]|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]'
+            'banner'        => 'permit_empty|is_image[banner]|mime_in[banner,image/jpg,image/jpeg,image/png,image/webp]|max_size[banner,2048]'
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Validasi gagal, mohon periksa kembali inputan Anda.');
+            $errors = $this->validator->getErrors();
+            $errorMessage = !empty($errors) ? implode(' | ', $errors) : 'Validasi gagal, mohon periksa kembali inputan Anda.';
+            return redirect()->back()->withInput()->with('error', 'Validasi gagal: ' . $errorMessage);
         }
 
         $bannerName = $agenda['banner'];
