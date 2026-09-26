@@ -11,12 +11,17 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- JQuery (Wajib untuk Summernote) -->
+    <!-- JQuery (Wajib untuk Summernote & Select2) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Summernote WYSIWYG CSS -->
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
     <!-- Summernote WYSIWYG JS -->
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <!-- Select2 Searchable Dropdown CSS & Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <style>
         :root {
@@ -566,6 +571,14 @@
 
         $(document).ready(function() {
             toggleJadwalType();
+
+            // Inisialisasi Select2 Pencarian Ustadz / Narasumber
+            $('#narasumber_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- Cari / Pilih Ustadz Terdaftar --',
+                allowClear: true,
+                width: '100%'
+            });
 
             $('#deskripsi').summernote({
                 placeholder: 'Tuliskan deskripsi lengkap kajian...',
