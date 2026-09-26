@@ -93,7 +93,7 @@ class RekeningController extends BaseController
             $imagePath = $logoFile->getTempName();
             
             if (!is_dir(FCPATH . 'uploads/rekening')) {
-                mkdir(FCPATH . 'uploads/rekening', 0755, true);
+                mkdir(FCPATH . 'uploads/rekening', 0777, true);
             }
 
             // Gunakan GD Library untuk mengubah format ke WebP
@@ -204,6 +204,10 @@ class RekeningController extends BaseController
         $logoFile = $this->request->getFile('logo');
 
         if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
+            if (!is_dir(FCPATH . 'uploads/rekening')) {
+                mkdir(FCPATH . 'uploads/rekening', 0777, true);
+            }
+
             // Hapus logo lama jika ada
             if (!empty($rekening['logo']) && is_file(FCPATH . 'uploads/rekening/' . $rekening['logo'])) {
                 @unlink(FCPATH . 'uploads/rekening/' . $rekening['logo']);

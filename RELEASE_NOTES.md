@@ -1,5 +1,13 @@
 # RELEASE NOTES - Website Masjid Agung Nujumul Ittihad Sinjai
 
+## [v0.5.0] - 2026-09-26
+### ✨ Added
+- **Sistem Otomatisasi Jadwal Rutin Pengajian (Recurring Schedule)**: Menambahkan dukungan format pengajian berulang (misal: Setiap Ahad Pekan Ke-1 & Ke-3) via migrasi [2026-09-26-000007_AddRecurringFieldsToAgendaTable.php](file:///apps/masjidagung/app/Database/Migrations/2026-09-26-000007_AddRecurringFieldsToAgendaTable.php).
+- **Proyeksi Tanggal Pelaksanaan Terdekat**: Sistem secara otomatis menghitung dan memperbarui tanggal kajian berikutnya setiap bulan tanpa perlu update manual oleh pengurus.
+- **Integrasi Tampilan Agenda Rutin**: Menampilkan badge pola rutin `[🔄 Rutin ...]`, tanggal terdekat, dan jadwal rutin pada Layar TV Display ([slideshow.html](file:///apps/masjidagung/public/display/slideshow.html), [grid.html](file:///apps/masjidagung/public/display/grid.html)), Halaman Utama Website ([home.php](file:///apps/masjidagung/app/Views/themes/default/home.php)), dan Dashboard Admin ([agenda/index.php](file:///apps/masjidagung/app/Views/dashboard/agenda/index.php)).
+- **Penyatuan Master Personil Shalat Jumat**: Mengintegrasikan seluruh data personil (dari pengurus, panitia, maupun personil umum) ke dalam pilihan pencarian Khatib, Imam, dan Muadzin dengan sinkronisasi otomatis relasi tabel `mst_imam_khatib`.
+- **Optimalisasi TV Display 1080p & Responsive Auto-Scale**: Menerapkan scaling canvas 1920x1080 berbasis CSS transform pada `display-core.js`, pengumuman 2 baris bersusun, pembesaran barcode QRIS (560px–580px) dengan pembacaan label pemilik rekening dinamis, serta rotasi tadabbur 2 ayat Al-Qur'an per putaran slideshow.
+
 ## [v0.4.15] - 2026-06-20
 ### ✨ Added
 - **Interactive Presentation Proposal**: Menambahkan proposal digitalisasi manajemen masjid interaktif bertema mewah (deep-emerald & gold) di [public/presentasi/index.html](file:///apps/masjidagung/public/presentasi/index.html) untuk diajukan pada rapat pengurus.

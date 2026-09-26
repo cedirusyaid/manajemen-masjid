@@ -20,9 +20,7 @@ class DisplayController extends ResourceController
 
         // 2. Fetch Active Agenda via AgendaModel & Published Pengumuman via BeritaModel
         $agendaModel = new AgendaModel();
-        $agenda      = $agendaModel->where('tanggal >=', date('Y-m-d'))
-            ->orderBy('tanggal', 'ASC')
-            ->findAll(5);
+        $agenda      = $agendaModel->getAgendaTerdekat(5);
 
         $beritaModel = new \App\Models\BeritaModel();
         $pengumuman  = $beritaModel->where('status', 'published')
@@ -122,6 +120,10 @@ class DisplayController extends ResourceController
         // 5. Fetch Active Donation Channels via RekeningModel
         $rekeningModel = new \App\Models\RekeningModel();
         $donasiList    = $rekeningModel->getActiveChannels();
+        foreach ($donasiList as &$rek) {
+            $rek['logo_url'] = !empty($rek['logo']) ? base_url('uploads/rekening/' . $rek['logo']) : null;
+        }
+        unset($rek);
 
         $appConfig = config('App');
 

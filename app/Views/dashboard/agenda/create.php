@@ -416,19 +416,67 @@
                         <small class="text-muted mt-1 d-block">Isi nama penceramah di sini jika merupakan ustadz tamu yang tidak masuk Master Personel.</small>
                     </div>
 
-                    <!-- Tanggal & Waktu -->
-                    <div class="col-md-3">
+                    <!-- Format Penjadwalan: Sekali Acara vs Rutin Bulanan -->
+                    <div class="col-md-12">
+                        <label class="form-label mb-2 fw-bold"><i class="fa-solid fa-clock-rotate-left text-success me-1"></i> Format Penjadwalan <span class="text-danger">*</span></label>
+                        <div class="d-flex flex-wrap gap-4 p-3 bg-light rounded-3 border">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipe_jadwal" id="tipe_sekali" value="sekali" <?= old('tipe_jadwal', 'sekali') === 'sekali' ? 'checked' : '' ?> onchange="toggleJadwalType()">
+                                <label class="form-check-label fw-bold text-dark cursor-pointer" for="tipe_sekali">
+                                    <i class="fa-solid fa-calendar-day me-1 text-primary"></i> Sekali Acara / Insidental (Pilih 1 Tanggal Tertentu)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipe_jadwal" id="tipe_rutin" value="rutin" <?= old('tipe_jadwal') === 'rutin' ? 'checked' : '' ?> onchange="toggleJadwalType()">
+                                <label class="form-check-label fw-bold text-dark cursor-pointer" for="tipe_rutin">
+                                    <i class="fa-solid fa-arrows-rotate me-1 text-success"></i> Rutin Bulanan (Otomatis Kalender: Contoh Pekan Ke-1 & Ke-3)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kolom Khusus Sekali Acara -->
+                    <div class="col-md-3" id="wrapper_tanggal_sekali">
                         <label for="tanggal" class="form-label mb-2">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control <?= ($validation->hasError('tanggal')) ? 'is-invalid' : '' ?>" id="tanggal" name="tanggal" value="<?= old('tanggal') ?>" required>
+                        <input type="date" class="form-control <?= ($validation->hasError('tanggal')) ? 'is-invalid' : '' ?>" id="tanggal" name="tanggal" value="<?= old('tanggal') ?>">
                         <div class="invalid-feedback"><?= $validation->getError('tanggal') ?></div>
                     </div>
 
+                    <!-- Kolom Khusus Rutin: Pilihan Hari & Pilihan Pekan -->
+                    <div class="col-md-3 d-none" id="wrapper_hari_rutin">
+                        <label for="hari_rutin" class="form-label mb-2">Hari Pengajian <span class="text-danger">*</span></label>
+                        <select class="form-select" id="hari_rutin" name="hari_rutin">
+                            <option value="ahad" <?= old('hari_rutin') === 'ahad' ? 'selected' : '' ?>>Ahad (Minggu)</option>
+                            <option value="senin" <?= old('hari_rutin') === 'senin' ? 'selected' : '' ?>>Senin</option>
+                            <option value="selasa" <?= old('hari_rutin') === 'selasa' ? 'selected' : '' ?>>Selasa</option>
+                            <option value="rabu" <?= old('hari_rutin') === 'rabu' ? 'selected' : '' ?>>Rabu</option>
+                            <option value="kamis" <?= old('hari_rutin') === 'kamis' ? 'selected' : '' ?>>Kamis</option>
+                            <option value="jumat" <?= old('hari_rutin') === 'jumat' ? 'selected' : '' ?>>Jumat</option>
+                            <option value="sabtu" <?= old('hari_rutin') === 'sabtu' ? 'selected' : '' ?>>Sabtu</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 d-none" id="wrapper_pekan_rutin">
+                        <label for="pekan_rutin" class="form-label mb-2">Pekan Penyelenggaraan <span class="text-danger">*</span></label>
+                        <select class="form-select" id="pekan_rutin" name="pekan_rutin">
+                            <option value="1,3" <?= old('pekan_rutin', '1,3') === '1,3' ? 'selected' : '' ?>>Pekan Ke-1 & Ke-3 (Setiap Bulan)</option>
+                            <option value="2,4" <?= old('pekan_rutin') === '2,4' ? 'selected' : '' ?>>Pekan Ke-2 & Ke-4 (Setiap Bulan)</option>
+                            <option value="1" <?= old('pekan_rutin') === '1' ? 'selected' : '' ?>>Pekan Ke-1 Saja</option>
+                            <option value="2" <?= old('pekan_rutin') === '2' ? 'selected' : '' ?>>Pekan Ke-2 Saja</option>
+                            <option value="3" <?= old('pekan_rutin') === '3' ? 'selected' : '' ?>>Pekan Ke-3 Saja</option>
+                            <option value="4" <?= old('pekan_rutin') === '4' ? 'selected' : '' ?>>Pekan Ke-4 Saja</option>
+                            <option value="setiap_pekan" <?= old('pekan_rutin') === 'setiap_pekan' ? 'selected' : '' ?>>Setiap Pekan (Mingguan)</option>
+                        </select>
+                    </div>
+
+                    <!-- Waktu Mulai -->
                     <div class="col-md-3">
                         <label for="waktu" class="form-label mb-2">Waktu Mulai <span class="text-danger">*</span></label>
                         <input type="time" class="form-control <?= ($validation->hasError('waktu')) ? 'is-invalid' : '' ?>" id="waktu" name="waktu" value="<?= old('waktu') ?>" required>
                         <div class="invalid-feedback"><?= $validation->getError('waktu') ?></div>
                     </div>
 
+                    <!-- Lokasi -->
                     <div class="col-md-3">
                         <label for="lokasi" class="form-label mb-2">Lokasi Pengajian</label>
                         <input type="text" class="form-control <?= ($validation->hasError('lokasi')) ? 'is-invalid' : '' ?>" id="lokasi" name="lokasi" value="<?= old('lokasi', site_name()) ?>" placeholder="Contoh: Ruang Utama Masjid">
@@ -436,10 +484,10 @@
                     </div>
 
                     <!-- Hubungkan ke Kegiatan -->
-                    <div class="col-md-3">
-                        <label for="kegiatan_id" class="form-label mb-2">Hubungkan ke Kegiatan</label>
+                    <div class="col-md-12">
+                        <label for="kegiatan_id" class="form-label mb-2">Hubungkan ke Program / Kegiatan Masjid</label>
                         <select class="form-select <?= ($validation->hasError('kegiatan_id')) ? 'is-invalid' : '' ?>" id="kegiatan_id" name="kegiatan_id">
-                            <option value="">-- Bukan Kegiatan (Umum) --</option>
+                            <option value="">-- Bukan Kegiatan Khusus (Agenda Umum) --</option>
                             <?php foreach ($kegiatan_list as $keg) : ?>
                                 <option value="<?= esc($keg['id']) ?>" <?= old('kegiatan_id', $selected_kegiatan_id ?? '') == $keg['id'] ? 'selected' : '' ?>>
                                     <?= esc($keg['nama_kegiatan']) ?>
@@ -489,7 +537,24 @@
     </main>
 
     <script>
+        function toggleJadwalType() {
+            const isRutin = document.getElementById('tipe_rutin').checked;
+            if (isRutin) {
+                $('#wrapper_tanggal_sekali').addClass('d-none');
+                $('#wrapper_hari_rutin').removeClass('d-none');
+                $('#wrapper_pekan_rutin').removeClass('d-none');
+                $('#tanggal').removeAttr('required');
+            } else {
+                $('#wrapper_tanggal_sekali').removeClass('d-none');
+                $('#wrapper_hari_rutin').addClass('d-none');
+                $('#wrapper_pekan_rutin').addClass('d-none');
+                $('#tanggal').attr('required', 'required');
+            }
+        }
+
         $(document).ready(function() {
+            toggleJadwalType();
+
             // Aktifkan Summernote WYSIWYG editor
             $('#deskripsi').summernote({
                 placeholder: 'Tuliskan deskripsi lengkap, rincian jadwal, atau sub-tema materi kajian di sini...',

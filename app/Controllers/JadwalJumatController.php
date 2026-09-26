@@ -49,24 +49,17 @@ class JadwalJumatController extends BaseController
             return $redirect;
         }
 
-        // Ambil data khatib, imam, dan muadzin untuk pilihan dropdown
-        $allPetugas  = $this->imamKhatibModel->getPetugasWithPersonil();
-        $khatibList  = $this->imamKhatibModel->getPetugasWithPersonil(['khatib', 'imam_khatib', 'imam']);
-        $imamList    = $this->imamKhatibModel->getPetugasWithPersonil(['imam', 'imam_khatib', 'khatib']);
-        $muadzinList = $this->imamKhatibModel->getPetugasWithPersonil(['muadzin', 'imam', 'khatib', 'imam_khatib']);
-
-        // Fallback jika salah satu filter kosong, gunakan seluruh petugas
-        if (empty($khatibList))  $khatibList  = $allPetugas;
-        if (empty($imamList))    $imamList    = $allPetugas;
-        if (empty($muadzinList)) $muadzinList = $allPetugas;
+        // Ambil seluruh personil/petugas masjid tanpa pemisahan peran
+        $petugasList = $this->imamKhatibModel->getAllPetugasUnified();
 
         return view('dashboard/jadwal_jumat/create', [
             'username'     => $this->session->get('username'),
             'role_name'    => $this->session->get('role_name'),
             'avatar'       => $this->session->get('avatar'),
-            'khatib_list'  => $khatibList,
-            'imam_list'    => $imamList,
-            'muadzin_list' => $muadzinList,
+            'petugas_list' => $petugasList,
+            'khatib_list'  => $petugasList,
+            'imam_list'    => $petugasList,
+            'muadzin_list' => $petugasList,
             'validation'   => \Config\Services::validation()
         ]);
     }
@@ -139,25 +132,18 @@ class JadwalJumatController extends BaseController
             return redirect()->to('/dashboard/jadwal-jumat')->with('error', 'Data jadwal tidak ditemukan.');
         }
 
-        // Ambil data khatib, imam, dan muadzin untuk pilihan dropdown
-        $allPetugas  = $this->imamKhatibModel->getPetugasWithPersonil();
-        $khatibList  = $this->imamKhatibModel->getPetugasWithPersonil(['khatib', 'imam_khatib', 'imam']);
-        $imamList    = $this->imamKhatibModel->getPetugasWithPersonil(['imam', 'imam_khatib', 'khatib']);
-        $muadzinList = $this->imamKhatibModel->getPetugasWithPersonil(['muadzin', 'imam', 'khatib', 'imam_khatib']);
-
-        // Fallback jika salah satu filter kosong, gunakan seluruh petugas
-        if (empty($khatibList))  $khatibList  = $allPetugas;
-        if (empty($imamList))    $imamList    = $allPetugas;
-        if (empty($muadzinList)) $muadzinList = $allPetugas;
+        // Ambil seluruh personil/petugas masjid tanpa pemisahan peran
+        $petugasList = $this->imamKhatibModel->getAllPetugasUnified();
 
         return view('dashboard/jadwal_jumat/edit', [
             'username'     => $this->session->get('username'),
             'role_name'    => $this->session->get('role_name'),
             'avatar'       => $this->session->get('avatar'),
             'jadwal'       => $jadwal,
-            'khatib_list'  => $khatibList,
-            'imam_list'    => $imamList,
-            'muadzin_list' => $muadzinList,
+            'petugas_list' => $petugasList,
+            'khatib_list'  => $petugasList,
+            'imam_list'    => $petugasList,
+            'muadzin_list' => $petugasList,
             'validation'   => \Config\Services::validation()
         ]);
     }

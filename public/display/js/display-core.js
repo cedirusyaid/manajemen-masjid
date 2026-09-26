@@ -327,8 +327,34 @@ async function fetchDisplayData(callback) {
   }
 }
 
-// 8. Core Initialization
+// 8. Auto-Scaling Engine for Any Screen Resolution (Baseline: 1920x1080)
+function applyDisplayAutoScale() {
+  const stage = document.getElementById('display-stage');
+  if (!stage) return;
+
+  const targetWidth = 1920;
+  const targetHeight = 1080;
+  const currentWidth = window.innerWidth || document.documentElement.clientWidth;
+  const currentHeight = window.innerHeight || document.documentElement.clientHeight;
+
+  if (currentWidth <= 0 || currentHeight <= 0) return;
+
+  const scaleX = currentWidth / targetWidth;
+  const scaleY = currentHeight / targetHeight;
+
+  // Fit resolution maintaining 16:9 aspect ratio
+  const scale = Math.min(scaleX, scaleY);
+
+  stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+window.addEventListener('resize', applyDisplayAutoScale);
+window.addEventListener('orientationchange', applyDisplayAutoScale);
+document.addEventListener('DOMContentLoaded', applyDisplayAutoScale);
+
+// 9. Core Initialization
 function initDisplayCore(dataRenderCallback) {
+  applyDisplayAutoScale();
   updateClock();
   setInterval(updateClock, 1000);
   setInterval(rotateTheme, 180000);
@@ -343,3 +369,4 @@ function initDisplayCore(dataRenderCallback) {
     navigator.wakeLock.request('screen').catch(() => {});
   }
 }
+

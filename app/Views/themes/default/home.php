@@ -587,6 +587,13 @@
                                 <?php endif; ?>
                             </div>
                             <div class="card-body p-4">
+                                <?php if (!empty($agenda['label_rutin'])) : ?>
+                                    <div class="mb-2">
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1 font-heading" style="font-size: 0.75rem;">
+                                            <i class="fa-solid fa-arrows-rotate me-1"></i> <?= esc($agenda['label_rutin']) ?>
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
                                 <h5 class="fw-bold text-dark font-heading mb-3" style="font-size: 1.15rem;"><?= esc($agenda['judul']) ?></h5>
                                 <ul class="list-unstyled mb-0 d-grid gap-2">
                                     <li class="d-flex align-items-start gap-2">
@@ -599,7 +606,7 @@
                                     <li class="d-flex align-items-start gap-2">
                                         <i class="fa-solid fa-calendar-day text-success fs-6 mt-1" style="width: 20px;"></i>
                                         <div>
-                                            <small class="text-muted d-block" style="font-size: 0.75rem;">Waktu Pelaksanaan</small>
+                                            <small class="text-muted d-block" style="font-size: 0.75rem;"><?= !empty($agenda['label_rutin']) ? 'Jadwal Terdekat' : 'Waktu Pelaksanaan' ?></small>
                                             <span class="text-dark" style="font-size: 0.9rem;"><?= esc(date('d/m/Y', strtotime($agenda['tanggal']))) ?> pukul <?= esc(date('H:i', strtotime($agenda['waktu']))) ?> WITA</span>
                                         </div>
                                     </li>
@@ -704,7 +711,13 @@
                                 $borderIdx++;
                         ?>
                             <div style="<?= $borderStyle ?>">
-                                <i class="fa-solid fa-building-columns text-warning fs-3 mb-2 d-block"></i>
+                                <?php if (!empty($rek['logo']) && is_file(FCPATH . 'uploads/rekening/' . $rek['logo'])): ?>
+                                    <div class="mb-2">
+                                        <img src="<?= base_url('uploads/rekening/' . $rek['logo']) ?>" alt="<?= esc($rek['nama_bank']) ?>" style="height: 32px; max-width: 85px; object-fit: contain; background: #fff; padding: 2px 6px; border-radius: 6px;">
+                                    </div>
+                                <?php else: ?>
+                                    <i class="fa-solid fa-building-columns text-warning fs-3 mb-2 d-block"></i>
+                                <?php endif; ?>
                                 <strong><?= esc($rek['nama_bank']) ?></strong><br>
                                 <span class="fs-5 font-heading"><?= esc($rek['nomor_rekening']) ?></span><br>
                                 <small class="opacity-75">a.n. <?= esc($rek['atas_nama']) ?></small>
@@ -730,38 +743,43 @@
                         <?php endif; ?>
                     </div>
                 </div>
-                <div class="col-lg-5 text-center">
+                <div class="col-lg-5 text-center mt-4 mt-lg-0">
+                    <div class="d-flex justify-content-center flex-wrap gap-3">
                     <?php
-                    $qrisChannel = null;
+                    $qrisChannels = [];
                     if (!empty($rekening_list)) {
                         foreach ($rekening_list as $rek) {
                             if ($rek['jenis'] === 'qris') {
-                                $qrisChannel = $rek;
-                                break;
+                                $qrisChannels[] = $rek;
                             }
                         }
                     }
                     
-                    // Fallback values
-                    $qrisImageUrl = qris_url();
-                    $qrisTitle = 'QRIS INFAK MASJID';
-                    
-                    if ($qrisChannel) {
-                        $qrisTitle = esc($qrisChannel['atas_nama']);
-                        if (!empty($qrisChannel['logo']) && is_file(FCPATH . 'uploads/rekening/' . $qrisChannel['logo'])) {
-                            // Jika ada file gambar QRIS di-upload oleh pengurus
-                            $qrisImageUrl = base_url('uploads/rekening/' . $qrisChannel['logo']);
-                        } else {
-                            // Dinamis generate dari string payload QRIS di database
-                            $payload = $qrisChannel['nomor_rekening'];
-                            $qrisImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" . urlencode($payload);
-                        }
-                    }
+                    if (!empty($qrisChannels)):
+                        foreach ($qrisChannels as $qrisChannel):
+                            $qrisTitle = esc($qrisChannel['atas_nama'] ?: 'QRIS INFAK ' . $qrisChannel['nama_bank']);
+                            if (!empty($qrisChannel['logo']) && is_file(FCPATH . 'uploads/rekening/' . $qrisChannel['logo'])) {
+                                $qrisImageUrl = base_url('uploads/rekening/' . $qrisChannel['logo']);
+                            } else {
+                                $payload = $qrisChannel['nomor_rekening'] ?: qris_data();
+                                $qrisImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" . urlencode($payload);
+                            }
                     ?>
-                    <div class="qris-card">
-                        <small class="text-muted fw-bold d-block mb-2 font-heading"><i class="fa-solid fa-qrcode me-1"></i> <?= esc($qrisTitle) ?></small>
-                        <img class="qris-img" src="<?= $qrisImageUrl ?>" alt="QRIS Infaq">
-                        <small class="text-muted d-block mt-2">Dukung Semua Aplikasi Dompet Digital</small>
+                        <div class="qris-card" style="max-width: 220px;">
+                            <small class="text-muted fw-bold d-block mb-2 font-heading" style="font-size: 0.85rem;"><i class="fa-solid fa-qrcode me-1"></i> <?= esc($qrisChannel['nama_bank']) ?> QRIS</small>
+                            <img class="qris-img" src="<?= $qrisImageUrl ?>" alt="QRIS <?= esc($qrisChannel['nama_bank']) ?>">
+                            <small class="text-muted d-block mt-2" style="font-size: 0.75rem;">a.n. <?= esc($qrisChannel['atas_nama']) ?></small>
+                        </div>
+                    <?php 
+                        endforeach;
+                    else: 
+                    ?>
+                        <div class="qris-card">
+                            <small class="text-muted fw-bold d-block mb-2 font-heading"><i class="fa-solid fa-qrcode me-1"></i> QRIS INFAK MASJID</small>
+                            <img class="qris-img" src="<?= qris_url() ?>" alt="QRIS Infaq">
+                            <small class="text-muted d-block mt-2">Dukung Semua Aplikasi Dompet Digital</small>
+                        </div>
+                    <?php endif; ?>
                     </div>
                 </div>
             </div>

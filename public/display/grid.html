@@ -16,57 +16,81 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: var(--bg-dark);
-      color: var(--text-white);
+    html, body {
+      width: 100vw;
       height: 100vh;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
+      background-color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    #display-stage {
+      width: 1920px;
+      height: 1080px;
+      min-width: 1920px;
+      min-height: 1080px;
+      max-width: 1920px;
+      max-height: 1080px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: center center;
+      transform: translate(-50%, -50%) scale(1);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: var(--text-white);
       transition: background-color 2.5s ease-in-out, color 2.5s ease-in-out;
+      box-sizing: border-box;
     }
 
     header {
       background: var(--card-bg);
-      padding: 20px 40px;
+      padding: 22px 50px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 3px solid var(--accent-cyan);
+      border-bottom: 4px solid var(--accent-cyan);
       transition: background-color 2.5s ease-in-out, border-color 2.5s ease-in-out;
     }
 
     .masjid-title {
-      font-size: 2.2rem;
+      font-size: 2.8rem;
       color: var(--accent-cyan);
-      font-weight: bold;
+      font-weight: 800;
+      letter-spacing: 0.5px;
       transition: color 2.5s ease-in-out;
     }
-    .masjid-sub { font-size: 1.1rem; color: #8892b0; }
+    .masjid-sub { font-size: 1.4rem; color: #8892b0; font-weight: 500; margin-top: 2px; }
 
     .clock-box { text-align: right; }
-    .clock-time { font-size: 3.2rem; font-weight: bold; color: var(--text-gold); font-family: monospace; }
-    .clock-date { font-size: 1.1rem; color: #8892b0; }
+    .clock-time { font-size: 4.2rem; font-weight: 900; color: var(--text-gold); font-family: 'Courier New', monospace; letter-spacing: 2px; line-height: 1; }
+    .clock-date { font-size: 1.4rem; color: #8892b0; font-weight: 500; margin-top: 4px; }
 
     /* Minimal Corner Buttons */
     .btn-blank-minimal {
-      position: fixed;
-      top: 15px;
-      right: 15px;
+      position: absolute;
+      top: 18px;
+      right: 18px;
       z-index: 10000;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: rgba(255, 255, 255, 0.4);
-      width: 38px;
-      height: 38px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
+      font-size: 1.1rem;
       transition: all 0.3s ease;
       backdrop-filter: blur(4px);
     }
@@ -80,22 +104,22 @@
 
     .btn-restore-minimal {
       position: absolute;
-      bottom: 25px;
-      right: 25px;
+      bottom: 30px;
+      right: 30px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.2);
       color: rgba(255, 255, 255, 0.5);
-      padding: 10px 20px;
-      border-radius: 25px;
-      font-size: 0.9rem;
+      padding: 12px 26px;
+      border-radius: 30px;
+      font-size: 1.15rem;
       font-weight: 600;
       cursor: pointer;
       backdrop-filter: blur(8px);
       transition: all 0.3s ease;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
 
     .btn-restore-minimal:hover {
@@ -107,36 +131,41 @@
 
     main {
       flex: 1;
-      padding: 20px 40px;
+      padding: 24px 45px;
       display: grid;
       grid-template-columns: 2fr 1fr;
-      gap: 20px;
+      gap: 25px;
     }
 
     .card {
       background: var(--card-bg);
-      border-radius: 12px;
-      padding: 25px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 18px;
+      padding: 30px 35px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
       transition: background-color 2.5s ease-in-out;
+      overflow-y: auto;
     }
 
     .card h2 {
       color: var(--accent-cyan);
-      margin-bottom: 15px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding-bottom: 8px;
+      font-size: 2.0rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      border-bottom: 2px solid rgba(255,255,255,0.1);
+      padding-bottom: 12px;
       transition: color 2.5s ease-in-out;
     }
 
     footer {
       background: #000;
       color: #fff;
-      padding: 12px 0;
+      padding: 16px 0;
       overflow: hidden;
       white-space: nowrap;
-      font-size: 1.3rem;
-      border-top: 2px solid var(--accent-cyan);
+      font-size: 1.75rem;
+      font-weight: 600;
+      border-top: 3px solid var(--accent-cyan);
       transition: border-color 2.5s ease-in-out;
     }
 
@@ -153,33 +182,40 @@
   </style>
 </head>
 <body>
+  <div id="display-stage">
+    <header>
+      <div>
+        <div class="masjid-title" id="disp-nama-masjid">MASJID AGUNG NUJUMUL ITTIHAD</div>
+        <div class="masjid-sub" id="disp-alamat-masjid">Kabupaten Sinjai</div>
+      </div>
+      <div class="clock-box">
+        <div class="clock-time" id="disp-clock">00:00</div>
+        <div class="clock-date" id="disp-date">Memuat Tanggal...</div>
+      </div>
+    </header>
 
-  <header>
-    <div>
-      <div class="masjid-title" id="disp-nama-masjid">MASJID AGUNG NUJUMUL ITTIHAD</div>
-      <div class="masjid-sub" id="disp-alamat-masjid">Kabupaten Sinjai</div>
-    </div>
-    <div class="clock-box">
-      <div class="clock-time" id="disp-clock">00:00</div>
-      <div class="clock-date" id="disp-date">Memuat Tanggal...</div>
-    </div>
-  </header>
+    <!-- Tombol Minimalis Layar Blank (Sudut Kanan Atas) -->
+    <button type="button" class="btn-blank-minimal" onclick="toggleManualBlank()" title="Matikan Layar Sementara (Blank)">
+      <i class="fa-solid fa-moon"></i>
+    </button>
 
-  <!-- Tombol Minimalis Layar Blank (Sudut Kanan Atas) -->
-  <button type="button" class="btn-blank-minimal" onclick="toggleManualBlank()" title="Matikan Layar Sementara (Blank)">
-    <i class="fa-solid fa-moon"></i>
-  </button>
+    <main>
+      <div class="card">
+        <h2>📢 PENGUMUMAN & AGENDA</h2>
+        <div id="disp-agenda-content" style="font-size: 1.35rem; line-height: 1.6;">Memuat agenda masjid...</div>
+      </div>
+      <div class="card">
+        <h2>🕌 PELAKSANA IBADAH SHALAT JUMAT</h2>
+        <div id="disp-jumat-content" style="font-size: 1.45rem; line-height: 1.7;">Memuat jadwal Jumat...</div>
+      </div>
+    </main>
 
-  <main>
-    <div class="card">
-      <h2>PENGUMUMAN & AGENDA</h2>
-      <div id="disp-agenda-content">Memuat agenda masjid...</div>
-    </div>
-    <div class="card">
-      <h2>PELAKSANA IBADAH SHALAT JUMAT</h2>
-      <div id="disp-jumat-content">Memuat jadwal Jumat...</div>
-    </div>
-  </main>
+    <footer>
+      <div class="marquee" id="disp-running-text">
+        Selamat Datang di Masjid Agung Nujumul Ittihad Sinjai. Mohon menonaktifkan suara HP saat di dalam masjid.
+      </div>
+    </footer>
+  </div>
 
   <!-- OVERLAY PURE BLANK SCREEN (GELAP TOTAL) -->
   <div id="prayer-overlay" onclick="restoreDisplay()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; cursor: pointer;">
@@ -188,12 +224,6 @@
       <i class="fa-solid fa-tv"></i> Tampilkan Display
     </button>
   </div>
-
-  <footer>
-    <div class="marquee" id="disp-running-text">
-      Selamat Datang di Masjid Agung Nujumul Ittihad Sinjai. Mohon menonaktifkan suara HP saat di dalam masjid.
-    </div>
-  </footer>
 
   <script src="js/display-core.js"></script>
   <script>
@@ -204,17 +234,22 @@
       // Render Petugas Jumat
       if (d.jadwal_jumat) {
         const muadzinHtml = (d.jadwal_jumat.muadzin && d.jadwal_jumat.muadzin !== '-') 
-          ? `<p style="margin-bottom: 6px;"><strong>Muadzin:</strong> ${d.jadwal_jumat.muadzin}</p>` 
+          ? `<p style="margin-bottom: 10px; font-size: 1.4rem;"><strong style="color: var(--accent-cyan);">Muadzin:</strong> ${d.jadwal_jumat.muadzin}</p>` 
           : '';
 
         const khotbahHtml = (d.jadwal_jumat.judul_khotbah && d.jadwal_jumat.judul_khotbah !== '-') 
-          ? `<p style="margin-top: 10px; font-style: italic; color: var(--text-gold);">"${d.jadwal_jumat.judul_khotbah}"</p>` 
+          ? `<div style="background: rgba(255, 209, 102, 0.08); border: 1.5px dashed var(--text-gold); border-radius: 12px; padding: 14px 18px; margin-top: 14px;">
+              <small style="color: #8892b0; font-size: 1.05rem; text-transform: uppercase; font-weight: 700;">Judul Khotbah</small>
+              <p style="margin-top: 4px; font-style: italic; color: var(--text-gold); font-size: 1.45rem; font-weight: 800;">"${d.jadwal_jumat.judul_khotbah}"</p>
+            </div>` 
           : '';
 
         document.getElementById('disp-jumat-content').innerHTML = `
-          <p style="margin-bottom: 8px;"><strong>Tanggal:</strong> ${formatIndoDate(d.jadwal_jumat.tanggal)}</p>
-          <p style="margin-bottom: 6px;"><strong>Khatib:</strong> ${d.jadwal_jumat.khatib && d.jadwal_jumat.khatib !== '-' ? d.jadwal_jumat.khatib : '-'}</p>
-          <p style="margin-bottom: 6px;"><strong>Imam:</strong> ${d.jadwal_jumat.imam && d.jadwal_jumat.imam !== '-' ? d.jadwal_jumat.imam : '-'}</p>
+          <div style="background: rgba(100, 255, 218, 0.12); color: var(--accent-cyan); padding: 6px 18px; border-radius: 20px; font-size: 1.25rem; font-weight: 800; display: inline-block; margin-bottom: 16px; border: 1px solid var(--accent-cyan);">
+            🗓️ ${formatIndoDate(d.jadwal_jumat.tanggal)}
+          </div>
+          <p style="margin-bottom: 10px; font-size: 1.45rem;"><strong style="color: var(--accent-cyan);">Khatib:</strong> ${d.jadwal_jumat.khatib && d.jadwal_jumat.khatib !== '-' ? d.jadwal_jumat.khatib : '-'}</p>
+          <p style="margin-bottom: 10px; font-size: 1.45rem;"><strong style="color: var(--accent-cyan);">Imam:</strong> ${d.jadwal_jumat.imam && d.jadwal_jumat.imam !== '-' ? d.jadwal_jumat.imam : '-'}</p>
           ${muadzinHtml}
           ${khotbahHtml}
         `;
@@ -226,23 +261,25 @@
       let contentHtml = '';
       
       if (d.pengumuman && d.pengumuman.length > 0) {
-        contentHtml += '<div style="margin-bottom: 15px;"><strong style="color: var(--accent-cyan); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">📢 Pengumuman Masjid</strong><ul style="list-style: none; margin-top: 6px;">';
+        contentHtml += '<div style="margin-bottom: 20px;"><strong style="color: var(--accent-cyan); font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.5px;">📢 Pengumuman Masjid</strong><ul style="list-style: none; margin-top: 10px;">';
         d.pengumuman.forEach(p => {
           const ringkasan = p.konten ? p.konten.replace(/<[^>]*>/g, '') : '';
-          contentHtml += `<li style="margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 6px;">
-            <strong style="color: var(--text-gold); font-size: 0.95rem;">${p.judul}</strong><br>
-            <small style="color: #8892b0; display: inline-block; margin-top: 2px;">${ringkasan}</small>
+          contentHtml += `<li style="margin-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 10px;">
+            <strong style="color: var(--text-gold); font-size: 1.45rem;">${p.judul}</strong><br>
+            <div style="color: #cbd5e1; font-size: 1.25rem; line-height: 1.6; margin-top: 4px;">${ringkasan}</div>
           </li>`;
         });
         contentHtml += '</ul></div>';
       }
 
       if (d.agenda && d.agenda.length > 0) {
-        contentHtml += '<div><strong style="color: var(--accent-cyan); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">📅 Agenda Mendatang</strong><ul style="list-style: none; margin-top: 6px;">';
+        contentHtml += '<div><strong style="color: var(--accent-cyan); font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.5px;">📅 Agenda Mendatang</strong><ul style="list-style: none; margin-top: 10px;">';
         d.agenda.forEach(item => {
-          contentHtml += `<li style="margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 6px;">
-            <strong style="color: var(--text-gold); font-size: 0.95rem;">${item.judul}</strong><br>
-            <small style="color: #8892b0; display: inline-block; margin-top: 2px;">📅 ${formatIndoDate(item.tanggal)} | ⏰ ${formatTimeShort(item.waktu)} | 📍 ${item.lokasi || 'Masjid'}</small>
+          const rutinTag = item.label_rutin ? `<span style="color: var(--accent-cyan); font-size: 1.15rem; font-weight: 700; margin-left: 8px;">[🔄 ${item.label_rutin}]</span>` : '';
+          const tglTxt = item.label_rutin ? `⏳ Terdekat: ${formatIndoDate(item.tanggal)}` : `📅 ${formatIndoDate(item.tanggal)}`;
+          contentHtml += `<li style="margin-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 10px;">
+            <strong style="color: var(--text-gold); font-size: 1.45rem;">${item.judul}</strong> ${rutinTag}<br>
+            <div style="color: #8892b0; font-size: 1.25rem; margin-top: 4px;">${tglTxt} | ⏰ ${formatTimeShort(item.waktu)} WITA | 📍 ${item.lokasi || 'Masjid'}</div>
           </li>`;
         });
         contentHtml += '</ul></div>';

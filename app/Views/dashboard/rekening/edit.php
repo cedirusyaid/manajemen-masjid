@@ -424,30 +424,38 @@
                         <?php endif; ?>
                     </div>
 
-                    <!-- Logo Bank / Barcode QRIS Saat Ini -->
-                    <div class="col-md-6 d-flex flex-column gap-2">
-                        <label class="form-label">Logo / QRIS Saat Ini</label>
-                        <?php if (!empty($rekening['logo']) && is_file(FCPATH . 'uploads/rekening/' . $rekening['logo'])) : ?>
-                            <img src="<?= base_url('uploads/rekening/' . $rekening['logo']) ?>" class="current-logo" alt="Logo">
-                        <?php else : ?>
-                            <div class="current-logo d-flex align-items-center justify-content-center bg-light text-muted">
-                                <i class="fa-solid <?= $rekening['jenis'] === 'qris' ? 'fa-qrcode' : 'fa-building-columns' ?> fs-1"></i>
+                    <!-- Logo Bank / Barcode QRIS Saat Ini & Preview Ganti -->
+                    <div class="col-md-6">
+                        <label class="form-label d-block" id="label_current_logo">Gambar / QRIS Saat Ini</label>
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
+                            <div id="current_logo_wrapper">
+                                <?php if (!empty($rekening['logo']) && is_file(FCPATH . 'uploads/rekening/' . $rekening['logo'])) : ?>
+                                    <img src="<?= base_url('uploads/rekening/' . $rekening['logo']) ?>" class="current-logo" id="current_logo_img" alt="Logo/QRIS">
+                                <?php else : ?>
+                                    <div class="current-logo d-flex align-items-center justify-content-center bg-white text-muted" id="current_logo_img">
+                                        <i class="fa-solid <?= $rekening['jenis'] === 'qris' ? 'fa-qrcode' : 'fa-building-columns' ?> fs-1"></i>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                        <?php endif; ?>
+                            <div>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle mb-1" id="badge_preview_status">File Tersimpan</span>
+                                <p class="text-muted small mb-0" id="desc_current_logo">Gambar barcode QRIS atau logo yang sedang aktif digunakan.</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Upload Logo Bank / Barcode QRIS Baru -->
-                    <div class="col-md-6 align-self-end">
-                        <label for="logo" class="form-label" id="label_logo">Ganti Gambar/Logo (Opsional)</label>
+                    <div class="col-md-6">
+                        <label for="logo" class="form-label" id="label_logo"><i class="fa-solid fa-arrow-up-from-bracket me-1"></i>Ganti QR Code / Logo Baru</label>
                         <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
-                        <small class="text-muted d-block mt-1" id="help_logo">Format gambar JPEG, PNG, atau WebP (Maks 2MB). Sistem otomatis mengonversi ke format WebP.</small>
+                        <small class="text-muted d-block mt-1" id="help_logo">Format gambar JPEG, PNG, atau WebP (Maks 2MB). Pilih file untuk mengganti QR Code / Logo saat ini.</small>
                     </div>
 
                     <!-- Status -->
                     <div class="col-md-6">
                         <label for="status" class="form-label">Status Aktif</label>
                         <select class="form-select" id="status" name="status" required>
-                            <option value="active" <?= old('status', $rekening['status']) === 'active' ? 'selected' : '' ?>>Aktif (Tampil di Depan)</option>
+                            <option value="active" <?= old('status', $rekening['status']) === 'active' ? 'selected' : '' ?>>Aktif (Tampil di Depan & TV)</option>
                             <option value="inactive" <?= old('status', $rekening['status']) === 'inactive' ? 'selected' : '' ?>>Nonaktif (Disembunyikan)</option>
                         </select>
                     </div>
@@ -469,7 +477,7 @@
     <!-- Bootstrap 5.3 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Dynamic Form Fields Helper JS -->
+    <!-- Dynamic Form Fields & Image Preview Helper JS -->
     <script>
         const jenisSelect = document.getElementById('jenis');
         const labelNoRek = document.getElementById('label_no_rek');
@@ -477,21 +485,45 @@
         const nomorRekeningInput = document.getElementById('nomor_rekening');
         const labelLogo = document.getElementById('label_logo');
         const helpLogo = document.getElementById('help_logo');
+        const labelCurrentLogo = document.getElementById('label_current_logo');
+        const logoInput = document.getElementById('logo');
+        const currentLogoWrapper = document.getElementById('current_logo_wrapper');
+        const badgePreviewStatus = document.getElementById('badge_preview_status');
+        const descCurrentLogo = document.getElementById('desc_current_logo');
 
         function adjustFormFields() {
             if (jenisSelect.value === 'qris') {
-                labelNoRek.innerText = 'Payload / Teks String QRIS (Opsional jika upload gambar)';
+                labelNoRek.innerText = 'Payload / Teks String QRIS (Opsional jika upload barcode)';
                 nomorRekeningInput.placeholder = 'Contoh: MasjidAgungSinjaiInfaqDigital';
-                helpNoRek.innerText = 'Teks payload QRIS resmi (misal format string QRIS) untuk auto-generate QR Code dinamis.';
-                labelLogo.innerText = 'Ganti Barcode/Gambar QRIS (Opsional)';
-                helpLogo.innerText = 'Unggah gambar QRIS baru. Sistem otomatis mengonversi ke format WebP.';
+                helpNoRek.innerText = 'Teks payload QRIS resmi untuk auto-generate QR Code jika gambar tidak diupload.';
+                labelCurrentLogo.innerHTML = '<i class="fa-solid fa-qrcode me-1 text-success"></i>Barcode QRIS Saat Ini';
+                labelLogo.innerHTML = '<i class="fa-solid fa-cloud-arrow-up me-1 text-success"></i>Ganti Barcode QRIS Baru (Upload Gambar)';
+                helpLogo.innerText = 'Pilih file gambar QR Code baru dari galeri/komputer (JPG, PNG, WebP). Akan otomatis dioptimasi.';
             } else {
                 labelNoRek.innerText = 'Nomor Rekening';
                 nomorRekeningInput.placeholder = 'Masukkan nomor rekening bank';
                 helpNoRek.innerText = 'Nomor rekening tanpa spasi atau tanda hubung.';
-                labelLogo.innerText = 'Ganti Logo Bank (Opsional)';
-                helpLogo.innerText = 'Format gambar JPEG, PNG, atau WebP (Maks 2MB). Sistem otomatis mengonversi ke format WebP.';
+                labelCurrentLogo.innerHTML = '<i class="fa-solid fa-building-columns me-1 text-success"></i>Logo Bank Saat Ini';
+                labelLogo.innerHTML = '<i class="fa-solid fa-cloud-arrow-up me-1 text-success"></i>Ganti Logo Bank Baru (Opsional)';
+                helpLogo.innerText = 'Pilih file logo bank baru jika ingin mengganti logo lama.';
             }
+        }
+
+        // Live preview when file selected
+        if (logoInput) {
+            logoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        currentLogoWrapper.innerHTML = '<img src="' + event.target.result + '" class="current-logo border-primary" style="box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);" alt="Preview">';
+                        badgePreviewStatus.className = 'badge bg-primary text-white mb-1';
+                        badgePreviewStatus.innerText = 'Pratinjau Gambar Baru';
+                        descCurrentLogo.innerText = 'File baru dipilih: ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB). Klik Simpan untuk menerapkan.';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
         }
 
         jenisSelect.addEventListener('change', adjustFormFields);

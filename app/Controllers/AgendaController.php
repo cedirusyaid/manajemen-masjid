@@ -74,11 +74,16 @@ class AgendaController extends BaseController
             return $redirect;
         }
 
+        $tipeJadwal = $this->request->getPost('tipe_jadwal') ?: 'sekali';
+
         $rules = [
             'kegiatan_id'   => 'permit_empty|max_length[36]',
+            'tipe_jadwal'   => 'permit_empty|in_list[sekali,rutin]',
+            'hari_rutin'    => 'permit_empty|max_length[20]',
+            'pekan_rutin'   => 'permit_empty|max_length[50]',
             'judul'         => 'required|min_length[5]|max_length[255]',
             'deskripsi'     => 'required',
-            'tanggal'       => 'required|valid_date[Y-m-d]',
+            'tanggal'       => ($tipeJadwal === 'rutin') ? 'permit_empty' : 'required|valid_date[Y-m-d]',
             'waktu'         => 'required',
             'lokasi'        => 'permit_empty|max_length[255]',
             'narasumber_id' => 'permit_empty',
@@ -129,12 +134,22 @@ class AgendaController extends BaseController
 
         $kegiatanId = $this->request->getPost('kegiatan_id');
         $redirectKegiatanId = $this->request->getPost('redirect_kegiatan_id');
+        $hariRutin = ($tipeJadwal === 'rutin') ? $this->request->getPost('hari_rutin') : null;
+        $pekanRutin = ($tipeJadwal === 'rutin') ? $this->request->getPost('pekan_rutin') : null;
+        $tanggal = $this->request->getPost('tanggal');
+
+        if ($tipeJadwal === 'rutin' && !empty($hariRutin)) {
+            $tanggal = \App\Models\AgendaModel::getNextRecurringDate($hariRutin, $pekanRutin);
+        }
 
         $data = [
             'kegiatan_id'   => !empty($kegiatanId) ? $kegiatanId : null,
+            'tipe_jadwal'   => $tipeJadwal,
+            'hari_rutin'    => $hariRutin,
+            'pekan_rutin'   => $pekanRutin,
             'judul'         => $this->request->getPost('judul'),
             'deskripsi'     => $this->request->getPost('deskripsi'),
-            'tanggal'       => $this->request->getPost('tanggal'),
+            'tanggal'       => $tanggal,
             'waktu'         => $this->request->getPost('waktu'),
             'lokasi'        => $this->request->getPost('lokasi') ?: site_name(),
             'narasumber_id' => $this->request->getPost('narasumber_id') ?: null,
@@ -208,11 +223,16 @@ class AgendaController extends BaseController
             return redirect()->to('/dashboard/agenda')->with('error', 'Data agenda tidak ditemukan.');
         }
 
+        $tipeJadwal = $this->request->getPost('tipe_jadwal') ?: 'sekali';
+
         $rules = [
             'kegiatan_id'   => 'permit_empty|max_length[36]',
+            'tipe_jadwal'   => 'permit_empty|in_list[sekali,rutin]',
+            'hari_rutin'    => 'permit_empty|max_length[20]',
+            'pekan_rutin'   => 'permit_empty|max_length[50]',
             'judul'         => 'required|min_length[5]|max_length[255]',
             'deskripsi'     => 'required',
-            'tanggal'       => 'required|valid_date[Y-m-d]',
+            'tanggal'       => ($tipeJadwal === 'rutin') ? 'permit_empty' : 'required|valid_date[Y-m-d]',
             'waktu'         => 'required',
             'lokasi'        => 'permit_empty|max_length[255]',
             'narasumber_id' => 'permit_empty',
@@ -268,12 +288,22 @@ class AgendaController extends BaseController
 
         $kegiatanId = $this->request->getPost('kegiatan_id');
         $redirectKegiatanId = $this->request->getPost('redirect_kegiatan_id');
+        $hariRutin = ($tipeJadwal === 'rutin') ? $this->request->getPost('hari_rutin') : null;
+        $pekanRutin = ($tipeJadwal === 'rutin') ? $this->request->getPost('pekan_rutin') : null;
+        $tanggal = $this->request->getPost('tanggal');
+
+        if ($tipeJadwal === 'rutin' && !empty($hariRutin)) {
+            $tanggal = \App\Models\AgendaModel::getNextRecurringDate($hariRutin, $pekanRutin);
+        }
 
         $data = [
             'kegiatan_id'   => !empty($kegiatanId) ? $kegiatanId : null,
+            'tipe_jadwal'   => $tipeJadwal,
+            'hari_rutin'    => $hariRutin,
+            'pekan_rutin'   => $pekanRutin,
             'judul'         => $this->request->getPost('judul'),
             'deskripsi'     => $this->request->getPost('deskripsi'),
-            'tanggal'       => $this->request->getPost('tanggal'),
+            'tanggal'       => $tanggal,
             'waktu'         => $this->request->getPost('waktu'),
             'lokasi'        => $this->request->getPost('lokasi') ?: site_name(),
             'narasumber_id' => $this->request->getPost('narasumber_id') ?: null,

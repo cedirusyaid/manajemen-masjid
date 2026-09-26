@@ -21,57 +21,81 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: var(--bg-dark);
-      color: var(--text-white);
+    html, body {
+      width: 100vw;
       height: 100vh;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
+      background-color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    #display-stage {
+      width: 1920px;
+      height: 1080px;
+      min-width: 1920px;
+      min-height: 1080px;
+      max-width: 1920px;
+      max-height: 1080px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: center center;
+      transform: translate(-50%, -50%) scale(1);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: var(--text-white);
       transition: background-color 2.5s ease-in-out, color 2.5s ease-in-out;
+      box-sizing: border-box;
     }
 
     header {
       background: var(--card-bg);
-      padding: 20px 40px;
+      padding: 22px 50px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 3px solid var(--accent-cyan);
+      border-bottom: 4px solid var(--accent-cyan);
       transition: background-color 2.5s ease-in-out, border-color 2.5s ease-in-out;
     }
 
     .masjid-title {
-      font-size: 2.2rem;
+      font-size: 2.8rem;
       color: var(--accent-cyan);
-      font-weight: bold;
+      font-weight: 800;
+      letter-spacing: 0.5px;
       transition: color 2.5s ease-in-out;
     }
-    .masjid-sub { font-size: 1.1rem; color: #8892b0; }
+    .masjid-sub { font-size: 1.4rem; color: #8892b0; font-weight: 500; margin-top: 2px; }
 
     .clock-box { text-align: right; }
-    .clock-time { font-size: 3.2rem; font-weight: bold; color: var(--text-gold); font-family: monospace; }
-    .clock-date { font-size: 1.1rem; color: #8892b0; }
+    .clock-time { font-size: 4.2rem; font-weight: 900; color: var(--text-gold); font-family: 'Courier New', monospace; letter-spacing: 2px; line-height: 1; }
+    .clock-date { font-size: 1.4rem; color: #8892b0; font-weight: 500; margin-top: 4px; }
 
     /* Minimal Corner Buttons */
     .btn-blank-minimal {
-      position: fixed;
-      top: 15px;
-      right: 15px;
+      position: absolute;
+      top: 18px;
+      right: 18px;
       z-index: 10000;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: rgba(255, 255, 255, 0.4);
-      width: 38px;
-      height: 38px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
+      font-size: 1.1rem;
       transition: all 0.3s ease;
       backdrop-filter: blur(4px);
     }
@@ -85,22 +109,22 @@
 
     .btn-restore-minimal {
       position: absolute;
-      bottom: 25px;
-      right: 25px;
+      bottom: 30px;
+      right: 30px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.2);
       color: rgba(255, 255, 255, 0.5);
-      padding: 10px 20px;
-      border-radius: 25px;
-      font-size: 0.9rem;
+      padding: 12px 26px;
+      border-radius: 30px;
+      font-size: 1.15rem;
       font-weight: 600;
       cursor: pointer;
       backdrop-filter: blur(8px);
       transition: all 0.3s ease;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
 
     .btn-restore-minimal:hover {
@@ -112,7 +136,7 @@
 
     main {
       flex: 1;
-      padding: 20px 40px;
+      padding: 20px 45px;
       display: flex;
       flex-direction: column;
       position: relative;
@@ -122,8 +146,8 @@
       flex: 1;
       position: relative;
       background: var(--card-bg);
-      border-radius: 16px;
-      padding: 35px 45px;
+      border-radius: 20px;
+      padding: 30px 45px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       display: flex;
@@ -131,6 +155,14 @@
       justify-content: space-between;
       overflow: hidden;
       transition: background-color 2.5s ease-in-out;
+    }
+
+    #dynamic-pengumuman-slides,
+    #dynamic-agenda-slides,
+    #dynamic-jumat-slides,
+    #dynamic-bank-slides,
+    #dynamic-ayat-slides {
+      display: contents;
     }
 
     .slide {
@@ -154,26 +186,26 @@
       justify-content: space-between;
       border-bottom: 2px solid rgba(255, 255, 255, 0.1);
       padding-bottom: 15px;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
 
     .slide-title {
-      font-size: 2rem;
+      font-size: 2.4rem;
       color: var(--accent-cyan);
-      font-weight: 700;
+      font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 16px;
     }
 
     .slide-badge {
-      background: rgba(100, 255, 218, 0.1);
+      background: rgba(100, 255, 218, 0.12);
       color: var(--accent-cyan);
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border: 1px solid var(--accent-cyan);
+      padding: 8px 22px;
+      border-radius: 25px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border: 1.5px solid var(--accent-cyan);
     }
 
     .slide-body {
@@ -181,59 +213,70 @@
       overflow-y: auto;
     }
 
-    /* Grid Styles for Slide Contents */
-    .pengumuman-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-      gap: 20px;
+    /* Pengumuman Stack Styles (Bersusun ke Bawah / 2 Baris) */
+    .pengumuman-list {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      width: 100%;
     }
 
     .pengumuman-card {
-      background: rgba(255, 255, 255, 0.03);
-      border-left: 4px solid var(--text-gold);
-      border-radius: 8px;
-      padding: 20px;
+      background: rgba(255, 255, 255, 0.035);
+      border-left: 8px solid var(--text-gold);
+      border-radius: 18px;
+      padding: 24px 35px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .pengumuman-card h3 {
       color: var(--text-gold);
-      font-size: 1.3rem;
+      font-size: 2.0rem;
+      font-weight: 800;
       margin-bottom: 10px;
+      line-height: 1.35;
     }
 
     .pengumuman-card p {
       color: var(--text-white);
-      font-size: 1.1rem;
-      line-height: 1.6;
+      font-size: 1.55rem;
+      line-height: 1.7;
+      margin: 0;
     }
 
     .agenda-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
     }
 
     .agenda-item {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 10px;
-      padding: 18px 25px;
+      background: rgba(255, 255, 255, 0.035);
+      border-radius: 16px;
+      padding: 24px 35px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-left: 5px solid var(--accent-cyan);
+      border-left: 6px solid var(--accent-cyan);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .agenda-item-info h3 {
-      font-size: 1.35rem;
+      font-size: 2.0rem;
       color: var(--text-gold);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      font-weight: 800;
     }
 
     .agenda-item-meta {
-      font-size: 1.1rem;
+      font-size: 1.45rem;
       color: #8892b0;
       display: flex;
-      gap: 25px;
+      gap: 35px;
     }
 
     .keuangan-stats {
@@ -244,25 +287,26 @@
     }
 
     .stat-box {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 14px;
-      padding: 30px 25px;
+      background: rgba(255, 255, 255, 0.035);
+      border-radius: 16px;
+      padding: 28px 24px;
       text-align: center;
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .stat-label {
-      font-size: 1.15rem;
+      font-size: 1.4rem;
       color: #8892b0;
       margin-bottom: 12px;
       text-transform: uppercase;
       letter-spacing: 1px;
+      font-weight: 700;
     }
 
     .stat-value {
-      font-size: 2.5rem;
-      font-weight: bold;
-      font-family: monospace;
+      font-size: 3.2rem;
+      font-weight: 900;
+      font-family: 'Courier New', monospace;
     }
 
     .stat-value.masuk { color: var(--accent-green); }
@@ -270,46 +314,47 @@
     .stat-value.saldo { color: var(--text-gold); }
 
     .jumat-box {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 14px;
-      padding: 30px;
+      background: rgba(255, 255, 255, 0.035);
+      border-radius: 18px;
+      padding: 32px;
       display: grid;
       grid-template-columns: 1fr 2fr;
-      gap: 30px;
+      gap: 35px;
       align-items: center;
     }
 
     .jumat-detail p {
-      font-size: 1.3rem;
-      margin-bottom: 12px;
+      font-size: 1.65rem;
+      margin-bottom: 14px;
     }
 
     .jumat-detail strong {
       color: var(--accent-cyan);
-      min-width: 120px;
+      min-width: 140px;
       display: inline-block;
     }
 
     .khotbah-banner {
       background: rgba(255, 209, 102, 0.08);
-      border: 1px dashed var(--text-gold);
-      border-radius: 12px;
-      padding: 25px;
+      border: 1.5px dashed var(--text-gold);
+      border-radius: 14px;
+      padding: 26px;
       text-align: center;
     }
 
     .khotbah-banner h4 {
       color: #8892b0;
-      font-size: 1rem;
-      margin-bottom: 8px;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
       text-transform: uppercase;
+      font-weight: 700;
     }
 
     .khotbah-banner p {
       color: var(--text-gold);
-      font-size: 1.4rem;
+      font-size: 1.7rem;
       font-style: italic;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     /* Indicator Navigation & Progress Bar */
@@ -318,21 +363,21 @@
       align-items: center;
       justify-content: center;
       gap: 15px;
-      margin-top: 20px;
+      margin-top: 15px;
       padding-top: 15px;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .indicator-pill {
-      padding: 8px 20px;
-      border-radius: 20px;
+      padding: 10px 24px;
+      border-radius: 25px;
       background: rgba(255, 255, 255, 0.05);
       color: #8892b0;
-      font-size: 0.95rem;
-      font-weight: 600;
+      font-size: 1.15rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       cursor: pointer;
       user-select: none;
       transition: all 0.3s ease;
@@ -347,8 +392,8 @@
     .indicator-pill.active {
       background: var(--accent-cyan);
       color: #0a192f;
-      font-weight: 700;
-      box-shadow: 0 0 15px rgba(100, 255, 218, 0.4);
+      font-weight: 800;
+      box-shadow: 0 0 18px rgba(100, 255, 218, 0.45);
     }
 
     .progress-bar-container {
@@ -356,7 +401,7 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 4px;
+      height: 5px;
       background: rgba(255, 255, 255, 0.1);
     }
 
@@ -370,11 +415,12 @@
     footer {
       background: #000;
       color: #fff;
-      padding: 12px 0;
+      padding: 16px 0;
       overflow: hidden;
       white-space: nowrap;
-      font-size: 1.3rem;
-      border-top: 2px solid var(--accent-cyan);
+      font-size: 1.75rem;
+      font-weight: 600;
+      border-top: 3px solid var(--accent-cyan);
       transition: border-color 2.5s ease-in-out;
     }
 
@@ -391,114 +437,94 @@
   </style>
 </head>
 <body>
-
-  <header>
-    <div>
-      <div class="masjid-title" id="disp-nama-masjid">MASJID AGUNG NUJUMUL ITTIHAD</div>
-      <div class="masjid-sub" id="disp-alamat-masjid">Kabupaten Sinjai</div>
-    </div>
-    <div class="clock-box">
-      <div class="clock-time" id="disp-clock">00:00</div>
-      <div class="clock-date" id="disp-date">Memuat Tanggal...</div>
-    </div>
-  </header>
-
-  <!-- Tombol Minimalis Layar Blank (Sudut Kanan Atas) -->
-  <button type="button" class="btn-blank-minimal" onclick="toggleManualBlank()" title="Matikan Layar Sementara (Blank)">
-    <i class="fa-solid fa-moon"></i>
-  </button>
-
-  <main>
-    <div class="slideshow-container">
-      
-      <!-- Slide 1: Pengumuman -->
-      <div class="slide active" id="slide-0">
-        <div class="slide-header">
-          <div class="slide-title">📢 PENGUMUMAN MASJID</div>
-        </div>
-        <div class="slide-body" id="slide-pengumuman-content">
-          Memuat pengumuman...
-        </div>
+  <div id="display-stage">
+    <header>
+      <div>
+        <div class="masjid-title" id="disp-nama-masjid">MASJID AGUNG NUJUMUL ITTIHAD</div>
+        <div class="masjid-sub" id="disp-alamat-masjid">Kabupaten Sinjai</div>
       </div>
-
-      <!-- Slide 2: Agenda Kegiatan -->
-      <div class="slide" id="slide-1">
-        <div class="slide-header">
-          <div class="slide-title">📅 AGENDA & KEGIATAN MENDATANG</div>
-        </div>
-        <div class="slide-body" id="slide-agenda-content">
-          Memuat agenda mendatang...
-        </div>
+      <div class="clock-box">
+        <div class="clock-time" id="disp-clock">00:00</div>
+        <div class="clock-date" id="disp-date">Memuat Tanggal...</div>
       </div>
+    </header>
 
-      <!-- Slide 3: Laporan Keuangan -->
-      <div class="slide" id="slide-2">
-        <div class="slide-header">
-          <div class="slide-title">💰 LAPORAN KAS & KEUANGAN MASJID</div>
+    <!-- Tombol Minimalis Layar Blank (Sudut Kanan Atas) -->
+    <button type="button" class="btn-blank-minimal" onclick="toggleManualBlank()" title="Matikan Layar Sementara (Blank)">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <main>
+      <div class="slideshow-container">
+        
+        <!-- Dynamic Pengumuman Slides Container (Maksimal 2 Pengumuman per Slide) -->
+        <div id="dynamic-pengumuman-slides">
+          <div class="slide active" id="slide-0">
+            <div class="slide-header">
+              <div class="slide-title">📢 PENGUMUMAN MASJID</div>
+            </div>
+            <div class="slide-body">
+              Memuat pengumuman...
+            </div>
+          </div>
         </div>
-        <div class="slide-body" id="slide-keuangan-content">
-          Memuat laporan keuangan...
+
+        <!-- Dynamic Agenda Slide Container (Hanya tampil jika ada agenda mendatang) -->
+        <div id="dynamic-agenda-slides"></div>
+
+        <!-- Slide 3: Laporan Keuangan -->
+        <div class="slide" id="slide-2">
+          <div class="slide-header">
+            <div class="slide-title">💰 LAPORAN KAS & KEUANGAN MASJID</div>
+          </div>
+          <div class="slide-body" id="slide-keuangan-content">
+            Memuat laporan keuangan...
+          </div>
         </div>
+
+        <!-- Slide 4: Proyek Pembangunan Masjid -->
+        <div class="slide" id="slide-3">
+          <div class="slide-header">
+            <div class="slide-title">🏗️ PROYEK & DANA PEMBANGUNAN MASJID</div>
+          </div>
+          <div class="slide-body" id="slide-pembangunan-content">
+            Memuat informasi pembangunan masjid...
+          </div>
+        </div>
+
+        <!-- Dynamic Petugas Jumat Slide Container (Hanya tampil jika ada jadwal mendatang) -->
+        <div id="dynamic-jumat-slides"></div>
+
+        <!-- Dynamic Bank Donation Slides Container -->
+        <div id="dynamic-bank-slides"></div>
+
+        <!-- Dynamic Ayat-Ayat Pilihan Slide Container (2 Ayat per putaran) -->
+        <div id="dynamic-ayat-slides"></div>
+
+        <!-- Slide Indicators -->
+        <div class="indicator-container" id="indicator-container">
+          <div class="indicator-pill active" onclick="showSlide(0)">📢 Pengumuman</div>
+          <div class="indicator-pill" onclick="showSlide(1)">📅 Agenda</div>
+          <div class="indicator-pill" onclick="showSlide(2)">💰 Keuangan</div>
+          <div class="indicator-pill" onclick="showSlide(3)">🏗️ Pembangunan</div>
+          <div class="indicator-pill" onclick="showSlide(4)">🕌 Pelaksana Shalat Jumat</div>
+          <div class="indicator-pill" onclick="showSlide(5)">📖 Ayat Pilihan</div>
+        </div>
+
+        <!-- Auto Progress Bar -->
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="slide-progress"></div>
+        </div>
+
       </div>
+    </main>
 
-      <!-- Slide 4: Proyek Pembangunan Masjid -->
-      <div class="slide" id="slide-3">
-        <div class="slide-header">
-          <div class="slide-title">🏗️ PROYEK & DANA PEMBANGUNAN MASJID</div>
-        </div>
-        <div class="slide-body" id="slide-pembangunan-content">
-          Memuat informasi pembangunan masjid...
-        </div>
+    <footer>
+      <div class="marquee" id="disp-running-text">
+        Selamat Datang di Masjid Agung Nujumul Ittihad Sinjai. Mohon menonaktifkan suara HP saat di dalam masjid.
       </div>
-
-      <!-- Slide 5: Petugas Jumat -->
-      <div class="slide" id="slide-4">
-        <div class="slide-header">
-          <div class="slide-title">🕌 PELAKSANA IBADAH SHALAT JUMAT</div>
-        </div>
-        <div class="slide-body" id="slide-jumat-content">
-          Memuat pelaksana ibadah shalat Jumat...
-        </div>
-      </div>
-
-      <!-- Slide 6: Donasi & Infaq Digital -->
-      <div class="slide" id="slide-5">
-        <div class="slide-header">
-          <div class="slide-title">💳 INFAQ, SEDEKAH & DONASI DIGITAL</div>
-        </div>
-        <div class="slide-body" id="slide-donasi-content">
-          Memuat informasi donasi & QR Code...
-        </div>
-      </div>
-
-      <!-- Slide 7: Ayat-Ayat Pilihan / Mutiara Al-Qur'an -->
-      <div class="slide" id="slide-6">
-        <div class="slide-header">
-          <div class="slide-title">📖 MUTIARA AL-QUR'AN & TADABBUR AYAT</div>
-        </div>
-        <div class="slide-body" id="slide-ayat-content">
-          Memuat ayat-ayat pilihan...
-        </div>
-      </div>
-
-      <!-- Slide Indicators -->
-      <div class="indicator-container">
-        <div class="indicator-pill active" id="pill-0" onclick="showSlide(0)">📢 Pengumuman</div>
-        <div class="indicator-pill" id="pill-1" onclick="showSlide(1)">📅 Agenda</div>
-        <div class="indicator-pill" id="pill-2" onclick="showSlide(2)">💰 Keuangan</div>
-        <div class="indicator-pill" id="pill-3" onclick="showSlide(3)">🏗️ Pembangunan</div>
-        <div class="indicator-pill" id="pill-4" onclick="showSlide(4)">🕌 Pelaksana Shalat Jumat</div>
-        <div class="indicator-pill" id="pill-5" onclick="showSlide(5)">💳 Donasi & QRIS</div>
-        <div class="indicator-pill" id="pill-6" onclick="showSlide(6)">📖 Ayat Pilihan</div>
-      </div>
-
-      <!-- Auto Progress Bar -->
-      <div class="progress-bar-container">
-        <div class="progress-bar" id="slide-progress"></div>
-      </div>
-
-    </div>
-  </main>
+    </footer>
+  </div>
 
   <!-- OVERLAY PURE BLANK SCREEN (GELAP TOTAL) -->
   <div id="prayer-overlay" onclick="restoreDisplay()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 999999; cursor: pointer;">
@@ -508,17 +534,11 @@
     </button>
   </div>
 
-  <footer>
-    <div class="marquee" id="disp-running-text">
-      Selamat Datang di Masjid Agung Nujumul Ittihad Sinjai. Mohon menonaktifkan suara HP saat di dalam masjid.
-    </div>
-  </footer>
-
   <script src="js/display-core.js"></script>
   <script>
     // Slideshow Rotation Controller
     let currentSlide = 0;
-    const totalSlides = 7;
+    let totalSlides = 6;
     let baseSlideDuration = 10000;
     let slideTimer = null;
     let progressInterval = null;
@@ -526,23 +546,31 @@
     let ayatIndex = 0;
 
     function getCurrentSlideDuration() {
-      // Slide 6 (Ayat Pilihan) berdurasi 2x lipat dari durasi slide standar
-      return currentSlide === 6 ? (baseSlideDuration * 2) : baseSlideDuration;
+      return baseSlideDuration;
     }
 
     function showSlide(index) {
-      currentSlide = index;
-      for (let i = 0; i < totalSlides; i++) {
-        const slideEl = document.getElementById(`slide-${i}`);
-        const pillEl = document.getElementById(`pill-${i}`);
-        if (slideEl) slideEl.classList.remove('active');
-        if (pillEl) pillEl.classList.remove('active');
-      }
+      if (totalSlides <= 0) return;
+      currentSlide = ((index % totalSlides) + totalSlides) % totalSlides;
 
-      const activeSlide = document.getElementById(`slide-${currentSlide}`);
-      const activePill = document.getElementById(`pill-${currentSlide}`);
-      if (activeSlide) activeSlide.classList.add('active');
-      if (activePill) activePill.classList.add('active');
+      const allSlides = document.querySelectorAll('.slideshow-container > .slide, #dynamic-pengumuman-slides > .slide, #dynamic-agenda-slides > .slide, #dynamic-jumat-slides > .slide, #dynamic-bank-slides > .slide, #dynamic-ayat-slides > .slide');
+      const allPills = document.querySelectorAll('#indicator-container .indicator-pill');
+
+      allSlides.forEach((s, idx) => {
+        if (idx === currentSlide) {
+          s.classList.add('active');
+        } else {
+          s.classList.remove('active');
+        }
+      });
+
+      allPills.forEach((p, idx) => {
+        if (idx === currentSlide) {
+          p.classList.add('active');
+        } else {
+          p.classList.remove('active');
+        }
+      });
 
       resetProgressBar();
       scheduleNextSlide();
@@ -569,12 +597,151 @@
 
       slideTimer = setTimeout(() => {
         const nextSlide = (currentSlide + 1) % totalSlides;
+        // Jika kembali ke slide pertama (pengumuman), rotasi ke 2 ayat berikutnya
+        if (nextSlide === 0 && window.DisplayCore && window.DisplayCore.apiData) {
+          const rawAyat = window.DisplayCore.apiData.ayat_pilihan || [];
+          if (rawAyat.length > 2) {
+            ayatIndex = (ayatIndex + 2) % rawAyat.length;
+            renderSlideshowData(window.DisplayCore.apiData);
+          }
+        }
         showSlide(nextSlide);
       }, duration);
     }
 
     function startSlideshow() {
       showSlide(currentSlide);
+    }
+
+    // Helper untuk membangun HTML Slide Donasi per Bank (QRIS 1/2 Halaman & Gambar Besar)
+    function buildBankSlideHtml(bankObj, d) {
+      const bankName = bankObj.name;
+      const qris = bankObj.qris;
+      const transfer = bankObj.transfer;
+      const defaultMasjidName = (d && d.masjid && d.masjid.nama) ? d.masjid.nama : '';
+      const qrisNama = (qris && qris.atas_nama) ? qris.atas_nama : defaultMasjidName;
+
+      let qrImgUrl = null;
+      if (qris) {
+        qrImgUrl = qris.logo_url || (qris.logo ? `../uploads/rekening/${qris.logo}` : `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(qris.nomor_rekening || d.qris_data || 'MasjidAgungSinjaiQRIS')}`);
+      }
+
+      let transferLogoUrl = null;
+      if (transfer) {
+        transferLogoUrl = transfer.logo_url || (transfer.logo ? `../uploads/rekening/${transfer.logo}` : null);
+      }
+
+      // Skenario 1: Ada QRIS dan ada Rekening Transfer Bank (Split 1/2 Halaman : 1/2 Halaman)
+      if (qris && transfer) {
+        return `
+          <div class="slide-header">
+            <div class="slide-title">
+              <i class="fa-solid fa-qrcode text-warning"></i>
+              INFAQ & DONASI DIGITAL — BANK ${bankName.toUpperCase()}
+            </div>
+            <div class="slide-badge">Scan Barcode / Transfer ${bankName}</div>
+          </div>
+          <div class="slide-body" style="display: flex; align-items: center; height: 100%;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 45px; align-items: stretch; width: 100%; height: 100%;">
+              <!-- Kiri (1/2 Halaman): Barcode QRIS Sangat Besar & Bersih -->
+              <div style="text-align: center; background: rgba(255,255,255,0.035); padding: 20px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.35); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div style="background: #ffffff; padding: 16px; border-radius: 20px; display: inline-block; box-shadow: 0 10px 30px rgba(0,0,0,0.45);">
+                  <img src="${qrImgUrl}" alt="QRIS ${bankName}" style="width: 560px; height: 560px; max-height: 560px; max-width: 100%; object-fit: contain; display: block; border-radius: 8px;" />
+                </div>
+                ${qrisNama ? `
+                <div style="color: var(--text-gold); font-size: 1.55rem; font-weight: 800; margin-top: 14px; letter-spacing: 0.5px;">
+                  a.n. ${qrisNama}
+                </div>` : ''}
+              </div>
+
+              <!-- Kanan (1/2 Halaman): Rekening Transfer Bank -->
+              <div style="display: flex; flex-direction: column; justify-content: center; padding: 10px 15px;">
+                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px;">
+                  ${transferLogoUrl ? `<img src="${transferLogoUrl}" alt="${bankName}" style="height: 64px; max-width: 190px; object-fit: contain; background: #ffffff; padding: 6px 16px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.25);" />` : ''}
+                  <div>
+                    <span style="color: #8892b0; font-size: 1.15rem; text-transform: uppercase; letter-spacing: 1.5px; display: block; font-weight: 600;">Rekening Bank Transfer</span>
+                    <h2 style="color: var(--accent-cyan); font-size: 2.6rem; font-weight: 800; margin: 0;">Bank ${bankName}</h2>
+                  </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.04); border: 2px solid rgba(255, 209, 102, 0.4); border-left: 12px solid var(--text-gold); border-radius: 20px; padding: 28px 34px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                  <div style="color: #8892b0; font-size: 1.25rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">Nomor Rekening Resmi :</div>
+                  <div style="font-size: 4.2rem; font-weight: 900; color: var(--text-gold); font-family: 'Courier New', Courier, monospace; letter-spacing: 4px; margin: 10px 0; text-shadow: 0 2px 15px rgba(255, 209, 102, 0.35);">
+                    ${transfer.nomor_rekening}
+                  </div>
+                  <div style="font-size: 1.65rem; color: #ffffff; font-weight: 700;">
+                    a.n. ${transfer.atas_nama}
+                  </div>
+                </div>
+
+                <div style="background: rgba(100, 255, 218, 0.08); border: 1.5px dashed var(--accent-cyan); border-radius: 14px; padding: 18px 24px; color: var(--accent-cyan); font-size: 1.25rem; line-height: 1.6;">
+                  <i class="fa-solid fa-circle-info me-2 fs-4" style="vertical-align: middle;"></i>
+                  Dapat ditransfer melalui ATM, Mobile Banking, SMS Banking & Internet Banking dari seluruh bank di Indonesia.
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Skenario 2: Hanya QRIS (tanpa rekening transfer)
+      if (qris && !transfer) {
+        return `
+          <div class="slide-header">
+            <div class="slide-title">
+              <i class="fa-solid fa-qrcode text-warning"></i>
+              INFAQ & SEDEKAH DIGITAL — QRIS ${bankName.toUpperCase()}
+            </div>
+            <div class="slide-badge">Scan Barcode QRIS</div>
+          </div>
+          <div class="slide-body" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+            <div style="text-align: center; background: rgba(255,255,255,0.035); padding: 25px 40px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.35); max-width: 700px;">
+              <div style="background: #ffffff; padding: 18px; border-radius: 20px; display: inline-block; box-shadow: 0 10px 30px rgba(0,0,0,0.45);">
+                <img src="${qrImgUrl}" alt="QRIS ${bankName}" style="width: 580px; height: 580px; max-height: 580px; object-fit: contain; display: block; border-radius: 8px;" />
+              </div>
+              ${qrisNama ? `
+              <div style="color: var(--text-gold); font-size: 1.65rem; font-weight: 800; margin-top: 16px;">
+                a.n. ${qrisNama}
+              </div>` : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      // Skenario 3: Hanya Rekening Transfer Bank (tanpa QRIS)
+      return `
+        <div class="slide-header">
+          <div class="slide-title">
+            <i class="fa-solid fa-building-columns text-warning"></i>
+            REKENING TRANSFER BANK RESMI — BANK ${bankName.toUpperCase()}
+          </div>
+          <div class="slide-badge">Kas & Panitia Pembangunan</div>
+        </div>
+        <div class="slide-body" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+          <div style="max-width: 950px; width: 100%; text-align: center;">
+            <div style="margin-bottom: 24px;">
+              ${transferLogoUrl ? `<img src="${transferLogoUrl}" alt="${bankName}" style="height: 68px; max-width: 200px; object-fit: contain; background: #ffffff; padding: 6px 18px; border-radius: 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.3); margin-bottom: 12px;" />` : ''}
+              <h2 style="color: var(--accent-cyan); font-size: 2.5rem; font-weight: 800; margin: 0;">Bank ${bankName}</h2>
+              <p style="color: #8892b0; font-size: 1.25rem; margin-top: 4px;">Rekening Resmi Panitia Pembangunan & Operasional Masjid Agung Sinjai</p>
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.04); border: 2px solid rgba(255, 209, 102, 0.4); border-top: 8px solid var(--text-gold); border-bottom: 8px solid var(--text-gold); border-radius: 22px; padding: 32px 45px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+              <div style="color: #8892b0; font-size: 1.25rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">Nomor Rekening Resmi :</div>
+              <div style="font-size: 4.4rem; font-weight: 900; color: var(--text-gold); font-family: 'Courier New', Courier, monospace; letter-spacing: 5px; margin: 10px 0; text-shadow: 0 2px 15px rgba(255, 209, 102, 0.4);">
+                ${transfer ? transfer.nomor_rekening : '-'}
+              </div>
+              <div style="font-size: 1.7rem; color: #ffffff; font-weight: 700;">
+                a.n. ${transfer ? transfer.atas_nama : '-'}
+              </div>
+            </div>
+
+            <div style="background: rgba(100, 255, 218, 0.08); border: 1.5px dashed var(--accent-cyan); border-radius: 14px; padding: 16px 26px; color: var(--accent-cyan); font-size: 1.2rem; display: inline-block;">
+              <i class="fa-solid fa-hand-holding-heart me-2 text-warning fs-4"></i>
+              Salurkan infak dan sedekah terbaik Anda melalui ATM, Mobile Banking, Internet Banking, atau Teller Bank.
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     // Render Data Callback for Slideshow
@@ -588,75 +755,175 @@
         }
       }
 
-      // Render Slide 1: Pengumuman
-      if (d.pengumuman && d.pengumuman.length > 0) {
-        let html = '<div class="pengumuman-grid">';
-        d.pengumuman.forEach(p => {
-          const ringkasan = p.konten ? p.konten.replace(/<[^>]*>/g, '') : '';
-          html += `
-            <div class="pengumuman-card">
-              <h3>📢 ${p.judul}</h3>
-              <p>${ringkasan}</p>
-            </div>
-          `;
-        });
-        html += '</div>';
-        document.getElementById('slide-pengumuman-content').innerHTML = html;
-      } else {
-        document.getElementById('slide-pengumuman-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Tidak ada pengumuman terbaru.</p>';
+      // Render Dynamic Pengumuman Slides (Maksimal 2 pengumuman per slide, Bersusun ke Bawah / 2 Baris)
+      const pengumumanList = d.pengumuman || [];
+      const pengumumanChunks = [];
+      const chunkSize = 2;
+
+      for (let i = 0; i < pengumumanList.length; i += chunkSize) {
+        pengumumanChunks.push(pengumumanList.slice(i, i + chunkSize));
       }
 
-      // Render Slide 2: Agenda Kegiatan
-      if (d.agenda && d.agenda.length > 0) {
-        let html = '<div class="agenda-list">';
-        d.agenda.forEach(item => {
-          html += `
-            <div class="agenda-item">
-              <div class="agenda-item-info">
-                <h3>${item.judul}</h3>
-                <div class="agenda-item-meta">
-                  <span>📅 ${formatIndoDate(item.tanggal)}</span>
-                  <span>⏰ ${formatTimeShort(item.waktu)} WITA</span>
-                  <span>📍 ${item.lokasi || 'Masjid'}</span>
-                  ${item.narasumber ? `<span>🎙️ ${item.narasumber}</span>` : ''}
+      let pengumumanSlidesHtml = '';
+      if (pengumumanChunks.length > 0) {
+        pengumumanChunks.forEach((chunk, chunkIdx) => {
+          const totalChunks = pengumumanChunks.length;
+          const pageBadge = totalChunks > 1 
+            ? `<div class="slide-badge">Halaman ${chunkIdx + 1} dari ${totalChunks}</div>`
+            : `<div class="slide-badge">Informasi Terkini</div>`;
+          const pageTitleSuffix = totalChunks > 1 ? ` (${chunkIdx + 1}/${totalChunks})` : '';
+
+          let cardsHtml = '';
+          chunk.forEach(p => {
+            const ringkasan = p.konten ? p.konten.replace(/<[^>]*>/g, '') : '';
+            cardsHtml += `
+              <div class="pengumuman-card">
+                <h3>📢 ${p.judul}</h3>
+                <p>${ringkasan}</p>
+              </div>
+            `;
+          });
+
+          pengumumanSlidesHtml += `
+            <div class="slide">
+              <div class="slide-header">
+                <div class="slide-title">📢 PENGUMUMAN MASJID${pageTitleSuffix}</div>
+                ${pageBadge}
+              </div>
+              <div class="slide-body" style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
+                <div class="pengumuman-list">
+                  ${cardsHtml}
                 </div>
               </div>
             </div>
           `;
         });
-        html += '</div>';
-        document.getElementById('slide-agenda-content').innerHTML = html;
       } else {
-        document.getElementById('slide-agenda-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Tidak ada agenda mendatang.</p>';
+        pengumumanSlidesHtml = `
+          <div class="slide">
+            <div class="slide-header">
+              <div class="slide-title">📢 PENGUMUMAN MASJID</div>
+              <div class="slide-badge">Informasi Terkini</div>
+            </div>
+            <div class="slide-body" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+              <p style="font-size: 1.6rem; color: #8892b0; text-align: center;">Tidak ada pengumuman terbaru saat ini.</p>
+            </div>
+          </div>
+        `;
+      }
+      document.getElementById('dynamic-pengumuman-slides').innerHTML = pengumumanSlidesHtml;
+
+      // Render Slide 2: Agenda Kegiatan (Hanya jika ada agenda mendatang)
+      const todayStr = new Date().toISOString().split('T')[0];
+      const rawAgenda = d.agenda || [];
+      const upcomingAgenda = rawAgenda.filter(item => !item.tanggal || item.tanggal >= todayStr);
+
+      if (upcomingAgenda.length > 0) {
+        let agendaCardsHtml = '';
+        upcomingAgenda.forEach(item => {
+          const rutinBadge = item.label_rutin 
+            ? `<span style="background: rgba(100, 255, 218, 0.15); color: var(--accent-cyan); border: 1.5px solid var(--accent-cyan); padding: 4px 16px; border-radius: 20px; font-size: 1.15rem; font-weight: 800; text-transform: uppercase; margin-left: 14px; letter-spacing: 0.5px;"><i class="fa-solid fa-arrows-rotate me-1"></i>${item.label_rutin}</span>`
+            : '';
+            
+          const tglLabel = item.label_rutin
+            ? `<span><strong style="color: var(--accent-cyan);">⏳ Terdekat:</strong> ${formatIndoDate(item.tanggal)}</span>`
+            : `<span><strong style="color: var(--accent-cyan);">📅 Tanggal:</strong> ${formatIndoDate(item.tanggal)}</span>`;
+
+          agendaCardsHtml += `
+            <div class="agenda-item" style="padding: 24px 34px; border-radius: 16px; border-left: 8px solid var(--accent-cyan); background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 25px rgba(0,0,0,0.25);">
+              <div class="agenda-item-info">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                  <h3 style="font-size: 1.85rem; color: var(--text-gold); margin: 0; font-weight: 800;">${item.judul}</h3>
+                  ${rutinBadge}
+                </div>
+                <div class="agenda-item-meta" style="font-size: 1.35rem; color: #8892b0; display: flex; gap: 35px; flex-wrap: wrap;">
+                  ${tglLabel}
+                  <span><strong style="color: var(--accent-cyan);">⏰ Waktu:</strong> ${formatTimeShort(item.waktu)} WITA</span>
+                  <span><strong style="color: var(--accent-cyan);">📍 Lokasi:</strong> ${item.lokasi || 'Masjid Agung Sinjai'}</span>
+                  ${item.narasumber ? `<span><strong style="color: var(--text-gold);">🎙️ Narasumber:</strong> ${item.narasumber}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        document.getElementById('dynamic-agenda-slides').innerHTML = `
+          <div class="slide">
+            <div class="slide-header">
+              <div class="slide-title">📅 AGENDA & KEGIATAN MENDATANG</div>
+              <div class="slide-badge">Jadwal Terdekat</div>
+            </div>
+            <div class="slide-body" style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
+              <div class="agenda-list" style="display: flex; flex-direction: column; gap: 20px;">
+                ${agendaCardsHtml}
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        document.getElementById('dynamic-agenda-slides').innerHTML = '';
       }
 
       // Render Slide 3: Keuangan Kas Umum (Periode Mingguan: Sabtu s/d Jumat)
       if (d.keuangan) {
         const k = d.keuangan;
-        const periodeTxt = k.periode_label ? `<span style="background: rgba(100, 255, 218, 0.1); color: var(--accent-cyan); padding: 4px 14px; border-radius: 20px; font-size: 0.95rem; font-weight: 600; border: 1px solid rgba(100, 255, 218, 0.25);">📅 ${k.periode_label}</span>` : '';
-        const lastUpdateTxt = k.last_update ? `<span style="color: #8892b0; font-size: 0.95rem;">🕒 Update Terakhir: <strong style="color: var(--text-gold);">${formatIndoDate(k.last_update)}</strong></span>` : '';
+        const periodeTxt = k.periode_label ? `<span style="background: rgba(100, 255, 218, 0.12); color: var(--accent-cyan); padding: 8px 22px; border-radius: 25px; font-size: 1.3rem; font-weight: 800; border: 1.5px solid rgba(100, 255, 218, 0.4);">📅 ${k.periode_label}</span>` : '';
+        const lastUpdateTxt = k.last_update ? `<span style="color: #8892b0; font-size: 1.3rem;">🕒 Update Terakhir: <strong style="color: var(--text-gold); font-size: 1.35rem;">${formatIndoDate(k.last_update)}</strong></span>` : '';
         
         document.getElementById('slide-keuangan-content').innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 14px;">
             ${periodeTxt}
             ${lastUpdateTxt}
           </div>
-          <div class="keuangan-stats" style="grid-template-columns: repeat(4, 1fr); gap: 18px;">
-            <div class="stat-box" style="padding: 24px 15px;">
-              <div class="stat-label" style="font-size: 0.95rem;">Saldo Awal <span style="font-size: 0.75rem; display: block; opacity: 0.7;">(Per Jumat ${k.cutoff_awal_label || ''})</span></div>
-              <div class="stat-value" style="color: var(--accent-cyan); font-size: 1.85rem;">${formatRupiah(k.saldo_awal)}</div>
+
+          <!-- Top Row: 3 Ringkasan Arus Kas -->
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px;">
+            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 18px; padding: 26px 22px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 6px solid var(--accent-cyan); text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.2);">
+              <div style="color: #8892b0; font-size: 1.35rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                Saldo Awal <span style="font-size: 1.05rem; display: block; opacity: 0.8; font-weight: 500;">(Per Jumat ${k.cutoff_awal_label || ''})</span>
+              </div>
+              <div style="color: var(--accent-cyan); font-size: 2.8rem; font-weight: 900; font-family: 'Courier New', monospace; letter-spacing: 1px;">
+                ${formatRupiah(k.saldo_awal)}
+              </div>
             </div>
-            <div class="stat-box" style="padding: 24px 15px;">
-              <div class="stat-label" style="font-size: 0.95rem;">Pemasukan <span style="font-size: 0.75rem; display: block; opacity: 0.7;">(Pekan Ini)</span></div>
-              <div class="stat-value masuk" style="font-size: 1.85rem;">${formatRupiah(k.pemasukan_pekan)}</div>
+
+            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 18px; padding: 26px 22px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 6px solid var(--accent-green); text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.2);">
+              <div style="color: var(--accent-green); font-size: 1.35rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                + Total Pemasukan <span style="font-size: 1.05rem; display: block; opacity: 0.85; font-weight: 500; color: #8892b0;">(Pekan Berjalan)</span>
+              </div>
+              <div style="color: var(--accent-green); font-size: 2.8rem; font-weight: 900; font-family: 'Courier New', monospace; letter-spacing: 1px;">
+                ${formatRupiah(k.pemasukan_pekan)}
+              </div>
             </div>
-            <div class="stat-box" style="padding: 24px 15px;">
-              <div class="stat-label" style="font-size: 0.95rem;">Pengeluaran <span style="font-size: 0.75rem; display: block; opacity: 0.7;">(Pekan Ini)</span></div>
-              <div class="stat-value keluar" style="font-size: 1.85rem;">${formatRupiah(k.pengeluaran_pekan)}</div>
+
+            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 18px; padding: 26px 22px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 6px solid #ff6b6b; text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.2);">
+              <div style="color: #ff6b6b; font-size: 1.35rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                - Total Pengeluaran <span style="font-size: 1.05rem; display: block; opacity: 0.85; font-weight: 500; color: #8892b0;">(Pekan Berjalan)</span>
+              </div>
+              <div style="color: #ff6b6b; font-size: 2.8rem; font-weight: 900; font-family: 'Courier New', monospace; letter-spacing: 1px;">
+                ${formatRupiah(k.pengeluaran_pekan)}
+              </div>
             </div>
-            <div class="stat-box" style="padding: 24px 15px; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.05);">
-              <div class="stat-label" style="font-size: 0.95rem; color: var(--text-gold);">Saldo Akhir <span style="font-size: 0.75rem; display: block; opacity: 0.8;">(Kas Masjid)</span></div>
-              <div class="stat-value saldo" style="font-size: 1.85rem;">${formatRupiah(k.saldo_akhir)}</div>
+          </div>
+
+          <!-- Bottom Row: Big Hero Card Saldo Akhir Kas Masjid -->
+          <div style="background: linear-gradient(135deg, rgba(255, 209, 102, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%); border: 2px solid rgba(255, 209, 102, 0.45); border-left: 12px solid var(--text-gold); border-radius: 22px; padding: 28px 38px; margin-top: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="color: #8892b0; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">
+                SALDO AKHIR KAS MASJID
+              </div>
+              <div style="color: #ffffff; font-size: 1.7rem; font-weight: 800; margin-top: 6px;">
+                Dana Kas Umum Operasional Masjid
+              </div>
+              <div style="color: var(--accent-cyan); font-size: 1.15rem; margin-top: 6px;">
+                <i class="fa-solid fa-circle-check me-1"></i> Data diverifikasi & terintegrasi dengan pembukuan bendahara
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 4.4rem; font-weight: 900; color: var(--text-gold); font-family: 'Courier New', Courier, monospace; letter-spacing: 2px; text-shadow: 0 3px 20px rgba(255, 209, 102, 0.45);">
+                ${formatRupiah(k.saldo_akhir)}
+              </div>
+              <small style="color: rgba(255,255,255,0.7); font-size: 1.15rem; font-weight: 600;">Saldo Kas Siap Pakai</small>
             </div>
           </div>
         `;
@@ -666,12 +933,12 @@
       if (d.pembangunan) {
         const pb = d.pembangunan;
         const targetHtml = pb.target_dana > 0 
-          ? `<div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px 20px; margin-bottom: 16px;">
+          ? `<div style="background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 14px 22px; margin-bottom: 18px;">
               <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                <span style="color: #8892b0; font-size: 0.95rem;">Target Dana: <strong style="color: var(--text-white);">${formatRupiah(pb.target_dana)}</strong></span>
-                <span style="color: var(--accent-cyan); font-weight: 700; font-size: 1rem;">${pb.persentase}% Terkumpul</span>
+                <span style="color: #8892b0; font-size: 1.25rem;">Target Dana: <strong style="color: var(--text-white);">${formatRupiah(pb.target_dana)}</strong></span>
+                <span style="color: var(--accent-cyan); font-weight: 800; font-size: 1.3rem;">${pb.persentase}% Terkumpul</span>
               </div>
-              <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 10px; overflow: hidden;">
+              <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 12px; overflow: hidden;">
                 <div style="background: linear-gradient(90deg, var(--accent-cyan), var(--text-gold)); width: ${pb.persentase}%; height: 100%; border-radius: 10px;"></div>
               </div>
             </div>`
@@ -679,92 +946,97 @@
 
         let materialHtml = '';
         if (pb.daftar_material && pb.daftar_material.length > 0) {
-          materialHtml = '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">';
+          materialHtml = '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">';
           pb.daftar_material.forEach(m => {
             const vol = m.volume ? `${parseFloat(m.volume)} ${m.satuan || ''}` : '';
             materialHtml += `
-              <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 10px 14px; border-left: 3px solid var(--accent-cyan); font-size: 0.95rem;">
-                <div style="font-weight: 600; color: var(--text-gold);">${m.uraian_material} <span style="color: #8892b0; font-size: 0.85rem;">(${vol})</span></div>
-                <div style="color: #8892b0; font-size: 0.8rem;">Donatur: <span style="color: var(--text-white);">${m.nama_donatur || 'Hamba Allah'}</span> | Nilai: <strong style="color: var(--accent-green);">${formatRupiah(m.total_nilai)}</strong></div>
+              <div style="background: rgba(255, 255, 255, 0.035); border-radius: 10px; padding: 12px 16px; border-left: 4px solid var(--accent-cyan); font-size: 1.15rem;">
+                <div style="font-weight: 700; color: var(--text-gold); font-size: 1.25rem;">${m.uraian_material} <span style="color: #8892b0; font-size: 1.05rem;">(${vol})</span></div>
+                <div style="color: #8892b0; font-size: 1.05rem; margin-top: 3px;">Donatur: <span style="color: var(--text-white);">${m.nama_donatur || 'Hamba Allah'}</span> | Nilai: <strong style="color: var(--accent-green);">${formatRupiah(m.total_nilai)}</strong></div>
               </div>
             `;
           });
           materialHtml += '</div>';
         } else {
-          materialHtml = '<p style="color: #8892b0; font-size: 0.95rem;">Belum ada donasi material tercatat.</p>';
+          materialHtml = '<p style="color: #8892b0; font-size: 1.25rem;">Belum ada donasi material tercatat.</p>';
         }
 
         document.getElementById('slide-pembangunan-content').innerHTML = `
-          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="font-size: 1.2rem; color: var(--text-gold); margin: 0; line-height: 1.3;">${pb.nama_kegiatan}</h3>
-            <span style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; white-space: nowrap;">
+          <div style="margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 1.65rem; color: var(--text-gold); margin: 0; line-height: 1.3; font-weight: 800;">${pb.nama_kegiatan}</h3>
+            <span style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1.5px solid var(--accent-green); padding: 6px 16px; border-radius: 20px; font-size: 1.1rem; font-weight: 800; text-transform: uppercase; white-space: nowrap;">
               Status: ${pb.status || 'Berjalan'}
             </span>
           </div>
 
           ${targetHtml}
 
-          <div class="keuangan-stats" style="margin-bottom: 16px; margin-top: 0;">
-            <div class="stat-box" style="padding: 16px 14px;">
-              <div class="stat-label" style="font-size: 0.9rem; margin-bottom: 4px;">Infaq Kas Proyek</div>
-              <div class="stat-value masuk" style="font-size: 1.8rem;">${formatRupiah(pb.total_masuk)}</div>
+          <div class="keuangan-stats" style="margin-bottom: 18px; margin-top: 0;">
+            <div class="stat-box" style="padding: 18px 16px;">
+              <div class="stat-label" style="font-size: 1.15rem; margin-bottom: 4px;">Infaq Kas Proyek</div>
+              <div class="stat-value masuk" style="font-size: 2.2rem;">${formatRupiah(pb.total_masuk)}</div>
             </div>
-            <div class="stat-box" style="padding: 16px 14px;">
-              <div class="stat-label" style="font-size: 0.9rem; margin-bottom: 4px;">Realisasi Pengeluaran</div>
-              <div class="stat-value keluar" style="font-size: 1.8rem;">${formatRupiah(pb.total_keluar)}</div>
+            <div class="stat-box" style="padding: 18px 16px;">
+              <div class="stat-label" style="font-size: 1.15rem; margin-bottom: 4px;">Realisasi Pengeluaran</div>
+              <div class="stat-value keluar" style="font-size: 2.2rem;">${formatRupiah(pb.total_keluar)}</div>
             </div>
-            <div class="stat-box" style="padding: 16px 14px;">
-              <div class="stat-label" style="font-size: 0.9rem; margin-bottom: 4px;">Saldo Kas Pembangunan</div>
-              <div class="stat-value saldo" style="font-size: 1.8rem;">${formatRupiah(pb.saldo)}</div>
+            <div class="stat-box" style="padding: 18px 16px;">
+              <div class="stat-label" style="font-size: 1.15rem; margin-bottom: 4px;">Saldo Kas Pembangunan</div>
+              <div class="stat-value saldo" style="font-size: 2.2rem;">${formatRupiah(pb.saldo)}</div>
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: stretch;">
+          <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: stretch;">
             <div>
-              <div style="color: var(--accent-cyan); font-weight: 700; font-size: 0.95rem; margin-bottom: 8px;">
+              <div style="color: var(--accent-cyan); font-weight: 800; font-size: 1.25rem; margin-bottom: 10px;">
                 📦 Donasi Bantuan Material Konstruksi & Barang Terbaru:
               </div>
               ${materialHtml}
             </div>
-            <div style="background: rgba(255,255,255,0.03); border: 1px dashed var(--accent-cyan); border-radius: 12px; padding: 14px; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-              <small style="color: #8892b0; font-size: 0.8rem; text-transform: uppercase;">Total Dukungan Umat (Kas + Material)</small>
-              <div style="font-size: 1.6rem; font-weight: bold; color: var(--text-gold); font-family: monospace; margin: 4px 0;">
+            <div style="background: rgba(255,255,255,0.035); border: 1.5px dashed var(--accent-cyan); border-radius: 14px; padding: 18px; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+              <small style="color: #8892b0; font-size: 1.05rem; text-transform: uppercase; font-weight: 700;">Total Dukungan Umat (Kas + Material)</small>
+              <div style="font-size: 2.2rem; font-weight: 900; color: var(--text-gold); font-family: monospace; margin: 6px 0;">
                 ${formatRupiah(pb.total_dukungan_semua)}
               </div>
-              <small style="color: var(--accent-cyan); font-size: 0.78rem;">Valuasi Donasi Material: ${formatRupiah(pb.total_nilai_material)}</small>
+              <small style="color: var(--accent-cyan); font-size: 1.05rem;">Valuasi Donasi Material: ${formatRupiah(pb.total_nilai_material)}</small>
             </div>
           </div>
         `;
       } else {
-        document.getElementById('slide-pembangunan-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Belum ada data proyek pembangunan aktif.</p>';
+        document.getElementById('slide-pembangunan-content').innerHTML = '<p style="font-size: 1.5rem; color: #8892b0;">Belum ada data proyek pembangunan aktif.</p>';
       }
 
-      // Render Slide 4: Petugas Jumat (3 Jumat ke Depan)
-      const listJumat = d.jadwal_jumat_list && d.jadwal_jumat_list.length > 0 ? d.jadwal_jumat_list : (d.jadwal_jumat ? [d.jadwal_jumat] : []);
+      // Render Slide 4: Petugas Shalat Jumat (Hanya jika ada jadwal Jumat mendatang)
+      const rawJumat = d.jadwal_jumat_list && d.jadwal_jumat_list.length > 0 
+        ? d.jadwal_jumat_list 
+        : (d.jadwal_jumat ? [d.jadwal_jumat] : []);
+      
+      const upcomingJumat = rawJumat.filter(j => j && j.tanggal && j.tanggal >= todayStr);
 
-      if (listJumat.length > 0) {
-        let jumatHtml = `<div style="display: grid; grid-template-columns: repeat(${Math.min(listJumat.length, 3)}, 1fr); gap: 20px;">`;
+      if (upcomingJumat.length > 0) {
+        let jumatCols = `repeat(${Math.min(upcomingJumat.length, 3)}, 1fr)`;
+        let jumatCardsHtml = `<div style="display: grid; grid-template-columns: ${jumatCols}; gap: 25px; height: 100%; align-items: stretch;">`;
         
-        listJumat.forEach((j) => {
+        upcomingJumat.forEach((j) => {
           const muadzinHtml = (j.muadzin && j.muadzin !== '-') 
-            ? `<p style="font-size: 1.1rem; margin-bottom: 8px;"><strong style="color: var(--accent-cyan);">Muadzin</strong>: ${j.muadzin}</p>` 
+            ? `<p style="font-size: 1.55rem; margin-bottom: 12px;"><strong style="color: var(--accent-cyan);">Muadzin</strong>: ${j.muadzin}</p>` 
             : '';
 
           const khotbahHtml = (j.judul_khotbah && j.judul_khotbah !== '-') 
-            ? `<div style="background: rgba(255, 209, 102, 0.08); border: 1px dashed var(--text-gold); border-radius: 8px; padding: 12px; margin-top: 12px; text-align: center;">
-                <small style="color: #8892b0; font-size: 0.85rem; text-transform: uppercase;">Judul Khotbah</small>
-                <p style="color: var(--text-gold); font-size: 1.05rem; font-style: italic; font-weight: 600; margin-top: 4px;">"${j.judul_khotbah}"</p>
+            ? `<div style="background: rgba(255, 209, 102, 0.08); border: 1.5px dashed var(--text-gold); border-radius: 12px; padding: 16px; margin-top: 14px; text-align: center;">
+                <small style="color: #8892b0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">Judul Khotbah</small>
+                <p style="color: var(--text-gold); font-size: 1.45rem; font-style: italic; font-weight: 800; margin-top: 5px;">"${j.judul_khotbah}"</p>
               </div>` 
             : '';
 
-          jumatHtml += `
-            <div style="background: rgba(255, 255, 255, 0.03); border-radius: 12px; padding: 22px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; justify-content: space-between;">
+          jumatCardsHtml += `
+            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 18px; padding: 28px 26px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 25px rgba(0,0,0,0.25); display: flex; flex-direction: column; justify-content: space-between;">
               <div>
-                <div style="background: rgba(100, 255, 218, 0.1); color: var(--accent-cyan); padding: 4px 12px; border-radius: 15px; font-size: 0.9rem; font-weight: 700; display: inline-block; margin-bottom: 12px; border: 1px solid var(--accent-cyan);">
+                <div style="background: rgba(100, 255, 218, 0.12); color: var(--accent-cyan); padding: 8px 20px; border-radius: 25px; font-size: 1.35rem; font-weight: 800; display: inline-block; margin-bottom: 18px; border: 1.5px solid var(--accent-cyan);">
                   🗓️ ${formatIndoDate(j.tanggal)}
                 </div>
-                <p style="font-size: 1.1rem; margin-bottom: 8px;"><strong style="color: var(--accent-cyan);">Khatib</strong>: ${j.khatib && j.khatib !== '-' ? j.khatib : '-'}</p>
-                <p style="font-size: 1.1rem; margin-bottom: 8px;"><strong style="color: var(--accent-cyan);">Imam</strong>: ${j.imam && j.imam !== '-' ? j.imam : '-'}</p>
+                <p style="font-size: 1.6rem; margin-bottom: 12px;"><strong style="color: var(--accent-cyan);">Khatib</strong>: ${j.khatib && j.khatib !== '-' ? j.khatib : '-'}</p>
+                <p style="font-size: 1.6rem; margin-bottom: 12px;"><strong style="color: var(--accent-cyan);">Imam</strong>: ${j.imam && j.imam !== '-' ? j.imam : '-'}</p>
                 ${muadzinHtml}
               </div>
               ${khotbahHtml}
@@ -772,82 +1044,188 @@
           `;
         });
 
-        jumatHtml += '</div>';
-        document.getElementById('slide-jumat-content').innerHTML = jumatHtml;
-      } else {
-        document.getElementById('slide-jumat-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0;">Belum ada jadwal pelaksana ibadah shalat Jumat.</p>';
-      }
+        jumatCardsHtml += '</div>';
 
-      // Render Slide 6: Donasi & Infaq Digital
-      const qrisVal = d.qris_data || 'MasjidAgungSinjaiQRIS';
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrisVal)}`;
-
-      let rekeningHtml = '';
-      if (d.donasi && d.donasi.length > 0) {
-        d.donasi.forEach(rek => {
-          rekeningHtml += `
-            <div style="background: rgba(255, 255, 255, 0.03); border-radius: 12px; padding: 16px 22px; margin-bottom: 10px; border-left: 4px solid var(--text-gold);">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: var(--accent-cyan); font-weight: 700; font-size: 1.15rem;">${rek.nama_bank}</span>
-                <span style="background: rgba(255, 209, 102, 0.1); color: var(--text-gold); padding: 3px 10px; border-radius: 10px; font-size: 0.8rem; text-transform: uppercase;">${rek.jenis}</span>
-              </div>
-              <div style="font-size: 1.6rem; font-weight: bold; color: var(--text-gold); font-family: monospace; margin: 4px 0;">
-                ${rek.nomor_rekening}
-              </div>
-              <div style="color: #8892b0; font-size: 0.95rem;">a.n. ${rek.atas_nama}</div>
+        document.getElementById('dynamic-jumat-slides').innerHTML = `
+          <div class="slide">
+            <div class="slide-header">
+              <div class="slide-title">🕌 PELAKSANA IBADAH SHALAT JUMAT</div>
+              <div class="slide-badge">Jadwal Jumat Mendatang</div>
             </div>
-          `;
-        });
-      } else {
-        rekeningHtml = '<p style="color: #8892b0;">Transfer Bank: Kas Masjid & Panitia Pembangunan</p>';
-      }
-
-      document.getElementById('slide-donasi-content').innerHTML = `
-        <div style="display: grid; grid-template-columns: 260px 1fr; gap: 30px; align-items: center;">
-          <div style="text-align: center; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);">
-            <div style="background: #fff; padding: 10px; border-radius: 12px; display: inline-block;">
-              <img src="${qrCodeUrl}" alt="QRIS Masjid" style="width: 200px; height: 200px; display: block;" />
-            </div>
-            <div style="color: var(--accent-cyan); font-weight: 700; font-size: 1.05rem; margin-top: 10px;">SCAN QRIS MASJID</div>
-            <small style="color: #8892b0; font-size: 0.8rem; display: block; margin-top: 2px;">GoPay, OVO, DANA, LinkAja & Mobile Banking</small>
-          </div>
-          <div>
-            <h3 style="color: var(--accent-cyan); font-size: 1.3rem; margin-bottom: 12px;">💳 Rekening Transfer Bank Resmi</h3>
-            ${rekeningHtml}
-          </div>
-        </div>
-      `;
-
-      // Render Slide 7: Ayat-Ayat Pilihan / Mutiara Al-Qur'an
-      if (d.ayat_pilihan && d.ayat_pilihan.length > 0) {
-        const itemAyat = d.ayat_pilihan[ayatIndex % d.ayat_pilihan.length];
-        ayatIndex++;
-
-        document.getElementById('slide-ayat-content').innerHTML = `
-          <div style="max-width: 1000px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 10px 20px;">
-            <div style="margin-bottom: 15px;">
-              <span style="background: rgba(255, 209, 102, 0.15); color: var(--text-gold); border: 1px solid var(--text-gold); padding: 5px 18px; border-radius: 20px; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
-                ✨ QS. ${itemAyat.surah}: ${itemAyat.nomor_ayat} ${itemAyat.tema ? '• ' + itemAyat.tema : ''}
-              </span>
-            </div>
-
-            <div style="font-family: 'Amiri', 'Scheherazade New', serif; font-size: 2.5rem; line-height: 2.1; color: #ffffff; direction: rtl; text-align: center; margin: 15px 0 25px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
-              ${itemAyat.teks_arab}
-            </div>
-
-            <div style="background: rgba(255, 255, 255, 0.04); border-left: 4px solid var(--accent-cyan); border-right: 4px solid var(--accent-cyan); border-radius: 12px; padding: 18px 25px; margin-top: 5px;">
-              <p style="font-size: 1.25rem; font-style: italic; color: var(--text-white); line-height: 1.6; margin: 0;">
-                "${itemAyat.terjemahan}"
-              </p>
-              <div style="color: var(--accent-cyan); font-size: 0.9rem; margin-top: 8px; font-weight: 600;">
-                (QS. ${itemAyat.surah} [${itemAyat.nomor_ayat}])
-              </div>
+            <div class="slide-body" style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
+              ${jumatCardsHtml}
             </div>
           </div>
         `;
       } else {
-        document.getElementById('slide-ayat-content').innerHTML = '<p style="font-size: 1.2rem; color: #8892b0; text-align: center;">Memuat ayat-ayat pilihan...</p>';
+        document.getElementById('dynamic-jumat-slides').innerHTML = '';
       }
+
+      // Group Donasi & Infaq per Bank secara Dinamis
+      const bankMap = new Map();
+      if (d.donasi && d.donasi.length > 0) {
+        d.donasi.forEach(item => {
+          const rawName = (item.nama_bank || 'Infaq').trim();
+          const key = rawName.toUpperCase();
+          if (!bankMap.has(key)) {
+            bankMap.set(key, { name: rawName, qris: null, transfer: null });
+          }
+          const bObj = bankMap.get(key);
+          if (item.jenis === 'qris') {
+            bObj.qris = item;
+          } else if (item.jenis === 'transfer') {
+            bObj.transfer = item;
+          }
+        });
+      }
+
+      // Render Dynamic Bank Slides
+      let bankSlidesHtml = '';
+      if (bankMap.size > 0) {
+        bankMap.forEach((bObj) => {
+          bankSlidesHtml += `
+            <div class="slide">
+              ${buildBankSlideHtml(bObj, d)}
+            </div>
+          `;
+        });
+      } else {
+        // Fallback jika belum ada rekening bank terdaftar
+        bankSlidesHtml = `
+          <div class="slide">
+            <div class="slide-header">
+              <div class="slide-title"><i class="fa-solid fa-qrcode text-warning"></i> INFAQ & DONASI DIGITAL</div>
+              <div class="slide-badge">Scan QRIS</div>
+            </div>
+            <div class="slide-body" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+              <div style="text-align: center; background: rgba(255,255,255,0.035); padding: 25px 40px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.35); max-width: 700px;">
+                <div style="background: #ffffff; padding: 18px; border-radius: 20px; display: inline-block; box-shadow: 0 10px 30px rgba(0,0,0,0.45);">
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(d.qris_data || 'MasjidAgungSinjaiQRIS')}" alt="QRIS Masjid" style="width: 580px; height: 580px; max-height: 580px; object-fit: contain; display: block; border-radius: 8px;" />
+                </div>
+                ${(d && d.masjid && d.masjid.nama) ? `
+                <div style="color: var(--text-gold); font-size: 1.65rem; font-weight: 800; margin-top: 16px;">
+                  a.n. ${d.masjid.nama}
+                </div>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      document.getElementById('dynamic-bank-slides').innerHTML = bankSlidesHtml;
+
+      // Render Slide: Ayat-Ayat Pilihan (Tepat 2 Ayat per putaran slideshow, lalu kembali ke slide 1)
+      const rawAyatList = d.ayat_pilihan || [];
+      let ayatSlidesHtml = '';
+      const countAyatToShow = Math.min(2, rawAyatList.length);
+
+      if (countAyatToShow > 0) {
+        for (let i = 0; i < countAyatToShow; i++) {
+          const itemAyat = rawAyatList[(ayatIndex + i) % rawAyatList.length];
+          const badgeTxt = countAyatToShow > 1 ? `Ayat ${i + 1} dari ${countAyatToShow}` : 'Tadabbur Ayat';
+          ayatSlidesHtml += `
+            <div class="slide">
+              <div class="slide-header">
+                <div class="slide-title">📖 MUTIARA AL-QUR'AN & TADABBUR AYAT</div>
+                <div class="slide-badge">${badgeTxt}</div>
+              </div>
+              <div class="slide-body" style="display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 10px 30px;">
+                <div style="max-width: 1200px; margin: 0 auto; text-align: center; width: 100%;">
+                  <div style="margin-bottom: 20px;">
+                    <span style="background: rgba(255, 209, 102, 0.15); color: var(--text-gold); border: 1.5px solid var(--text-gold); padding: 8px 28px; border-radius: 30px; font-size: 1.4rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">
+                      ✨ QS. ${itemAyat.surah}: ${itemAyat.nomor_ayat} ${itemAyat.tema ? '• ' + itemAyat.tema : ''}
+                    </span>
+                  </div>
+
+                  <div style="font-family: 'Amiri', 'Scheherazade New', serif; font-size: 3.4rem; line-height: 2.2; color: #ffffff; direction: rtl; text-align: center; margin: 15px 0 25px; text-shadow: 0 2px 12px rgba(0,0,0,0.6);">
+                    ${itemAyat.teks_arab}
+                  </div>
+
+                  <div style="background: rgba(255, 255, 255, 0.04); border-left: 6px solid var(--accent-cyan); border-right: 6px solid var(--accent-cyan); border-radius: 16px; padding: 22px 34px; margin-top: 5px;">
+                    <p style="font-size: 1.65rem; font-style: italic; color: var(--text-white); line-height: 1.75; margin: 0;">
+                      "${itemAyat.terjemahan}"
+                    </p>
+                    <div style="color: var(--accent-cyan); font-size: 1.25rem; margin-top: 12px; font-weight: 800;">
+                      (QS. ${itemAyat.surah} [${itemAyat.nomor_ayat}])
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        ayatSlidesHtml = `
+          <div class="slide">
+            <div class="slide-header">
+              <div class="slide-title">📖 MUTIARA AL-QUR'AN & TADABBUR AYAT</div>
+              <div class="slide-badge">Tadabbur Ayat</div>
+            </div>
+            <div class="slide-body" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+              <p style="font-size: 1.6rem; color: #8892b0; text-align: center;">Memuat ayat-ayat pilihan...</p>
+            </div>
+          </div>
+        `;
+      }
+      document.getElementById('dynamic-ayat-slides').innerHTML = ayatSlidesHtml;
+
+      // Rebuild Indicator Pills
+      let pillsHtml = '';
+      let pIdx = 0;
+
+      const totalPengumumanSlides = Math.max(1, pengumumanChunks.length);
+      if (totalPengumumanSlides > 1) {
+        for (let i = 0; i < totalPengumumanSlides; i++) {
+          pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">📢 Pengumuman ${i + 1}</div>`;
+          pIdx++;
+        }
+      } else {
+        pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">📢 Pengumuman</div>`;
+        pIdx++;
+      }
+
+      // 2. Agenda Pill (Hanya jika ada agenda mendatang)
+      if (upcomingAgenda && upcomingAgenda.length > 0) {
+        pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx++})">📅 Agenda</div>`;
+      }
+
+      pillsHtml += `
+        <div class="indicator-pill" onclick="showSlide(${pIdx++})">💰 Keuangan</div>
+        <div class="indicator-pill" onclick="showSlide(${pIdx++})">🏗️ Pembangunan</div>
+      `;
+
+      // 4. Petugas Jumat Pill (Hanya jika ada jadwal Jumat mendatang)
+      if (upcomingJumat && upcomingJumat.length > 0) {
+        pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx++})">🕌 Pelaksana Shalat Jumat</div>`;
+      }
+
+      if (bankMap.size > 0) {
+        bankMap.forEach((bObj) => {
+          const icon = bObj.qris ? 'fa-qrcode' : 'fa-building-columns';
+          pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})"><i class="fa-solid ${icon} me-1"></i> Donasi ${bObj.name}</div>`;
+          pIdx++;
+        });
+      } else {
+        pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">💳 Donasi & QRIS</div>`;
+        pIdx++;
+      }
+
+      // Dynamic Ayat Pills (2 Ayat per putaran)
+      if (countAyatToShow > 1) {
+        for (let i = 0; i < countAyatToShow; i++) {
+          pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">📖 Ayat Pilihan ${i + 1}</div>`;
+          pIdx++;
+        }
+      } else {
+        pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">📖 Ayat Pilihan</div>`;
+        pIdx++;
+      }
+      document.getElementById('indicator-container').innerHTML = pillsHtml;
+
+      const allSlides = document.querySelectorAll('.slideshow-container > .slide, #dynamic-pengumuman-slides > .slide, #dynamic-agenda-slides > .slide, #dynamic-jumat-slides > .slide, #dynamic-bank-slides > .slide, #dynamic-ayat-slides > .slide');
+      totalSlides = allSlides.length;
+
+      // Update slide aktif
+      showSlide(currentSlide);
 
       // Render Running Text
       const saldo = formatRupiah(d.keuangan ? d.keuangan.saldo : 0);

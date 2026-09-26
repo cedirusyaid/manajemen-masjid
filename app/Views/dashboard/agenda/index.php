@@ -458,8 +458,17 @@
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <div class="mb-1"><i class="fa-solid fa-calendar-day text-muted me-2" style="font-size: 0.8rem;"></i><?= esc(date('d/m/Y', strtotime($row['tanggal']))) ?></div>
-                                        <div><i class="fa-solid fa-clock text-muted me-2" style="font-size: 0.8rem;"></i><?= esc(date('H:i', strtotime($row['waktu']))) ?> WITA</div>
+                                        <?php if (!empty($row['is_rutin'])) : ?>
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 mb-1 px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
+                                                <i class="fa-solid fa-arrows-rotate me-1"></i> <?= esc($row['label_rutin'] ?: 'Rutin Bulanan') ?>
+                                            </span>
+                                            <div class="small text-dark mb-1">
+                                                <i class="fa-solid fa-calendar-check text-success me-1"></i>Terdekat: <strong><?= !empty($row['tanggal_terdekat']) ? esc(date('d/m/Y', strtotime($row['tanggal_terdekat']))) : '-' ?></strong>
+                                            </div>
+                                        <?php else : ?>
+                                            <div class="mb-1"><i class="fa-solid fa-calendar-day text-muted me-1" style="font-size: 0.8rem;"></i><?= !empty($row['tanggal']) ? esc(date('d/m/Y', strtotime($row['tanggal']))) : '-' ?></div>
+                                        <?php endif; ?>
+                                        <div class="small text-muted"><i class="fa-solid fa-clock text-muted me-1" style="font-size: 0.8rem;"></i><?= esc(date('H:i', strtotime($row['waktu']))) ?> WITA</div>
                                     </td>
                                     <td>
                                         <i class="fa-solid fa-location-dot text-danger me-1"></i><?= esc($row['lokasi']) ?>

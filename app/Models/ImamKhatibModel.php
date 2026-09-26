@@ -70,4 +70,63 @@ class ImamKhatibModel extends Model
 
         return $builder->findAll();
     }
+
+    /**
+     * Ambil seluruh petugas/personil masjid tanpa membedakan klasifikasi (pengurus, panitia, imam/khatib, personil umum).
+     * Otomatis mendaftarkan personil ke mst_imam_khatib jika belum terdaftar agar relasi database tetap valid.
+     */
+    public function getAllPetugasUnified()
+    {
+        $db = \Config\Database::connect();
+
+        // Ambil semua personil aktif dari mst_personil
+        $allPersonil = $db->table('mst_personil')
+            ->where('deleted_at', null)
+            ->orderBy('nama', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $petugasList = [];
+        foreach ($allPersonil as $p) {
+            // Cek apakah personil sudah ada di mst_imam_khatib
+            $existing = $this->where('personil_id', $p['id'])
+                             ->where('deleted_at', null)
+                             ->first();
+
+            if (!$existing) {
+                // Auto-create entri imam_khatib untuk personil ini
+                $newId = sprintf(
+                    '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                    mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+                    mt_rand(0, 0xffff),
+                    mt_rand(0, 0x0fff) | 0x4000,
+                    mt_rand(0, 0x3fff) | 0x8000,
+                    mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+                );
+                $newRecord = [
+                    'id'          => $newId,
+                    'personil_id' => $p['id'],
+                    'jabatan'     => 'imam_khatib',
+                    'bio'         => 'Personil Masjid'
+                ];
+                $this->insert($newRecord);
+                $petugasId = $newId;
+                $jabatan   = 'imam_khatib';
+            } else {
+                $petugasId = $existing['id'];
+                $jabatan   = $existing['jabatan'];
+            }
+
+            $petugasList[] = [
+                'id'          => $petugasId,
+                'personil_id' => $p['id'],
+                'nama'        => $p['nama'],
+                'no_hp'       => $p['no_hp'] ?? null,
+                'foto'        => $p['foto'] ?? null,
+                'jabatan'     => $jabatan
+            ];
+        }
+
+        return $petugasList;
+    }
 }
