@@ -565,10 +565,22 @@
       });
 
       allPills.forEach((p, idx) => {
-        if (idx === currentSlide) {
-          p.classList.add('active');
+        const startAttr = p.getAttribute('data-start');
+        const endAttr = p.getAttribute('data-end');
+        if (startAttr !== null && endAttr !== null) {
+          const start = parseInt(startAttr, 10);
+          const end = parseInt(endAttr, 10);
+          if (currentSlide >= start && currentSlide <= end) {
+            p.classList.add('active');
+          } else {
+            p.classList.remove('active');
+          }
         } else {
-          p.classList.remove('active');
+          if (idx === currentSlide) {
+            p.classList.add('active');
+          } else {
+            p.classList.remove('active');
+          }
         }
       });
 
@@ -1203,63 +1215,79 @@
       }
       document.getElementById('dynamic-ayat-slides').innerHTML = ayatSlidesHtml;
 
-      // Rebuild Indicator Pills
-      let pillsHtml = '';
-      let pIdx = 0;
+      // Rebuild Grouped Indicator Pills (Dikelompokkan per kategori/modul)
+      let currentIdxCounter = 0;
+      const slideGroups = [];
 
+      // 1. Pengumuman
       const totalPengumumanSlides = Math.max(1, pengumumanChunks.length);
-      if (totalPengumumanSlides > 1) {
-        for (let i = 0; i < totalPengumumanSlides; i++) {
-          pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">📢 Pengumuman ${i + 1}</div>`;
-          pIdx++;
-        }
-      } else {
-        pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">📢 Pengumuman</div>`;
-        pIdx++;
-      }
+      slideGroups.push({
+        label: '📢 Pengumuman',
+        startIdx: currentIdxCounter,
+        count: totalPengumumanSlides
+      });
+      currentIdxCounter += totalPengumumanSlides;
 
-      // 2. Dynamic Agenda Pills (Hanya jika ada agenda mendatang)
+      // 2. Agenda (Hanya jika ada agenda mendatang)
       const totalAgendaSlides = Math.max(0, agendaChunks.length);
-      if (totalAgendaSlides > 1) {
-        for (let i = 0; i < totalAgendaSlides; i++) {
-          pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">📅 Agenda ${i + 1}</div>`;
-          pIdx++;
-        }
-      } else if (totalAgendaSlides === 1) {
-        pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx++})">📅 Agenda</div>`;
-      }
-
-      pillsHtml += `
-        <div class="indicator-pill" onclick="showSlide(${pIdx++})">💰 Keuangan</div>
-        <div class="indicator-pill" onclick="showSlide(${pIdx++})">🏗️ Pembangunan</div>
-      `;
-
-      // 4. Petugas Jumat Pill (Hanya jika ada jadwal Jumat mendatang)
-      if (upcomingJumat && upcomingJumat.length > 0) {
-        pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx++})">🕌 Pelaksana Shalat Jumat</div>`;
-      }
-
-      if (bankMap.size > 0) {
-        bankMap.forEach((bObj) => {
-          const icon = bObj.qris ? 'fa-qrcode' : 'fa-building-columns';
-          pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})"><i class="fa-solid ${icon} me-1"></i> Donasi ${bObj.name}</div>`;
-          pIdx++;
+      if (totalAgendaSlides > 0) {
+        slideGroups.push({
+          label: '📅 Agenda & Kajian',
+          startIdx: currentIdxCounter,
+          count: totalAgendaSlides
         });
-      } else {
-        pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">💳 Donasi & QRIS</div>`;
-        pIdx++;
+        currentIdxCounter += totalAgendaSlides;
       }
 
-      // Dynamic Ayat Pills (2 Ayat per putaran)
-      if (countAyatToShow > 1) {
-        for (let i = 0; i < countAyatToShow; i++) {
-          pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">📖 Ayat Pilihan ${i + 1}</div>`;
-          pIdx++;
-        }
-      } else {
-        pillsHtml += `<div class="indicator-pill" onclick="showSlide(${pIdx})">📖 Ayat Pilihan</div>`;
-        pIdx++;
+      // 3. Keuangan (1 slide)
+      slideGroups.push({
+        label: '💰 Kas Masjid',
+        startIdx: currentIdxCounter,
+        count: 1
+      });
+      currentIdxCounter += 1;
+
+      // 4. Pembangunan (1 slide)
+      slideGroups.push({
+        label: '🏗️ Pembangunan',
+        startIdx: currentIdxCounter,
+        count: 1
+      });
+      currentIdxCounter += 1;
+
+      // 5. Petugas Shalat Jumat (Hanya jika ada jadwal Jumat mendatang)
+      if (upcomingJumat && upcomingJumat.length > 0) {
+        slideGroups.push({
+          label: '🕌 Pelaksana Shalat Jumat',
+          startIdx: currentIdxCounter,
+          count: 1
+        });
+        currentIdxCounter += 1;
       }
+
+      // 6. Infaq & Donasi (QRIS / Rekening Bank)
+      const totalBankSlides = Math.max(1, bankMap.size);
+      slideGroups.push({
+        label: '💳 Infaq & Donasi',
+        startIdx: currentIdxCounter,
+        count: totalBankSlides
+      });
+      currentIdxCounter += totalBankSlides;
+
+      // 7. Ayat Pilihan
+      const totalAyatSlides = countAyatToShow;
+      slideGroups.push({
+        label: '📖 Ayat Pilihan',
+        startIdx: currentIdxCounter,
+        count: totalAyatSlides
+      });
+      currentIdxCounter += totalAyatSlides;
+
+      let pillsHtml = '';
+      slideGroups.forEach((grp) => {
+        const endIdx = grp.startIdx + grp.count - 1;
+        pillsHtml += `<div class="indicator-pill" data-start="${grp.startIdx}" data-end="${endIdx}" onclick="showSlide(${grp.startIdx})">${grp.label}</div>`;
+      });
       document.getElementById('indicator-container').innerHTML = pillsHtml;
 
       const allSlides = document.querySelectorAll('.slideshow-container > .slide, #dynamic-pengumuman-slides > .slide, #dynamic-agenda-slides > .slide, #dynamic-jumat-slides > .slide, #dynamic-bank-slides > .slide, #dynamic-ayat-slides > .slide');
