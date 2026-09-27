@@ -987,61 +987,79 @@
 
           ${targetHtml}
 
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 22px;">
-            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 16px; padding: 22px 18px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 5px solid var(--accent-green); text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2);">
-              <div style="color: var(--accent-green); font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-                Infaq Kas Masuk
+          <!-- Formasi 2 : 2 : 1 -->
+          <!-- Baris 1: 2 Kolom (Infaq Kas Masuk & Realisasi Pengeluaran) -->
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 16px;">
+            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 16px; padding: 20px 24px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 6px solid var(--accent-green); text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center;">
+              <div style="text-align: left;">
+                <div style="color: var(--accent-green); font-size: 1.35rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Infaq Kas Masuk
+                </div>
+                <small style="color: #8892b0; font-size: 1.1rem;">Total penerimaan dana kas proyek</small>
               </div>
-              <div style="color: var(--accent-green); font-size: 2.1rem; font-weight: 900; font-family: 'Courier New', monospace;">
+              <div style="color: var(--accent-green); font-size: 2.5rem; font-weight: 900; font-family: 'Courier New', monospace;">
                 ${formatRupiah(pb.total_masuk)}
               </div>
             </div>
 
-            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 16px; padding: 22px 18px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 5px solid #ff6b6b; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2);">
-              <div style="color: #ff6b6b; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-                Realisasi Pengeluaran
+            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 16px; padding: 20px 24px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 6px solid #ff6b6b; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center;">
+              <div style="text-align: left;">
+                <div style="color: #ff6b6b; font-size: 1.35rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Realisasi Pengeluaran
+                </div>
+                <small style="color: #8892b0; font-size: 1.1rem;">Total belanja pekerjaan fisik & bahan</small>
               </div>
-              <div style="color: #ff6b6b; font-size: 2.1rem; font-weight: 900; font-family: 'Courier New', monospace;">
+              <div style="color: #ff6b6b; font-size: 2.5rem; font-weight: 900; font-family: 'Courier New', monospace;">
                 ${formatRupiah(pb.total_keluar)}
               </div>
             </div>
+          </div>
 
-            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 16px; padding: 22px 18px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 5px solid var(--accent-cyan); text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2);">
-              <div style="color: var(--accent-cyan); font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-                Saldo Kas Proyek
+          <!-- Baris 2: 2 Kolom (Saldo Kas Proyek & Bantuan Material & Barang) -->
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 16px; padding: 20px 24px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 6px solid var(--accent-cyan); text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center;">
+              <div style="text-align: left;">
+                <div style="color: var(--accent-cyan); font-size: 1.35rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Saldo Kas Proyek
+                </div>
+                <small style="color: #8892b0; font-size: 1.1rem;">Sisa kas tunai siap digunakan</small>
               </div>
-              <div style="color: var(--accent-cyan); font-size: 2.1rem; font-weight: 900; font-family: 'Courier New', monospace;">
+              <div style="color: var(--accent-cyan); font-size: 2.5rem; font-weight: 900; font-family: 'Courier New', monospace;">
                 ${formatRupiah(pb.saldo)}
               </div>
             </div>
 
-            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 16px; padding: 22px 18px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 5px solid #e0aaff; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2);">
-              <div style="color: #e0aaff; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-                Bantuan Material & Barang
+            <div style="background: rgba(255, 255, 255, 0.035); border-radius: 16px; padding: 20px 24px; border: 1px solid rgba(255, 255, 255, 0.08); border-top: 6px solid #e0aaff; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center;">
+              <div style="text-align: left;">
+                <div style="color: #e0aaff; font-size: 1.35rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Bantuan Material & Barang
+                </div>
+                <small style="color: #8892b0; font-size: 1.1rem;">Valuasi donasi barang non-tunai</small>
               </div>
-              <div style="color: #e0aaff; font-size: 2.1rem; font-weight: 900; font-family: 'Courier New', monospace;">
+              <div style="color: #e0aaff; font-size: 2.5rem; font-weight: 900; font-family: 'Courier New', monospace;">
                 ${formatRupiah(pb.total_nilai_material)}
               </div>
             </div>
           </div>
 
-          <div style="background: linear-gradient(135deg, rgba(255, 209, 102, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%); border: 2px solid rgba(255, 209, 102, 0.45); border-left: 12px solid var(--text-gold); border-radius: 20px; padding: 24px 34px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; justify-content: space-between; align-items: center;">
+          <!-- Baris 3: 1 Kolom Full Hero Card (Total Dukungan Pembangunan) -->
+          <div style="background: linear-gradient(135deg, rgba(255, 209, 102, 0.14) 0%, rgba(255, 255, 255, 0.035) 100%); border: 2px solid rgba(255, 209, 102, 0.45); border-left: 14px solid var(--text-gold); border-radius: 20px; padding: 24px 36px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <div style="color: #8892b0; font-size: 1.25rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800;">
+              <div style="color: #8892b0; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">
                 TOTAL DUKUNGAN PEMBANGUNAN
               </div>
-              <div style="color: #ffffff; font-size: 1.55rem; font-weight: 800; margin-top: 4px;">
+              <div style="color: #ffffff; font-size: 1.65rem; font-weight: 800; margin-top: 5px;">
                 Akumulasi Infaq Tunai Kas & Valuasi Bantuan Material
               </div>
-              <div style="color: var(--accent-cyan); font-size: 1.1rem; margin-top: 6px;">
+              <div style="color: var(--accent-cyan); font-size: 1.15rem; margin-top: 6px;">
                 <i class="fa-solid fa-circle-check me-1"></i> Transparan & tercatat dalam pembukuan panitia pembangunan
               </div>
             </div>
             <div style="text-align: right;">
-              <div style="font-size: 4rem; font-weight: 900; color: var(--text-gold); font-family: 'Courier New', Courier, monospace; letter-spacing: 2px; text-shadow: 0 3px 20px rgba(255, 209, 102, 0.45);">
+              <div style="font-size: 4.2rem; font-weight: 900; color: var(--text-gold); font-family: 'Courier New', Courier, monospace; letter-spacing: 2px; text-shadow: 0 3px 20px rgba(255, 209, 102, 0.45);">
                 ${formatRupiah(pb.total_dukungan_semua)}
               </div>
-              <small style="color: rgba(255,255,255,0.7); font-size: 1.1rem; font-weight: 600;">Total Nilai Dukungan Umat</small>
+              <small style="color: rgba(255,255,255,0.75); font-size: 1.15rem; font-weight: 600;">Total Nilai Dukungan Umat</small>
             </div>
           </div>
         `;
