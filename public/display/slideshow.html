@@ -546,6 +546,11 @@
     let ayatIndex = 0;
 
     function getCurrentSlideDuration() {
+      const allSlides = document.querySelectorAll('.slideshow-container > .slide, #dynamic-pengumuman-slides > .slide, #dynamic-agenda-slides > .slide, #dynamic-jumat-slides > .slide, #dynamic-bank-slides > .slide, #dynamic-ayat-slides > .slide');
+      const curEl = allSlides[currentSlide];
+      if (curEl && curEl.closest('#dynamic-ayat-slides')) {
+        return baseSlideDuration * 2;
+      }
       return baseSlideDuration;
     }
 
