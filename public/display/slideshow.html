@@ -897,7 +897,7 @@
       }
       document.getElementById('dynamic-agenda-slides').innerHTML = agendaSlidesHtml;
 
-      // Render Slide 3: Keuangan Kas Umum (Periode Mingguan: Sabtu s/d Jumat) - Formasi 1 : 2 : 1
+      // Render Slide 3: Keuangan Kas Umum (Periode Mingguan: Jumat s/d Kamis) - Formasi 1 : 2 : 1
       if (d.keuangan) {
         const k = d.keuangan;
         const periodeTxt = k.periode_label ? `<span style="background: rgba(100, 255, 218, 0.15); color: var(--accent-cyan); padding: 8px 22px; border-radius: 25px; font-size: 1.3rem; font-weight: 800; border: 2px solid rgba(100, 255, 218, 0.45);">📅 ${k.periode_label}</span>` : '';
@@ -917,7 +917,7 @@
                 <div style="color: var(--accent-cyan); font-size: 1.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
                   Saldo Awal Kas Masjid
                 </div>
-                <small style="color: #8892b0; font-size: 1.2rem; font-weight: 500;">Posisi kas per cutoff Jumat ${k.cutoff_awal_label || ''}</small>
+                <small style="color: #8892b0; font-size: 1.2rem; font-weight: 500;">Posisi kas per cutoff Kamis ${k.cutoff_awal_label || ''}</small>
               </div>
               <div style="color: var(--accent-cyan); font-size: 3.1rem; font-weight: 900; font-family: 'Courier New', monospace; letter-spacing: 1px;">
                 ${formatRupiah(k.saldo_awal)}

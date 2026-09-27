@@ -27,36 +27,36 @@ class DisplayController extends ResourceController
             ->orderBy('created_at', 'DESC')
             ->findAll(3);
 
-        // 3. Fetch Kas Umum Masjid (Periode Mingguan: Masuk Sabtu s.d Jumat, Saldo Awal s.d Jumat Lalu)
+        // 3. Fetch Kas Umum Masjid (Periode Mingguan: Masuk Jumat s.d Kamis, Saldo Awal s.d Kamis Lalu)
         $keuanganModel = new KeuanganModel();
         
         $today = new \DateTime(date('Y-m-d'));
-        $dayOfWeek = (int)$today->format('w'); // 0=Min, 1=Sen, ..., 5=Jum, 6=Sab
+        $dayOfWeek = (int)$today->format('w'); // 0=Min, 1=Sen, ..., 4=Kam, 5=Jum, 6=Sab
         
-        // Tentukan awal pekan berjalan (Hari Sabtu)
-        if ($dayOfWeek === 6) {
+        // Tentukan awal pekan berjalan (Hari Jumat)
+        if ($dayOfWeek === 5) {
             $startPekan = clone $today;
         } else {
             $startPekan = clone $today;
-            $startPekan->modify('last saturday');
+            $startPekan->modify('last friday');
         }
         
-        // Tanggal batas akhir Jumat sebelumnya (Cutoff Saldo Awal)
-        $endJumatLalu = clone $startPekan;
-        $endJumatLalu->modify('-1 day');
+        // Tanggal batas akhir Kamis sebelumnya (Cutoff Saldo Awal)
+        $endKamisLalu = clone $startPekan;
+        $endKamisLalu->modify('-1 day');
         
-        // Tanggal akhir pekan berjalan (Hari Jumat ini)
-        $endJumatIni = clone $startPekan;
-        $endJumatIni->modify('+6 days');
+        // Tanggal akhir pekan berjalan (Hari Kamis ini)
+        $endKamisIni = clone $startPekan;
+        $endKamisIni->modify('+6 days');
         
-        $tglStartPekan = $startPekan->format('Y-m-d');
-        $tglEndJumatLalu = $endJumatLalu->format('Y-m-d');
-        $tglEndJumatIni = $endJumatIni->format('Y-m-d');
+        $tglStartPekan  = $startPekan->format('Y-m-d');
+        $tglEndKamisLalu = $endKamisLalu->format('Y-m-d');
+        $tglEndKamisIni  = $endKamisIni->format('Y-m-d');
         
-        // A. Hitung Saldo Awal (Semua transaksi s.d Jumat Sebelumnya)
+        // A. Hitung Saldo Awal (Semua transaksi s.d Kamis Sebelumnya)
         $rowMasukAwal = $keuanganModel->where('kegiatan_id', null)
             ->where('tipe', 'masuk')
-            ->where('tanggal <=', $tglEndJumatLalu)
+            ->where('tanggal <=', $tglEndKamisLalu)
             ->where('deleted_at', null)
             ->selectSum('nominal')
             ->first();
@@ -64,14 +64,14 @@ class DisplayController extends ResourceController
         
         $rowKeluarAwal = $keuanganModel->where('kegiatan_id', null)
             ->where('tipe', 'keluar')
-            ->where('tanggal <=', $tglEndJumatLalu)
+            ->where('tanggal <=', $tglEndKamisLalu)
             ->where('deleted_at', null)
             ->selectSum('nominal')
             ->first();
         $kasKeluarAwal = (float) ($rowKeluarAwal['nominal'] ?? 0);
         $saldoAwal = $kasMasukAwal - $kasKeluarAwal;
-        
-        // B. Hitung Pemasukan & Pengeluaran Pekan Ini (Mulai Sabtu s.d Hari ini / Jumat ini)
+
+        // B. Hitung Pemasukan & Pengeluaran Pekan Ini (Mulai Jumat s.d Kamis ini)
         $rowMasukPekan = $keuanganModel->where('kegiatan_id', null)
             ->where('tipe', 'masuk')
             ->where('tanggal >=', $tglStartPekan)
@@ -202,8 +202,8 @@ class DisplayController extends ResourceController
                     'pemasukan_pekan'   => $kasMasukPekan,
                     'pengeluaran_pekan' => $kasKeluarPekan,
                     'saldo_akhir'       => $saldoAkhir,
-                    'periode_label'     => 'Pekan ' . date('d/m', strtotime($tglStartPekan)) . ' s/d ' . date('d/m', strtotime($tglEndJumatIni)),
-                    'cutoff_awal_label' => date('d/m/Y', strtotime($tglEndJumatLalu)),
+                    'periode_label'     => 'Pekan ' . date('d/m', strtotime($tglStartPekan)) . ' s/d ' . date('d/m', strtotime($tglEndKamisIni)),
+                    'cutoff_awal_label' => date('d/m/Y', strtotime($tglEndKamisLalu)),
                     'total_masuk'       => $kasMasukPekan,
                     'total_keluar'      => $kasKeluarPekan,
                     'saldo'             => $saldoAkhir,
