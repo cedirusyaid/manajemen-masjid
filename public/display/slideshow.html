@@ -1028,6 +1028,10 @@
         let jumatCardsHtml = `<div style="display: grid; grid-template-columns: ${jumatCols}; gap: 25px; height: 100%; align-items: stretch;">`;
         
         upcomingJumat.forEach((j) => {
+          const imamHtml = (j.imam && j.imam !== '-') 
+            ? `<p style="font-size: 1.6rem; margin-bottom: 12px;"><strong style="color: var(--accent-cyan);">Imam</strong>: ${j.imam}</p>` 
+            : '';
+
           const muadzinHtml = (j.muadzin && j.muadzin !== '-') 
             ? `<p style="font-size: 1.55rem; margin-bottom: 12px;"><strong style="color: var(--accent-cyan);">Muadzin</strong>: ${j.muadzin}</p>` 
             : '';
@@ -1046,7 +1050,7 @@
                   🗓️ ${formatIndoDate(j.tanggal)}
                 </div>
                 <p style="font-size: 1.6rem; margin-bottom: 12px;"><strong style="color: var(--accent-cyan);">Khatib</strong>: ${j.khatib && j.khatib !== '-' ? j.khatib : '-'}</p>
-                <p style="font-size: 1.6rem; margin-bottom: 12px;"><strong style="color: var(--accent-cyan);">Imam</strong>: ${j.imam && j.imam !== '-' ? j.imam : '-'}</p>
+                ${imamHtml}
                 ${muadzinHtml}
               </div>
               ${khotbahHtml}

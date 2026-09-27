@@ -76,7 +76,7 @@ class JadwalJumatController extends BaseController
         $rules = [
             'tanggal'       => 'required|valid_date[Y-m-d]',
             'khatib_id'     => 'required|max_length[36]',
-            'imam_id'       => 'required|max_length[36]',
+            'imam_id'       => 'permit_empty|max_length[36]',
             'muadzin_id'    => 'permit_empty',
             'judul_khotbah' => 'permit_empty|max_length[255]'
         ];
@@ -98,7 +98,7 @@ class JadwalJumatController extends BaseController
             'id'            => $newId,
             'tanggal'       => $this->request->getPost('tanggal'),
             'khatib_id'     => $this->request->getPost('khatib_id'),
-            'imam_id'       => $this->request->getPost('imam_id'),
+            'imam_id'       => $this->request->getPost('imam_id') ?: null,
             'muadzin_id'    => $this->request->getPost('muadzin_id') ?: null,
             'judul_khotbah' => $this->request->getPost('judul_khotbah'),
             'keterangan'    => $this->request->getPost('keterangan')
@@ -166,7 +166,7 @@ class JadwalJumatController extends BaseController
         $rules = [
             'tanggal'       => 'required|valid_date[Y-m-d]',
             'khatib_id'     => 'required',
-            'imam_id'       => 'required',
+            'imam_id'       => 'permit_empty',
             'muadzin_id'    => 'permit_empty',
             'judul_khotbah' => 'permit_empty|max_length[255]'
         ];
@@ -178,7 +178,7 @@ class JadwalJumatController extends BaseController
         $data = [
             'tanggal'       => $this->request->getPost('tanggal'),
             'khatib_id'     => $this->request->getPost('khatib_id'),
-            'imam_id'       => $this->request->getPost('imam_id'),
+            'imam_id'       => $this->request->getPost('imam_id') ?: null,
             'muadzin_id'    => $this->request->getPost('muadzin_id') ?: null,
             'judul_khotbah' => $this->request->getPost('judul_khotbah'),
             'keterangan'    => $this->request->getPost('keterangan')

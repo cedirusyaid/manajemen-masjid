@@ -31,7 +31,7 @@ class JadwalJumatModel extends Model
     protected $validationRules = [
         'tanggal'       => 'required|valid_date[Y-m-d]',
         'khatib_id'     => 'required|alpha_dash|min_length[36]|max_length[36]',
-        'imam_id'       => 'required|alpha_dash|min_length[36]|max_length[36]',
+        'imam_id'       => 'permit_empty|max_length[36]',
         'muadzin_id'    => 'permit_empty|max_length[36]',
         'judul_khotbah' => 'permit_empty|max_length[255]'
     ];

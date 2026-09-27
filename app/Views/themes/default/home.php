@@ -544,12 +544,12 @@
                     <div class="petugas-item">
                         <img class="petugas-avatar" src="<?= $petugas_jumat['imam_foto'] ? base_url('uploads/images/' . $petugas_jumat['imam_foto']) : 'https://img.icons8.com/bubbles/100/000000/user-male-circle.png' ?>" alt="Imam">
                         <div class="petugas-role">Imam</div>
-                        <div class="petugas-nama"><?= esc($petugas_jumat['imam_nama']) ?></div>
+                        <div class="petugas-nama"><?= !empty($petugas_jumat['imam_nama']) ? esc($petugas_jumat['imam_nama']) : '<span class="text-muted fst-italic">Belum ditentukan</span>' ?></div>
                     </div>
                     <div class="petugas-item">
                         <img class="petugas-avatar" src="<?= $petugas_jumat['muadzin_foto'] ? base_url('uploads/images/' . $petugas_jumat['muadzin_foto']) : 'https://img.icons8.com/bubbles/100/000000/user-male-circle.png' ?>" alt="Muadzin">
                         <div class="petugas-role">Muadzin</div>
-                        <div class="petugas-nama"><?= esc($petugas_jumat['muadzin_nama']) ?></div>
+                        <div class="petugas-nama"><?= !empty($petugas_jumat['muadzin_nama']) ? esc($petugas_jumat['muadzin_nama']) : '<span class="text-muted fst-italic">Belum ditentukan</span>' ?></div>
                     </div>
                 </div>
             <?php else : ?>
