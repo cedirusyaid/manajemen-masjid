@@ -253,6 +253,13 @@
                     <i class="fa-solid fa-gauge-high"></i> Dashboard
                 </a>
             </li>
+            <?php if ((int)(session()->get('role_id') ?? $role_id ?? 0) === 1) : ?>
+            <li>
+                <a href="<?= base_url('dashboard/users') ?>" class="menu-link <?= (url_is('dashboard/users*') ? 'active' : '') ?>">
+                    <i class="fa-solid fa-users-gear"></i> Kelola Pengguna
+                </a>
+            </li>
+            <?php endif; ?>
             <li>
                 <a href="<?= base_url('dashboard/jadwal-sholat') ?>" class="menu-link active">
                     <i class="fa-solid fa-clock"></i> Waktu Shalat

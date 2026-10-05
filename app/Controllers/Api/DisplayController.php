@@ -21,6 +21,10 @@ class DisplayController extends ResourceController
         // 2. Fetch Active Agenda via AgendaModel & Published Pengumuman via BeritaModel
         $agendaModel = new AgendaModel();
         $agenda      = $agendaModel->getAgendaTerdekat(20);
+        foreach ($agenda as &$ag) {
+            $ag['banner_url'] = !empty($ag['banner']) ? base_url('uploads/images/' . $ag['banner']) : null;
+        }
+        unset($ag);
 
         $beritaModel = new \App\Models\BeritaModel();
         $pengumuman  = $beritaModel->where('status', 'published')

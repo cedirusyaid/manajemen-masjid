@@ -279,6 +279,92 @@
       gap: 35px;
     }
 
+    /* ========================================================= */
+    /* DEDICATED AGENDA FLYER SLIDES (PORTRAIT 50:50 & LANDSCAPE FULL) */
+    /* ========================================================= */
+    .agenda-flyer-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .agenda-flyer-backdrop {
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      right: -20px;
+      bottom: -20px;
+      background-size: cover;
+      background-position: center;
+      filter: blur(50px) brightness(0.25);
+      opacity: 0;
+      z-index: 1;
+      border-radius: 20px;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+
+    .agenda-flyer-img-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      max-height: 600px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .agenda-flyer-img {
+      max-height: 580px;
+      max-width: 100%;
+      object-fit: contain;
+      border-radius: 18px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: transform 0.3s ease;
+    }
+
+    .agenda-flyer-info-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Mode Flyer Landscape (Full Frame Layar Penuh) */
+    .agenda-flyer-container.is-landscape {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .agenda-flyer-container.is-landscape .agenda-flyer-backdrop {
+      opacity: 0.65;
+    }
+
+    .agenda-flyer-container.is-landscape .agenda-flyer-img-box {
+      width: 100%;
+      max-height: 610px;
+    }
+
+    .agenda-flyer-container.is-landscape .agenda-flyer-img {
+      max-height: 600px;
+      max-width: 95%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .agenda-flyer-container.is-landscape .agenda-flyer-info-box {
+      display: none;
+    }
+
     .keuangan-stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -552,6 +638,22 @@
         return baseSlideDuration * 2;
       }
       return baseSlideDuration;
+    }
+
+    // Deteksi Orientasi Flyer (Landscape Full Frame vs Portrait 50:50)
+    function checkFlyerOrientation(imgEl) {
+      if (imgEl && imgEl.naturalWidth && imgEl.naturalHeight) {
+        const container = imgEl.closest('.agenda-flyer-container');
+        if (container) {
+          if (imgEl.naturalWidth >= imgEl.naturalHeight) {
+            container.classList.add('is-landscape');
+            container.classList.remove('is-portrait');
+          } else {
+            container.classList.add('is-portrait');
+            container.classList.remove('is-landscape');
+          }
+        }
+      }
     }
 
     function showSlide(index) {
@@ -830,25 +932,102 @@
       }
       document.getElementById('dynamic-pengumuman-slides').innerHTML = pengumumanSlidesHtml;
 
-      // Render Slide 2: Dynamic Agenda Slides (Maksimal 2 agenda per slide agar tulisan besar & jelas)
+      // Render Slide 2: Dynamic Agenda Slides (Dedicated Flyer Slides + Text Agenda Chunks)
       const todayStr = new Date().toISOString().split('T')[0];
       const rawAgenda = d.agenda || [];
       const upcomingAgenda = rawAgenda.filter(item => !item.tanggal || item.tanggal >= todayStr);
-      const agendaChunks = [];
-      const agendaChunkSize = 2;
 
-      for (let i = 0; i < upcomingAgenda.length; i += agendaChunkSize) {
-        agendaChunks.push(upcomingAgenda.slice(i, i + agendaChunkSize));
+      // Pisahkan agenda yang memiliki flyer / banner dan yang text-only
+      const agendaWithFlyer = upcomingAgenda.filter(item => !!item.banner);
+      const agendaTextOnly = upcomingAgenda.filter(item => !item.banner);
+
+      const agendaTextChunks = [];
+      const agendaChunkSize = 2;
+      for (let i = 0; i < agendaTextOnly.length; i += agendaChunkSize) {
+        agendaTextChunks.push(agendaTextOnly.slice(i, i + agendaChunkSize));
       }
 
+      const totalAgendaSlides = agendaWithFlyer.length + agendaTextChunks.length;
       let agendaSlidesHtml = '';
-      if (agendaChunks.length > 0) {
-        agendaChunks.forEach((chunk, chunkIdx) => {
-          const totalChunks = agendaChunks.length;
-          const pageBadge = totalChunks > 1 
-            ? `<div class="slide-badge">Halaman ${chunkIdx + 1} dari ${totalChunks}</div>`
-            : `<div class="slide-badge">Jadwal Terdekat</div>`;
-          const pageTitleSuffix = totalChunks > 1 ? ` (${chunkIdx + 1}/${totalChunks})` : '';
+      let agendaSlideCounter = 0;
+
+      // A. Generate Dedicated Slides untuk Agenda dengan Flyer
+      agendaWithFlyer.forEach((item) => {
+        agendaSlideCounter++;
+        const pageTitleSuffix = totalAgendaSlides > 1 ? ` (${agendaSlideCounter}/${totalAgendaSlides})` : '';
+        const bannerUrl = item.banner_url || `../uploads/images/${item.banner}`;
+        
+        const rutinBadge = item.label_rutin 
+          ? `<span style="background: rgba(100, 255, 218, 0.15); color: var(--accent-cyan); border: 1.5px solid var(--accent-cyan); padding: 5px 18px; border-radius: 20px; font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;"><i class="fa-solid fa-arrows-rotate me-1"></i>${item.label_rutin}</span>`
+          : `<span style="background: rgba(255, 209, 102, 0.15); color: var(--text-gold); border: 1.5px solid var(--text-gold); padding: 5px 18px; border-radius: 20px; font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;"><i class="fa-solid fa-star me-1"></i>Kajian Spesial</span>`;
+
+        const tglText = item.label_rutin
+          ? `⏳ Jadwal Terdekat: ${formatIndoDate(item.tanggal)}`
+          : `📅 Tanggal: ${formatIndoDate(item.tanggal)}`;
+
+        const deskripsiPlain = item.deskripsi ? item.deskripsi.replace(/<[^>]*>/g, '').trim() : '';
+
+        agendaSlidesHtml += `
+          <div class="slide">
+            <div class="slide-header">
+              <div class="slide-title">
+                <i class="fa-solid fa-calendar-check text-warning me-2"></i>AGENDA & KAJIAN SPESIAL${pageTitleSuffix}
+              </div>
+              <div class="slide-badge">${item.label_rutin || 'Jadwal Kajian'}</div>
+            </div>
+            <div class="slide-body" style="height: 100%; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 5px 0;">
+              <div class="agenda-flyer-container">
+                <!-- Ambient Backdrop Blur (Aktif saat mode landscape) -->
+                <div class="agenda-flyer-backdrop" style="background-image: url('${bannerUrl}');"></div>
+
+                <!-- Kolom Kiri / Area Full: Gambar Flyer -->
+                <div class="agenda-flyer-img-box">
+                  <img src="${bannerUrl}" alt="${item.judul}" class="agenda-flyer-img" onload="checkFlyerOrientation(this)" />
+                </div>
+
+                <!-- Kolom Kanan: Panel Info (Tampil otomatis saat flyer portrait / 50:50) -->
+                <div class="agenda-flyer-info-box">
+                  <div>
+                    ${rutinBadge}
+                  </div>
+
+                  <h2 style="font-size: 2.35rem; color: var(--text-gold); font-weight: 900; line-height: 1.3; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                    ${item.judul}
+                  </h2>
+
+                  <div style="background: rgba(255, 255, 255, 0.04); border-left: 8px solid var(--accent-cyan); border-radius: 16px; padding: 20px 24px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.25);">
+                    <div style="font-size: 1.45rem; color: #ffffff;">
+                      <strong style="color: var(--accent-cyan); min-width: 140px; display: inline-block;"><i class="fa-solid fa-calendar-day me-2"></i>Waktu :</strong>
+                      ${tglText} • Pukul ${formatTimeShort(item.waktu)} WITA
+                    </div>
+                    <div style="font-size: 1.45rem; color: #ffffff;">
+                      <strong style="color: var(--accent-cyan); min-width: 140px; display: inline-block;"><i class="fa-solid fa-location-dot me-2"></i>Lokasi :</strong>
+                      ${item.lokasi || 'Masjid Agung Sinjai'}
+                    </div>
+                    ${item.narasumber ? `
+                    <div style="font-size: 1.45rem; color: #ffffff;">
+                      <strong style="color: var(--text-gold); min-width: 140px; display: inline-block;"><i class="fa-solid fa-microphone-lines me-2"></i>Penceramah :</strong>
+                      <span style="font-weight: 800; color: #ffd166;">${item.narasumber}</span>
+                    </div>` : ''}
+                  </div>
+
+                  ${deskripsiPlain ? `
+                  <div style="background: rgba(100, 255, 218, 0.05); border: 1.5px dashed rgba(100, 255, 218, 0.35); border-radius: 14px; padding: 16px 22px; color: rgba(255,255,255,0.85); font-size: 1.25rem; line-height: 1.55;">
+                    <i class="fa-solid fa-circle-info text-warning me-2"></i>${deskripsiPlain}
+                  </div>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      // B. Generate Chunks Slide untuk Agenda Tanpa Flyer (Text-Only)
+      if (agendaTextChunks.length > 0) {
+        agendaTextChunks.forEach((chunk) => {
+          agendaSlideCounter++;
+          const pageTitleSuffix = totalAgendaSlides > 1 ? ` (${agendaSlideCounter}/${totalAgendaSlides})` : '';
+          const pageBadge = `<div class="slide-badge">Jadwal Terdekat</div>`;
 
           let cardsHtml = '';
           chunk.forEach(item => {
@@ -897,9 +1076,8 @@
             </div>
           `;
         });
-      } else {
-        agendaSlidesHtml = '';
       }
+
       document.getElementById('dynamic-agenda-slides').innerHTML = agendaSlidesHtml;
 
       // Render Slide 3: Keuangan Kas Umum (Periode Mingguan: Jumat s/d Kamis) - Formasi 1 : 2 : 1
@@ -1265,7 +1443,6 @@
       currentIdxCounter += totalPengumumanSlides;
 
       // 2. Agenda (Hanya jika ada agenda mendatang)
-      const totalAgendaSlides = Math.max(0, agendaChunks.length);
       if (totalAgendaSlides > 0) {
         slideGroups.push({
           label: '📅 Agenda & Kajian',

@@ -280,6 +280,13 @@
                     <i class="fa-solid fa-gauge-high"></i> Dashboard
                 </a>
             </li>
+            <?php if ((int)(session()->get('role_id') ?? $role_id ?? 0) === 1) : ?>
+            <li>
+                <a href="<?= base_url('dashboard/users') ?>" class="menu-link <?= (url_is('dashboard/users*') ? 'active' : '') ?>">
+                    <i class="fa-solid fa-users-gear"></i> Kelola Pengguna
+                </a>
+            </li>
+            <?php endif; ?>
             <li>
                 <a href="<?= base_url('dashboard/jadwal-jumat') ?>" class="menu-link">
                     <i class="fa-solid fa-calendar-week"></i> Pelaksana Shalat Jumat
@@ -589,15 +596,22 @@
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['table', ['table']],
                     ['view', ['fullscreen', 'codeview', 'help']]
-                ]
+                ],
+                callbacks: {
+                    onChange: function(contents) {
+                        $('#deskripsi').val(contents);
+                    }
+                }
             });
 
             // Sinkronisasi data Summernote sebelum form disubmit
             $('form').on('submit', function() {
-                if ($('#deskripsi').summernote('isEmpty')) {
+                var content = $('#deskripsi').summernote('code');
+                var textOnly = $('<div>').html(content).text().trim();
+                if (textOnly === '' && !content.includes('<img')) {
                     $('#deskripsi').val('');
                 } else {
-                    $('#deskripsi').val($('#deskripsi').summernote('code'));
+                    $('#deskripsi').val(content);
                 }
             });
         });
