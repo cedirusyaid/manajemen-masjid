@@ -112,7 +112,7 @@ class KeuanganController extends BaseController
         $rules = [
             'kegiatan_id'      => 'permit_empty|max_length[36]',
             'tanggal'          => 'required|valid_date[Y-m-d]',
-            'kategori'         => 'required|in_list[operasional,pembangunan,zis,sosial]',
+            'kategori'         => 'required|in_list[operasional,pembangunan,zis,sosial,saldo_awal]',
             'tipe'             => 'required|in_list[masuk,keluar]',
             'nominal'          => 'required|numeric|greater_than[0]',
             'keterangan'       => 'required|max_length[255]',
@@ -307,7 +307,7 @@ class KeuanganController extends BaseController
         $rules = [
             'kegiatan_id'      => 'permit_empty|max_length[36]',
             'tanggal'          => 'required|valid_date[Y-m-d]',
-            'kategori'         => 'required|in_list[operasional,pembangunan,zis,sosial]',
+            'kategori'         => 'required|in_list[operasional,pembangunan,zis,sosial,saldo_awal]',
             'tipe'             => 'required|in_list[masuk,keluar]',
             'nominal'          => 'required|numeric|greater_than[0]',
             'keterangan'       => 'required|max_length[255]',
